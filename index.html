@@ -130,14 +130,14 @@ function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.c
 function copySpec(el){var text=el.textContent||el.innerText;navigator.clipboard.writeText(text).then(function(){var orig=el.textContent;el.textContent='\u2713 Copied!';setTimeout(function(){el.textContent=orig},1200);toast('Copied: '+text.substring(0,60))});return false}
 function toggleSidebar(){var s=document.getElementById('sidebar');var o=document.getElementById('overlay');s.classList.toggle('open');o.classList.toggle('open')}
 var NAV_ITEMS=[
-  {icon:'\u2302',label:'Overview'},
+  {icon:'\u2302',label:'Getting Started'},
+  {icon:'\u25C9',label:'Foundations'},
+  {icon:'\u2B1A',label:'Components'},
+  {icon:'\u2630',label:'Patterns'},
+  {icon:'\u2B24',label:'States & Behavior'},
+  {icon:'Aa',label:'Content Guidelines'},
   {icon:'\u25A8',label:'Mental Model'},
-  {icon:'\u2B1A',label:'Instrument Components'},
-  {icon:'\u2630',label:'Layout Patterns'},
-  {icon:'\u2B13',label:'Bottom Sticky CTA'},
-  {icon:'Aa',label:'Character Constraints'},
-  {icon:'\u2B24',label:'States Reference'},
-  {icon:'{}',label:'Raw JSON'},
+  {icon:'{}',label:'Developer Handoff'},
   {icon:'\u2606',label:'Baseline CX'}
 ];
 var sidebarNav=document.getElementById('sidebarNav');
