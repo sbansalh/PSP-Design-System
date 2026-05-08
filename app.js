@@ -6,18 +6,28 @@ var html='';
    0. GETTING STARTED
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec active">';
-html+='<div class="page-title">PSP Design System</div>';
-html+='<div class="page-desc">Component specifications, layout patterns, and interaction guidelines for the Payment Selection Page (PSP) in Amazon Pay checkout flows.</div>';
 
+/* Hero Section */
+html+='<div class="hero">';
+html+='<div class="hero-content">';
+html+='<div class="hero-badge">📦 v2.0.0 · Production Ready</div>';
+html+='<h1 class="hero-title">PSP Design System</h1>';
+html+='<p class="hero-desc">Build consistent payment experiences across 90+ Amazon touchpoints. Complete component library, design tokens, and usage guidelines for Paycheckout and Stores checkout flows.</p>';
+html+='<div class="hero-actions">';
+html+='<button class="btn btn-primary" onclick="switchTab(2)">Browse Components →</button>';
+html+='<a href="https://www.figma.com/design/XoqbHriFr2Efq18TBPG6VQ/Modernised-PSP-toolkit?node-id=9-1857" target="_blank" class="btn btn-secondary">Open in Figma ↗</a>';
+html+='</div></div></div>';
+
+/* Stats */
 html+='<div class="stats-grid">';
 html+='<div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Tile States</div></div>';
 html+='<div class="stat-card"><div class="stat-num">8</div><div class="stat-label">Page Sections</div></div>';
 html+='<div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Badge Types</div></div>';
-html+='<div class="stat-card"><div class="stat-num">16</div><div class="stat-label">Color Tokens</div></div>';
+html+='<div class="stat-card"><div class="stat-num">17</div><div class="stat-label">Color Tokens</div></div>';
 html+='<div class="stat-card"><div class="stat-num">13</div><div class="stat-label">Char Limits</div></div>';
 html+='<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Page States</div></div>';
 html+='</div>';
-
+html+='<div class="note note-blue" style="margin:24px 0"><strong>⚡ Semi-Modernized PSP:</strong> This design system documents the current semi-modernized PSP implementation. Key feature: <strong>Radio button selection</strong> (not full tile tap). Selected tiles show blue border + filled radio button. This balances familiarity (radio buttons) with modern visual design.</div>';
 html+='<div class="grid-2">';
 html+='<div class="card"><div style="height:120px;background:linear-gradient(135deg,#e3f5e1 0%,#b8e6b0 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cs-border)"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="32" rx="4" stroke="#037f0c" stroke-width="2" fill="none"/><path d="M20 28h24M20 34h16" stroke="#037f0c" stroke-width="2" stroke-linecap="round"/><circle cx="44" cy="20" r="8" fill="#037f0c" opacity=".15"/><path d="M41 20l2 2 4-4" stroke="#037f0c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-title">When to use</div><div style="padding:0 24px 24px">';
 html+='<div class="do"><strong>\u2713 Paycheckout Context</strong><ul><li>PSP is rendered inside Paycheckout webview</li><li>Use components from <b>Tuxedo Mobile</b> library</li><li>Tuxedo handles buttons, inputs, typography</li></ul></div>';
@@ -41,12 +51,15 @@ html+='</div>';
    1. FOUNDATIONS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Foundations</div>';
-html+='<div class="page-desc">Core design tokens that define the visual language of the PSP \u2014 colors, typography, and spacing.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%)">';
+html+='<div class="hero-badge">🎨 Design Foundations</div>';
+html+='<h1 class="hero-title">Foundations</h1>';
+html+='<p class="hero-desc">Core design tokens that define the visual language of the PSP — colors, typography, spacing, and more. These tokens ensure consistency across all payment touchpoints.</p>';
+html+='</div>';
 
 /* Color Tokens */
 html+='<div class="card"><div class="card-title">Color Tokens</div><div class="swatch-grid">';
-var tokens=[['Page BG','#F7FAFA'],['Card BG','#FFFFFF'],['Primary Text','#0F1111'],['Secondary Text','#565959'],['Link','#2162A1'],['Success','#0B7B3C'],['Border','#D5D9D9'],['Badge Blue','#0A7CD1'],['CTA Yellow','#FFD814'],['Selected BG','#EDF8FF'],['Selected Border','#2162A1'],['Error Red','#CC0C39'],['Badge Gray BG','#E3E6E6'],['Badge Gray Text','#232F3E'],['Address BG','#F7FEFF'],['Savings Bar BG','#E8FFF8']];
+var tokens=[['Page BG','#F7FAFA'],['Card BG','#FFFFFF'],['Primary Text','#0F1111'],['Secondary Text','#565959'],['Link','#2162A1'],['Success','#0B7B3C'],['Border','#D5D9D9'],['Badge Blue','#0A7CD1'],['CTA Yellow','#FFD814'],['Selected BG','#EDF8FF'],['Selected Border','#007185'],['Radio Button','#007185'],['Error Red','#CC0C39'],['Badge Gray BG','#E3E6E6'],['Badge Gray Text','#232F3E'],['Address BG','#F7FEFF'],['Savings Bar BG','#E8FFF8']];
 tokens.forEach(function(t){html+='<div class="swatch" onclick="copySpec(this.querySelector(\'.swatch-hex\'))"><div class="swatch-color" style="background:'+t[1]+'"></div><div><div class="swatch-name">'+t[0]+'</div><div class="swatch-hex">'+t[1]+'</div></div></div>';});
 html+='</div></div>';
 
@@ -109,8 +122,12 @@ html+='</div>';
    2. COMPONENTS (kept from Instrument Components)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Instrument Tile</div>';
-html+='<div class="page-desc">Generic instrument tile used for all payment methods. Three visual states are documented below.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%)">';
+html+='<div class="hero-badge">🧩 Component Library</div>';
+html+='<h1 class="hero-title">Components</h1>';
+html+='<p class="hero-desc">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
+html+='</div>';
+html+='<div class="note note-blue"><strong>⚡ Semi-Modernized PSP:</strong> Radio buttons are used for selection. Only the radio button is clickable, not the entire tile. Selected tiles show blue border + filled radio button.</div>';
 html+='<div class="warn">\u26A0\uFE0F <b>BUTTONS:</b> Do not document buttons here. They come from master libraries (Tuxedo Mobile / RIO).</div>';
 html+='<div class="note note-blue">Line 2 format changes based on instrument type: Cards show network + last 4 + name, UPI shows bank + last 4, Wallets show balance.</div>';
 html+='<div class="card"><div class="card-title">State 1 \u2014 Transaction Ready (Default)</div><span class="state-label state-active">Active</span>';
@@ -136,15 +153,38 @@ html+='<tr><td>Icon to text gap</td><td>10px</td></tr><tr><td>Tile padding</td><
 html+='<tr><td>Line 1 (Name)</td><td>16px / 400 / #0F1111</td></tr>';
 html+='<tr><td>Line 2 (Detail)</td><td>13px / 400 / #565959</td></tr>';
 html+='<tr><td>Line 3 (Offer)</td><td>13px / 400 / #0B7B3C</td></tr>';
+html+='<tr><td><strong>Radio button size</strong></td><td>20 \\u00D7 20px</td></tr>';
+html+='<tr><td>Radio border (default)</td><td>2px solid #D5D9D9</td></tr>';
+html+='<tr><td>Radio border (selected)</td><td>2px solid #007185</td></tr>';
+html+='<tr><td>Radio fill (selected)</td><td>#007185 with 8px white center dot</td></tr>';
+html+='<tr><td>Radio position</td><td>12px from left, vertically centered</td></tr>';
+html+='<tr><td>Selection method</td><td>Radio button only (not full tile)</td></tr>';
 html+='</table></div></div>';
+/* Selection Behavior DO/DON'T */
+html+='<div class="card"><div class="card-title">Selection Behavior</div><div class="grid-2">';
+html+='<div class="do"><strong>\\u2713 DO</strong><ul>';
+html+='<li>Use radio buttons for single selection</li>';
+html+='<li>Make only the radio button clickable</li>';
+html+='<li>Highlight entire tile when radio is selected</li>';
+html+='<li>Show visual feedback on radio button hover</li>';
+html+='</ul></div>';
+html+='<div class="dont"><strong>\u2717 DON\u2019T</strong><ul>';
+html+='<li>Make the entire tile clickable</li>';
+html+='<li>Hide or remove radio buttons</li>';
+html+='<li>Use checkboxes (multi-select pattern)</li>';
+html+='<li>Change radio button position per tile</li>';
+html+='</ul></div></div></div>';
 html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
    3. PATTERNS (merged Layout Patterns + Bottom Sticky CTA)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Patterns</div>';
-html+='<div class="page-desc">Section grouping, spacing, visual hierarchy rules, and the bottom sticky CTA bar for the PSP page layout.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#43e97b 0%,#38f9d7 100%)">';
+html+='<div class="hero-badge">📐 Layout & Structure</div>';
+html+='<h1 class="hero-title">Patterns</h1>';
+html+='<p class="hero-desc">Section grouping, spacing, visual hierarchy rules, and the bottom sticky CTA bar for the PSP page layout.</p>';
+html+='</div>';
 /* Section Anatomy */
 html+='<div class="card"><div class="card-title">Section Anatomy</div>';
 html+='<div class="preview"><div style="width:100%;max-width:340px;background:#fff;border-radius:12px;overflow:hidden;border:0.55px solid #D5D9D9">';
@@ -178,7 +218,7 @@ html+='<span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 
 html+='</div><div class="spec" onclick="copySpec(this)">font: 10px/400 | padding: 2px 8px | radius: 13px | left-offset: 66px</div></div>';
 /* UPI Pill */
 html+='<div class="card"><div class="card-title">UPI Bank Pill</div><div class="preview">';
-html+='<div style="display:inline-flex;align-items:center;gap:6px;background:#FFF;border:0.46px solid #D5D9D9;border-radius:30px;padding:4px 8px"><div style="width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,#F58220,#B7202E)"></div><span style="font-size:13px;color:#565959">ICICI Bank &#8226;&#8226;&#8226;&#8226;0911</span><span style="color:#2162A1;font-weight:700">&rsaquo;</span></div>';
+html+='<div style="display:inline-flex;align-items:center;gap:6px;background:#FFF;border:0.46px solid #D5D9D9;border-radius:30px;padding:4px 8px"><img src="PSP Instument icons/ICICI Bank.png" style="width:13px;height:13px;border-radius:50%"><span style="font-size:13px;color:#565959">ICICI Bank &#8226;&#8226;&#8226;&#8226;0911</span></div>';
 html+='</div><div class="spec" onclick="copySpec(this)">border: 0.46px solid #D5D9D9 | radius: 30px | padding: 4px 8px</div></div>';
 /* CTA Bar (merged from Bottom Sticky CTA) */
 html+='<div class="card"><div class="card-title">Bottom Sticky CTA Bar</div>';
@@ -201,13 +241,16 @@ html+='</div>';
    4. STATES & BEHAVIOR (States Reference + Preselection + Grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">States &amp; Behavior</div>';
-html+='<div class="page-desc">All interactive states for instrument tiles, page-level elements, preselection logic, and grouping rules.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#fa709a 0%,#fee140 100%)">';
+html+='<div class="hero-badge">⚡ Interactive Behavior</div>';
+html+='<h1 class="hero-title">States & Behavior</h1>';
+html+='<p class="hero-desc">All interactive states for instrument tiles, page-level elements, preselection logic, and grouping rules.</p>';
+html+='</div>';
 /* Tile States */
-html+='<div class="card"><div class="card-title">Tile States Summary</div><div class="tbl-wrap"><table class="tbl"><tr><th>State</th><th>Background</th><th>Border</th><th>Opacity</th><th>Lines</th></tr>';
-html+='<tr><td><span class="state-label state-active">Transaction Ready</span></td><td>#FFFFFF</td><td>0.55px solid #D5D9D9</td><td>1.0</td><td>1, 2, 3</td></tr>';
-html+='<tr><td><span class="state-label state-selected">Selected</span></td><td>#EDF8FF</td><td>1px solid #2162A1</td><td>1.0</td><td>1, 2, 3</td></tr>';
-html+='<tr><td><span class="state-label state-disabled">Non-Txn Ready</span></td><td>#FFFFFF</td><td>0.55px solid #D5D9D9</td><td>0.7</td><td>1, 2 (reason)</td></tr>';
+html+='<div class="card"><div class="card-title">Tile States Summary</div><div class="tbl-wrap"><table class="tbl"><tr><th>State</th><th>Background</th><th>Border</th><th>Radio Button</th><th>Opacity</th><th>Lines</th></tr>';
+html+='<tr><td><span class="state-label state-active">Transaction Ready</span></td><td>#FFFFFF</td><td>1px solid #D5D9D9</td><td>Empty circle (2px #D5D9D9)</td><td>1.0</td><td>1, 2, 3</td></tr>';
+html+='<tr><td><span class="state-label state-selected">Selected</span></td><td>#EDF8FF</td><td>2px solid #007185</td><td>Filled blue (#007185 + 8px white dot)</td><td>1.0</td><td>1, 2, 3</td></tr>';
+html+='<tr><td><span class="state-label state-disabled">Non-Txn Ready</span></td><td>#FFFFFF</td><td>1px solid #D5D9D9</td><td>Disabled (gray, opacity 0.4)</td><td>0.6</td><td>1, 2 (reason)</td></tr>';
 html+='</table></div></div>';
 /* Badge States */
 html+='<div class="card"><div class="card-title">Badge States</div><div class="tbl-wrap"><table class="tbl"><tr><th>Badge</th><th>Background</th><th>Text</th><th>Position</th></tr>';
@@ -241,8 +284,11 @@ html+='</div>';
    5. CONTENT GUIDELINES (renamed from Character Constraints)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Content Guidelines</div>';
-html+='<div class="page-desc">Maximum character limits for all text elements in the PSP. Exceeding these limits will cause truncation with ellipsis.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%)">';
+html+='<div class="hero-badge">✏️ Content & Copy</div>';
+html+='<h1 class="hero-title">Content Guidelines</h1>';
+html+='<p class="hero-desc">Maximum character limits for all text elements in the PSP. Exceeding these limits will cause truncation with ellipsis.</p>';
+html+='</div>';
 html+='<div class="card"><div class="card-title">Instrument Tile Text</div><div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Max</th><th>Font</th><th>Notes</th></tr>';
 html+='<tr><td>Line 1 \u2014 Name</td><td>32</td><td>16px Regular #0F1111</td><td>e.g. \u201CAmazon Pay ICICI credit card\u201D</td></tr>';
 html+='<tr><td>Line 2 \u2014 Card</td><td>36</td><td>13px Regular #565959</td><td>NETWORK \u2022\u2022\u2022\u2022XXXX | Name</td></tr>';
@@ -266,8 +312,11 @@ html+='</div>';
    6. MENTAL MODEL & HIERARCHY (wireframe only, no preselection/grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Mental Model &amp; Hierarchy</div>';
-html+='<div class="page-desc">The PSP follows a specific hierarchy to optimise conversion and user experience. The wireframe below maps every numbered zone to its purpose and spec.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#a8edea 0%,#fed6e3 100%)">';
+html+='<div class="hero-badge">🧠 User Journey</div>';
+html+='<h1 class="hero-title">Mental Model & Hierarchy</h1>';
+html+='<p class="hero-desc">The PSP follows a specific hierarchy to optimise conversion and user experience. The wireframe below maps every numbered zone to its purpose and spec.</p>';
+html+='</div>';
 html+='<div class="mm-grid" style="display:grid;grid-template-columns:200px 1fr 220px;gap:20px;align-items:start;margin-bottom:32px;position:relative">';
 html+='<div class="mm-left" style="padding-top:8px">';
 html+='<div class="ann" style="margin-top:0"><span class="flow-num">1</span><div class="ann-body"><strong>Header &amp; Navigation</strong><span>Teal gradient bar with back arrow and page title.</span></div></div>';
@@ -285,24 +334,23 @@ html+='<div style="background:linear-gradient(135deg,#82D8E3,#A6E7CE);padding:14
 html+='<div style="padding:10px 16px;background:#F7FEFF;display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #E5E5E5"><div style="display:flex;align-items:flex-start;gap:6px"><span style="font-size:14px;margin-top:1px">&#128205;</span><div><span style="font-size:13px;font-weight:700;color:#0F1111">Deliver to Akshay</span><div style="font-size:13px;color:#0F1111">Bengaluru 560001, Karnataka</div></div></div><span style="font-size:13px;color:#007185;flex-shrink:0">Change</span></div>';
 html+='<div style="padding:12px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">RECOMMENDED</div>';
 html+='<div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:12px">';
-html+='<div style="background:#EDF8FF;border:1px solid #2162A1;border-radius:12px 12px 0 0;padding:12px"><div style="padding-left:66px;margin-bottom:4px"><span style="background:#0A7CD1;color:#fff;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Best offer</span></div><div style="display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/App + 3P.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">Amazon Pay ICICI credit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;&#8226;&#8226;0424 | Akshay</div><div style="font-size:12px;color:#0B7B3C">Save &#8377;10 as cashback. <span style="color:#2162A1">Details</span></div></div></div></div>';
+html+='<div style="background:#EDF8FF;border:2px solid #007185;border-radius:12px 12px 0 0;padding:12px;padding-left:40px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#007185" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="#007185"/></svg><div style="padding-left:0;margin-bottom:4px"><span style="background:#0A7CD1;color:#fff;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Best offer</span></div><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">Amazon Pay ICICI credit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;&#8226;&#8226;0424 | Akshay</div><div style="font-size:12px;color:#0B7B3C">Save &#8377;10 as cashback. <span style="color:#2162A1">Details</span></div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/App + 3P.png" style="width:100%;height:100%;object-fit:contain"></div></div></div>';
+html+='<div style="padding:12px;padding-left:40px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="padding-left:0;margin-bottom:4px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Previously used</span></div><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">HDFC credit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;&#8226;&#8226;0422 | Akshay</div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/HDFC credit card.png" style="width:100%;height:100%;object-fit:contain"></div></div></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px"><div style="padding-left:66px;margin-bottom:4px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Previously used</span></div><div style="display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/HDFC credit card.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">HDFC credit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;&#8226;&#8226;0422 | Akshay</div></div></div></div>';
-html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;border-radius:0 0 12px 12px"><div style="padding-left:66px;margin-bottom:4px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Featured</span></div><div style="display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay UPI.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">Amazon Pay UPI</div><div style="display:inline-flex;align-items:center;gap:6px;background:#FFF;border:0.46px solid #D5D9D9;border-radius:30px;padding:4px 8px;margin-top:4px"><div style="width:13px;height:13px;border-radius:50%;background:linear-gradient(135deg,#F58220,#B7202E)"></div><span style="font-size:12px;color:#565959">ICICI Bank &#8226;&#8226;&#8226;&#8226;0911</span><span style="color:#2162A1;font-weight:700">&rsaquo;</span></div></div></div></div>';
+html+='<div style="padding:12px;padding-left:40px;border-radius:0 0 12px 12px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="padding-left:0;margin-bottom:4px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">Featured</span></div><div style="display:flex;align-items:center;gap:10px"><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">Amazon Pay UPI</div><div style="display:inline-flex;align-items:center;gap:6px;background:#FFF;border:0.46px solid #D5D9D9;border-radius:30px;padding:4px 8px;margin-top:4px"><img src="PSP Instument icons/ICICI Bank.png" style="width:13px;height:13px;border-radius:50%"><span style="font-size:12px;color:#565959">ICICI Bank &#8226;&#8226;&#8226;&#8226;0911</span></div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay UPI.png" style="width:100%;height:100%;object-fit:contain"></div></div></div>';
 html+='</div></div>';
-html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">UPI</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Pay by any UPI App.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;font-size:14px;color:#0F1111">Pay by any UPI App</div><span style="color:#2162A1">&rsaquo;</span></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add account to Amazon Pay UPI</span></div></div></div>';
-html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">CREDIT &amp; DEBIT CARDS</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/HDFC credit card.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">HDFC debit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;0333 | Akshay</div></div></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add new credit or debit card</span></div></div></div>';
+html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">UPI</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1;font-size:14px;color:#0F1111">Pay by any UPI App</div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Pay by any UPI App.png" style="width:100%;height:100%;object-fit:contain"></div></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add account to Amazon Pay UPI</span></div></div></div>';
+html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">CREDIT &amp; DEBIT CARDS</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1;min-width:0"><div style="font-size:14px;color:#0F1111">HDFC debit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;0333 | Akshay</div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/HDFC credit card.png" style="width:100%;height:100%;object-fit:contain"></div></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add new credit or debit card</span></div></div></div>';
 html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">MORE WAYS TO PAY</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px">';
-html+='<div style="padding:12px;display:flex;align-items:flex-start;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay Balance.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:16px;color:#0F1111;line-height:20px">Amazon Pay Balance: &#8377;60</div><div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11.5px;color:#565959;white-space:nowrap">Add &#8377;413.00 to proceed</span><div style="background:#FFF;border:1px solid #888C8C;border-radius:61px;padding:1px 10px;font-size:11.5px;color:#0F1111;white-space:nowrap;flex-shrink:0;line-height:22px">Add Now &rsaquo;</div></div></div></div>';
+html+='<div style="padding:12px;padding-left:40px;display:flex;align-items:flex-start;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:16px"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1;min-width:0"><div style="font-size:16px;color:#0F1111;line-height:20px">Amazon Pay Balance: &#8377;60</div><div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11.5px;color:#565959;white-space:nowrap">Add &#8377;413.00 to proceed</span><div style="background:#FFF;border:1px solid #888C8C;border-radius:61px;padding:1px 10px;font-size:11.5px;color:#0F1111;white-space:nowrap;flex-shrink:0;line-height:22px">Add Now &rsaquo;</div></div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay Balance.png" style="width:100%;height:100%;object-fit:contain"></div></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay Later.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;color:#0F1111">Amazon Pay Later</div><div style="font-size:12px;color:#565959">Available credit: &#8377; 60,000</div></div></div>';
+html+='<div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1"><div style="font-size:14px;color:#0F1111">Amazon Pay Later</div><div style="font-size:12px;color:#565959">Available credit: &#8377; 60,000</div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Amazon Pay Later.png" style="width:100%;height:100%;object-fit:contain"></div></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Cash on delivery.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;color:#0F1111">Cash on Delivery/Pay on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div></div>';
+html+='<div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1"><div style="font-size:14px;color:#0F1111">Cash on Delivery/Pay on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Cash on delivery.png" style="width:100%;height:100%;object-fit:contain"></div></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/EMI.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;font-size:14px;color:#0F1111">EMI</div><span style="color:#2162A1">&rsaquo;</span></div>';
+html+='<div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1;font-size:14px;color:#0F1111">EMI</div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/EMI.png" style="width:100%;height:100%;object-fit:contain"></div></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Netbanking.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;font-size:14px;color:#0F1111">Net Banking</div><span style="color:#2162A1">&rsaquo;</span></div>';
+html+='<div style="padding:12px;padding-left:40px;display:flex;align-items:center;gap:10px;position:relative"><svg width="20" height="20" style="position:absolute;left:12px;top:50%;transform:translateY(-50%)"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg><div style="flex:1;font-size:14px;color:#0F1111">Net Banking</div><div style="width:32px;height:24px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/Netbanking.png" style="width:100%;height:100%;object-fit:contain"></div></div>';
 html+='</div></div>';
 html+='<div style="padding:8px 16px"><div style="background:#FFF;border:0.5px solid #D5D9D9;border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:14px;color:#2162A1">Add Gift Card or Promo Code</span><span style="color:#2162A1">&rsaquo;</span></div></div>';
 html+='<div><div style="background:#E8FFF8;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-radius:12px 12px 0 0;border-top:1px solid #E6E6E6;box-shadow:0 -2px 5px rgba(0,0,0,0.08)"><span style="font-size:14px;color:#0B7B3C;font-weight:700">&#8377;15 saved</span><span style="font-size:14px;color:#2162A1">See offers &rsaquo;</span></div>';
@@ -312,7 +360,7 @@ html+='</div>';
 html+='<div class="mm-right" style="padding-top:8px">';
 html+='<div class="callout" style="border-left-color:#82D8E3"><strong>Header</strong>gradient: 135deg #82D8E3 \u2192 #A6E7CE<br>title: 16px Regular #0F1111</div>';
 html+='<div class="callout" style="border-left-color:#007185"><strong>Address Bar</strong>bg: #F7FEFF<br>name: 13px Bold #0F1111<br>Change: 13px #007185</div>';
-html+='<div class="callout" style="border-left-color:#0A7CD1"><strong>Selected Tile</strong>bg: #EDF8FF<br>border: 1px solid #2162A1<br>icon: 54\u00D736px, radius 5px</div>';
+html+='<div class="callout" style="border-left-color:#0A7CD1"><strong>Selected Tile</strong>bg: #EDF8FF<br>border: 2px solid #007185<br>icon: 54\u00D736px, radius 5px</div>';
 html+='<div class="callout" style="border-left-color:#E3E6E6"><strong>Badges</strong>Best offer: bg #0A7CD1, text #FFF<br>Previously used: bg #E3E6E6<br>Featured: bg #E3E6E6</div>';
 html+='<div class="callout" style="border-left-color:#FFD814"><strong>CTA Button</strong>bg: #FFD814, radius: 92px<br>size: 170\u00D747px<br>text: 16px Regular #0F1111</div>';
 html+='<div class="callout" style="border-left-color:#0B7B3C"><strong>Savings Bar</strong>bg: #E8FFF8<br>radius: 12px 12px 0 0<br>text: 14px Bold #0B7B3C</div>';
@@ -324,8 +372,11 @@ html+='</div>';
    7. DEVELOPER HANDOFF (Raw JSON - kept as is)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Developer Handoff</div>';
-html+='<div class="page-desc">Design tokens and component specs exported as JSON for developer handoff.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%)">';
+html+='<div class="hero-badge">{} Development Ready</div>';
+html+='<h1 class="hero-title">Developer Handoff</h1>';
+html+='<p class="hero-desc">Design tokens and component specs exported as JSON for developer handoff. Copy the JSON below to integrate with your development environment.</p>';
+html+='</div>';
 html+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="card-title" style="margin-bottom:0">design-tokens.json</div><div style="font-size:12px;color:var(--sidebar-accent);font-weight:600;cursor:pointer;padding:4px 12px;border-radius:6px;background:rgba(130,216,227,.1)" onclick="copyJSON()">Copy JSON</div></div>';
 html+='<pre style="background:#1B2836;color:#A6E7CE;padding:20px;border-radius:10px;font-size:12px;font-family:SF Mono,Menlo,Consolas,monospace;overflow-x:auto;max-height:500px;line-height:1.7" id="jsonPre"></pre></div>';
 html+='</div>';
@@ -334,8 +385,11 @@ html+='</div>';
    8. BASELINE CX (kept as is)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="page-title">Baseline CX</div>';
-html+='<div class="page-desc">Current baseline customer experience for Service and Pay. Click the cover below to open the full Figma design file.</div>';
+html+='<div class="hero" style="background:linear-gradient(135deg,#ff9a9e 0%,#fecfef 100%)">';
+html+='<div class="hero-badge">⭐ Reference Design</div>';
+html+='<h1 class="hero-title">Baseline CX</h1>';
+html+='<p class="hero-desc">Current baseline customer experience for Service and Pay. Click the cover below to open the full Figma design file.</p>';
+html+='</div>';
 html+='<a class="bcx-hero" href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-51546&t=QS59MWp88L06WKDD-1" target="_blank" rel="noopener noreferrer">';
 html+='<div class="bcx-badge">Amazon Internal Only</div>';
 html+='<div class="bcx-hero-inner">';
@@ -347,13 +401,152 @@ html+='</div></a>';
 html+='<div class="note" style="margin-top:24px">\u26A0\uFE0F This Figma file is restricted to Amazon employees. Do not share the link externally.</div>';
 html+='</div>';
 
+/* ══════════════════════════════════════════════════════════════
+   9. DECISION FRAMEWORK
+   ══════════════════════════════════════════════════════════════ */
+html+='<div class="sec">';
+html+='<div class="hero" style="background:linear-gradient(135deg,#e0c3fc 0%,#8ec5fc 100%)">';
+html+='<div class="hero-badge">🎯 Logic & Rules</div>';
+html+='<h1 class="hero-title">Decision Framework</h1>';
+html+='<p class="hero-desc">Intelligence layer that governs payment method prioritization, preselection logic, and personalization rules. This framework ensures consistent user experience across 90+ touchpoints.</p>';
+html+='</div>';
+
+/* Card 1: Payment Prioritization Engine */
+html+='<div class="card"><div style="height:100px;background:linear-gradient(135deg,#e9f3ff 0%,#c8dff8 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cs-border)"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="6" width="40" height="10" rx="3" stroke="#0972d3" stroke-width="2"/><rect x="14" y="22" width="28" height="10" rx="3" stroke="#0972d3" stroke-width="2"/><rect x="20" y="38" width="16" height="10" rx="3" stroke="#0972d3" stroke-width="2"/><path d="M28 16v6M28 32v6" stroke="#0972d3" stroke-width="2" stroke-linecap="round"/></svg></div>';
+html+='<div class="card-title">Payment Prioritization Engine</div><div style="padding:0 24px 24px">';
+
+/* Flowchart */
+html+='<div style="display:flex;flex-direction:column;align-items:center;gap:0;margin-bottom:24px">';
+html+='<div style="background:var(--cs-accent);color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;text-align:center">User enters PSP</div>';
+html+='<div style="width:2px;height:20px;background:var(--cs-border)"></div>';
+
+html+='<div style="background:var(--cs-accent-light);border:1px solid #89bdee;padding:12px 20px;border-radius:10px;font-size:13px;text-align:center;max-width:400px;width:100%"><span class="flow-num">1</span> Has active offer on any instrument?</div>';
+html+='<div style="display:flex;gap:40px;align-items:flex-start;margin:8px 0">';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-success);margin-bottom:4px">YES</div><div style="background:var(--cs-success-bg);border:1px solid #29ad32;padding:8px 16px;border-radius:8px;font-size:12px;color:var(--cs-success);font-weight:600">Select Best Offer</div></div>';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-text-secondary);margin-bottom:4px">NO</div><div style="font-size:11px;color:var(--cs-text-secondary)">&#8595;</div></div>';
+html+='</div>';
+
+html+='<div style="background:var(--cs-accent-light);border:1px solid #89bdee;padding:12px 20px;border-radius:10px;font-size:13px;text-align:center;max-width:400px;width:100%"><span class="flow-num">2</span> Amazon Pay Balance \u2265 order total?</div>';
+html+='<div style="display:flex;gap:40px;align-items:flex-start;margin:8px 0">';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-success);margin-bottom:4px">YES</div><div style="background:var(--cs-success-bg);border:1px solid #29ad32;padding:8px 16px;border-radius:8px;font-size:12px;color:var(--cs-success);font-weight:600">Select APB</div></div>';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-text-secondary);margin-bottom:4px">NO</div><div style="font-size:11px;color:var(--cs-text-secondary)">&#8595;</div></div>';
+html+='</div>';
+
+html+='<div style="background:var(--cs-accent-light);border:1px solid #89bdee;padding:12px 20px;border-radius:10px;font-size:13px;text-align:center;max-width:400px;width:100%"><span class="flow-num">3</span> Has previously successful payment?</div>';
+html+='<div style="display:flex;gap:40px;align-items:flex-start;margin:8px 0">';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-success);margin-bottom:4px">YES</div><div style="background:var(--cs-success-bg);border:1px solid #29ad32;padding:8px 16px;border-radius:8px;font-size:12px;color:var(--cs-success);font-weight:600">Select Previously Used</div></div>';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-text-secondary);margin-bottom:4px">NO</div><div style="font-size:11px;color:var(--cs-text-secondary)">&#8595;</div></div>';
+html+='</div>';
+
+html+='<div style="background:var(--cs-accent-light);border:1px solid #89bdee;padding:12px 20px;border-radius:10px;font-size:13px;text-align:center;max-width:400px;width:100%"><span class="flow-num">4</span> Only one instrument available?</div>';
+html+='<div style="display:flex;gap:40px;align-items:flex-start;margin:8px 0">';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-success);margin-bottom:4px">YES</div><div style="background:var(--cs-success-bg);border:1px solid #29ad32;padding:8px 16px;border-radius:8px;font-size:12px;color:var(--cs-success);font-weight:600">Auto-select</div></div>';
+html+='<div style="text-align:center"><div style="font-size:11px;font-weight:700;color:var(--cs-text-secondary);margin-bottom:4px">NO</div><div style="background:var(--cs-warning-bg);border:1px solid #d4a00e;padding:8px 16px;border-radius:8px;font-size:12px;color:var(--cs-warning);font-weight:600">Show Featured, no preselection</div></div>';
+html+='</div>';
+html+='</div>';
+
+/* Priority Table */
+html+='<div class="tbl-wrap" style="margin:0 0 16px"><table class="tbl"><tr><th>Priority</th><th>Condition</th><th>Action</th></tr>';
+html+='<tr><td><span class="flow-num">1</span></td><td>Best Offer exists</td><td>Preselect + show blue badge</td></tr>';
+html+='<tr><td><span class="flow-num">2</span></td><td>APB \u2265 order total</td><td>Preselect + show balance</td></tr>';
+html+='<tr><td><span class="flow-num">3</span></td><td>Previous success within 30 days</td><td>Preselect + show \u201CPreviously used\u201D badge</td></tr>';
+html+='<tr><td><span class="flow-num">4</span></td><td>Single instrument only</td><td>Auto-select</td></tr>';
+html+='<tr><td><span class="flow-num" style="background:var(--cs-text-secondary)">5</span></td><td>Multiple instruments, no priority match</td><td>Show Featured, no preselection</td></tr>';
+html+='</table></div>';
+html+='</div></div>';
+
+/* Card 2: Enhanced Preselection Rules */
+html+='<div class="card"><div style="height:100px;background:linear-gradient(135deg,#f2fcf3 0%,#c8ecc9 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cs-border)"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><circle cx="28" cy="28" r="18" stroke="#037f0c" stroke-width="2" fill="none"/><path d="M20 28l6 6 12-12" stroke="#037f0c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+html+='<div class="card-title">Enhanced Preselection Rules</div><div style="padding:0 24px 24px">';
+
+var scenarios=[
+  ['Best Offer Wins','Instrument has cashback/discount','Always preselect, even if not previously used','Best offer (blue)','Card with \u20B910 cashback vs previously used UPI'],
+  ['APB Fast Path','Balance \u2265 order total + no Best Offer','Preselect APB for instant checkout','Show \u201CAdd Now\u201D if balance insufficient','User has \u20B9500 APB, order is \u20B9450'],
+  ['Trust Through Familiarity','Previously used successfully + no offer','Preselect last successful payment (within 30 days)','Previously used (gray)','Last used HDFC credit card 5 days ago'],
+  ['Featured Recommendation','New user or no previous success','Highlight featured instrument, no preselection','Featured (gray)','Based on merchant success rates'],
+  ['Single Option Auto-Select','Only one transaction-ready instrument','Auto-select + auto-advance (skip selection)','\u2014','Single linked card, no other options']
+];
+scenarios.forEach(function(s,i){
+  html+='<div style="background:var(--cs-bg-alt);border:1px solid var(--cs-border);border-radius:10px;padding:16px;margin-bottom:12px">';
+  html+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span class="flow-num">'+(i+1)+'</span><span style="font-size:14px;font-weight:700;color:var(--cs-text-primary)">'+s[0]+'</span></div>';
+  html+='<div style="display:grid;grid-template-columns:100px 1fr;gap:4px 12px;font-size:13px;color:var(--cs-text-primary)">';
+  html+='<span style="font-weight:600;color:var(--cs-text-secondary)">Condition</span><span>'+s[1]+'</span>';
+  html+='<span style="font-weight:600;color:var(--cs-text-secondary)">Behavior</span><span>'+s[2]+'</span>';
+  html+='<span style="font-weight:600;color:var(--cs-text-secondary)">Badge</span><span>'+s[3]+'</span>';
+  html+='<span style="font-weight:600;color:var(--cs-text-secondary)">Example</span><span>'+s[4]+'</span>';
+  html+='</div></div>';
+});
+html+='</div></div>';
+
+/* Card 3: Personalization Matrix */
+html+='<div class="card"><div style="height:100px;background:linear-gradient(135deg,#f5f0ff 0%,#ddd0f7 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cs-border)"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><rect x="8" y="8" width="18" height="18" rx="3" stroke="#7b2ff2" stroke-width="2"/><rect x="30" y="8" width="18" height="18" rx="3" stroke="#7b2ff2" stroke-width="2"/><rect x="8" y="30" width="18" height="18" rx="3" stroke="#7b2ff2" stroke-width="2"/><rect x="30" y="30" width="18" height="18" rx="3" stroke="#7b2ff2" stroke-width="2"/><circle cx="17" cy="17" r="4" fill="#7b2ff2" opacity=".2"/><circle cx="39" cy="17" r="4" fill="#7b2ff2" opacity=".4"/><circle cx="17" cy="39" r="4" fill="#7b2ff2" opacity=".3"/><circle cx="39" cy="39" r="4" fill="#7b2ff2" opacity=".5"/></svg></div>';
+html+='<div class="card-title">Personalization Matrix</div><div style="padding:0 24px 24px">';
+
+html+='<div style="font-size:14px;font-weight:600;color:var(--cs-text-primary);margin-bottom:12px">User Type Behavior</div>';
+html+='<div class="tbl-wrap" style="margin:0 0 24px"><table class="tbl"><tr><th>Attribute</th><th>First Time</th><th>Returning (1\u20135 orders)</th><th>Power User (5+)</th></tr>';
+html+='<tr><td style="font-weight:600">Preselection</td><td>Featured only</td><td>Previously used if exists</td><td>Previously used prioritized</td></tr>';
+html+='<tr><td style="font-weight:600">Offer Visibility</td><td>Prominent badges</td><td>Inline text</td><td>Collapsed until relevant</td></tr>';
+html+='<tr><td style="font-weight:600">Option Count</td><td>Show 3\u20135 methods</td><td>Show all saved</td><td>Prioritize top 3, collapse rest</td></tr>';
+html+='<tr><td style="font-weight:600">Help Text</td><td>More guidance</td><td>Minimal</td><td>None</td></tr>';
+html+='</table></div>';
+
+html+='<div style="font-size:14px;font-weight:600;color:var(--cs-text-primary);margin-bottom:12px">Context Factors</div>';
+html+='<div class="tbl-wrap" style="margin:0 0 16px"><table class="tbl"><tr><th>Context</th><th>Behavior Change</th></tr>';
+html+='<tr><td>Low order value (&lt;\u20B9500)</td><td>Prioritize UPI/APB (low friction)</td></tr>';
+html+='<tr><td>High order value (&gt;\u20B95,000)</td><td>Show credit cards first (reward points)</td></tr>';
+html+='<tr><td>First order on merchant</td><td>Extra trust signals</td></tr>';
+html+='<tr><td>Returning customer</td><td>Fast path, fewer confirmations</td></tr>';
+html+='<tr><td>Mobile device</td><td>Optimize for fewer taps</td></tr>';
+html+='<tr><td>High-success merchant</td><td>Reduce options, faster flow</td></tr>';
+html+='<tr><td>Low-success merchant</td><td>Show alternatives upfront</td></tr>';
+html+='</table></div>';
+html+='</div></div>';
+
+/* Card 4: Success-Rate Optimization */
+html+='<div class="card"><div style="height:100px;background:linear-gradient(135deg,#fff3e0 0%,#ffe0b2 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--cs-border)"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M12 40L20 28L28 34L36 18L44 24" stroke="#e65100" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="44" cy="24" r="4" fill="#e65100" opacity=".3"/><path d="M40 16l4 8 4-2" stroke="#e65100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+html+='<div class="card-title">Success-Rate Optimization</div><div style="padding:0 24px 24px">';
+
+html+='<div class="grid-2" style="margin-bottom:20px">';
+html+='<div class="do"><strong>\u2713 When to REDUCE options</strong><ul>';
+html+='<li>User has previously successful payment \u2192 Hide low-success methods</li>';
+html+='<li>Single best option exists (Best Offer) \u2192 Collapse other sections</li>';
+html+='<li>High-intent user (returning, fast checkout) \u2192 Show top 3 only</li>';
+html+='<li>Mobile context + high-success instrument \u2192 Minimize scrolling</li>';
+html+='</ul></div>';
+html+='<div class="dont"><strong>\u2717 When to EXPAND choices</strong><ul>';
+html+='<li>Payment failure occurred \u2192 Show alternative methods immediately</li>';
+html+='<li>New user with no history \u2192 Display full range for discovery</li>';
+html+='<li>Insufficient balance scenarios \u2192 Prompt with alternatives</li>';
+html+='<li>Low-confidence predictions \u2192 Let user decide</li>';
+html+='</ul></div>';
+html+='</div>';
+
+html+='<div style="font-size:14px;font-weight:600;color:var(--cs-text-primary);margin-bottom:12px">Smart Fallback Logic</div>';
+html+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:8px">';
+var fallbacks=[
+  ['Best Offer fails','Auto-suggest Previously Used'],
+  ['Previously Used fails','Auto-suggest Featured UPI'],
+  ['All saved methods unavailable','Prompt to add new card'],
+  ['Persistent failures','Escalate to manual entry (Net Banking, COD)']
+];
+fallbacks.forEach(function(f,i){
+  html+='<div style="display:flex;align-items:center;gap:12px;background:var(--cs-bg-alt);border:1px solid var(--cs-border);border-radius:8px;padding:10px 14px">';
+  html+='<span class="flow-num" style="background:'+(i<2?'var(--cs-accent)':i===2?'var(--cs-warning)':'var(--cs-error)')+'">'+String.fromCharCode(65+i)+'</span>';
+  html+='<div style="font-size:13px"><span style="color:var(--cs-text-secondary)">IF </span><span style="font-weight:600">'+f[0]+'</span><span style="color:var(--cs-text-secondary)"> \u2192 </span><span style="color:var(--cs-accent);font-weight:600">'+f[1]+'</span></div>';
+  html+='</div>';
+});
+html+='</div>';
+html+='</div></div>';
+
+html+='</div>';
+
 /* ── Inject HTML ── */
 contentEl.innerHTML = html;
 
 /* ── Fill JSON ── */
 var jsonData = {
-  designTokens:{colors:{bgPage:'#F7FAFA',bgCard:'#FFFFFF',textPrimary:'#0F1111',textSecondary:'#565959',textLink:'#2162A1',textSuccess:'#0B7B3C',borderCard:'#D5D9D9',badgeBlue:'#0A7CD1',ctaYellow:'#FFD814',selectedBg:'#EDF8FF',selectedBorder:'#2162A1',errorRed:'#CC0C39',headerGradientStart:'#82D8E3',headerGradientEnd:'#A6E7CE',savingsBarBg:'#E8FFF8',addressBg:'#F7FEFF',badgeGrayBg:'#E3E6E6',badgeGrayText:'#232F3E',dividerDash:'#6F7373'},spacing:{pagePadding:'16px',tilePadding:'12px',iconTextGap:'10px',badgeLeftOffset:'66px',dividerInset:'12px'},radii:{cardGroup:'12px',tile:'12px',icon:'5px',badge:'13px',cta:'92px',bankPill:'30px'},sizes:{icon:'54x36px',cta:'170x47px',bankLogoCircle:'13px'}},
-  tileStates:{transactionReady:{bg:'#FFFFFF',border:'0.55px solid #D5D9D9',opacity:1},selected:{bg:'#EDF8FF',border:'1px solid #2162A1',opacity:1},nonTransactionReady:{bg:'#FFFFFF',border:'0.55px solid #D5D9D9',opacity:0.7}},
+  designTokens:{colors:{bgPage:'#F7FAFA',bgCard:'#FFFFFF',textPrimary:'#0F1111',textSecondary:'#565959',textLink:'#2162A1',textSuccess:'#0B7B3C',borderCard:'#D5D9D9',badgeBlue:'#0A7CD1',ctaYellow:'#FFD814',selectedBg:'#EDF8FF',selectedBorder:'#007185',radioButton:'#007185',errorRed:'#CC0C39',headerGradientStart:'#82D8E3',headerGradientEnd:'#A6E7CE',savingsBarBg:'#E8FFF8',addressBg:'#F7FEFF',badgeGrayBg:'#E3E6E6',badgeGrayText:'#232F3E',dividerDash:'#6F7373'},spacing:{pagePadding:'16px',tilePadding:'12px',iconTextGap:'10px',badgeLeftOffset:'66px',dividerInset:'12px'},radii:{cardGroup:'12px',tile:'12px',icon:'5px',badge:'13px',cta:'92px',bankPill:'30px'},sizes:{icon:'54x36px',cta:'170x47px',bankLogoCircle:'13px'},radioButton:{size:'20px',borderDefault:'2px solid #D5D9D9',borderSelected:'2px solid #007185',fillSelected:'#007185',dotSize:'8px',dotColor:'#FFFFFF',position:'12px left, centered vertical'}},
+  tileStates:{transactionReady:{bg:'#FFFFFF',border:'1px solid #D5D9D9',radioButton:'empty circle',opacity:1},selected:{bg:'#EDF8FF',border:'2px solid #007185',radioButton:'filled blue with white dot',opacity:1},nonTransactionReady:{bg:'#FFFFFF',border:'1px solid #D5D9D9',radioButton:'disabled gray',opacity:0.6}},
   badges:{bestOffer:{bg:'#0A7CD1',text:'#FFFFFF'},previouslyUsed:{bg:'#E3E6E6',text:'#232F3E'},featured:{bg:'#E3E6E6',text:'#232F3E'}},
   charLimits:{instrumentName:32,cardDetails:36,upiDetails:28,offerText:40,badgeText:16,sectionHeader:24,ctaText:14,savingsText:20,addressName:20,addressDetail:40}
 };
