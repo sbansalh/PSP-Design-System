@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test: Animated State Demo (Task 5.2)</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+#test-container { margin-top: 24px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 16px; background: #fff; }
+</style>
+</head>
+<body>
+
+<h1>Unit Tests: Animated State Demo</h1>
+<p class="subtitle">Task 5.2 · Validates Requirement 3.4</p>
+
+<div id="results"></div>
+<div id="test-container"></div>
+
+<!-- Load PSP modules in dependency order -->
+<script src="../psp-namespace.js"></script>
+<script src="../data/components.js"></script>
+<script src="../data/motion-tokens.js"></script>
+<script src="../renderers/states.js"></script>
+
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' tests passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // ─── Test 1: renderAnimatedDemo is exposed on namespace ───
+  try {
+    var fn = window.PSP.renderers.states.renderAnimatedDemo;
+    addResult('renderAnimatedDemo is exposed on window.PSP.renderers.states',
+      typeof fn === 'function',
+      'typeof renderAnimatedDemo: ' + typeof fn);
+  } catch (e) {
+    addResult('renderAnimatedDemo is exposed on window.PSP.renderers.states', false, e.message);
+  }
+
+  // ─── Test 2: Renders wrapper with correct structure ───
+  try {
+    var testEl = document.createElement('div');
+    container.appendChild(testEl);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl);
+
+    var wrapper = testEl.querySelector('.psp-animated-demo');
+    var hasWrapper = !!wrapper;
+    var hasButtons = !!testEl.querySelector('.psp-animated-demo__buttons');
+    var hasTile = !!testEl.querySelector('.psp-animated-demo__tile');
+
+    addResult('Renders wrapper with buttons row and demo tile',
+      hasWrapper && hasButtons && hasTile,
+      'wrapper: ' + hasWrapper + ', buttons: ' + hasButtons + ', tile: ' + hasTile);
+    container.removeChild(testEl);
+  } catch (e) {
+    addResult('Renders wrapper with buttons row and demo tile', false, e.message);
+  }
+
+  // ─── Test 3: Only renders buttons for applicable (non-null) states ───
+  try {
+    var testEl2 = document.createElement('div');
+    container.appendChild(testEl2);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl2);
+
+    var buttons = testEl2.querySelectorAll('.psp-animated-demo__btn');
+    // instrumentTile has dragged: null, so 5 applicable states
+    var states = window.PSP.data.components.instrumentTile.states;
+    var applicableCount = 0;
+    ['enabled', 'disabled', 'hovered', 'focused', 'pressed', 'dragged'].forEach(function(k) {
+      if (states[k] !== null && states[k] !== undefined) applicableCount++;
+    });
+
+    addResult('Only renders buttons for applicable states (skips null)',
+      buttons.length === applicableCount,
+      'Expected ' + applicableCount + ' buttons, got ' + buttons.length);
+    container.removeChild(testEl2);
+  } catch (e) {
+    addResult('Only renders buttons for applicable states (skips null)', false, e.message);
+  }
+
+  // ─── Test 4: Enabled button is initially active ───
+  try {
+    var testEl3 = document.createElement('div');
+    container.appendChild(testEl3);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl3);
+
+    var enabledBtn = testEl3.querySelector('[data-state="enabled"]');
+    var isActive = enabledBtn && enabledBtn.classList.contains('psp-animated-demo__btn--active');
+    var ariaPressed = enabledBtn && enabledBtn.getAttribute('aria-pressed') === 'true';
+
+    addResult('Enabled button is initially active with aria-pressed=true',
+      isActive && ariaPressed,
+      'active class: ' + isActive + ', aria-pressed: ' + ariaPressed);
+    container.removeChild(testEl3);
+  } catch (e) {
+    addResult('Enabled button is initially active with aria-pressed=true', false, e.message);
+  }
+
+  // ─── Test 5: Tile has initial enabled state styles ───
+  try {
+    var testEl4 = document.createElement('div');
+    container.appendChild(testEl4);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl4);
+
+    var tile = testEl4.querySelector('.psp-animated-demo__tile');
+    var enabledState = window.PSP.data.components.instrumentTile.states.enabled;
+    var bgMatch = tile.style.backgroundColor !== '';
+    var borderMatch = tile.style.border !== '';
+    var opacityMatch = tile.style.opacity === '1' || tile.style.opacity === '';
+
+    addResult('Tile has initial enabled state styles applied',
+      bgMatch && borderMatch,
+      'bg set: ' + bgMatch + ', border set: ' + borderMatch + ', opacity: ' + tile.style.opacity);
+    container.removeChild(testEl4);
+  } catch (e) {
+    addResult('Tile has initial enabled state styles applied', false, e.message);
+  }
+
+  // ─── Test 6: Clicking a state button updates tile styles ───
+  try {
+    var testEl5 = document.createElement('div');
+    container.appendChild(testEl5);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl5);
+
+    var pressedBtn = testEl5.querySelector('[data-state="pressed"]');
+    pressedBtn.click();
+
+    var tile5 = testEl5.querySelector('.psp-animated-demo__tile');
+    var pressedState = window.PSP.data.components.instrumentTile.states.pressed;
+    // After clicking pressed, the tile bg should change
+    var bgUpdated = tile5.style.backgroundColor !== '' && tile5.style.backgroundColor !== 'rgb(255, 255, 255)';
+
+    addResult('Clicking state button updates tile styles',
+      bgUpdated,
+      'After clicking "Pressed": bg=' + tile5.style.backgroundColor + ' (expected change from white)');
+    container.removeChild(testEl5);
+  } catch (e) {
+    addResult('Clicking state button updates tile styles', false, e.message);
+  }
+
+  // ─── Test 7: Clicking a button updates active state of buttons ───
+  try {
+    var testEl6 = document.createElement('div');
+    container.appendChild(testEl6);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl6);
+
+    var hoveredBtn = testEl6.querySelector('[data-state="hovered"]');
+    hoveredBtn.click();
+
+    var enabledBtn6 = testEl6.querySelector('[data-state="enabled"]');
+    var enabledActive = enabledBtn6.classList.contains('psp-animated-demo__btn--active');
+    var hoveredActive = hoveredBtn.classList.contains('psp-animated-demo__btn--active');
+    var hoveredAriaPressed = hoveredBtn.getAttribute('aria-pressed') === 'true';
+    var enabledAriaPressed = enabledBtn6.getAttribute('aria-pressed') === 'false';
+
+    addResult('Clicking button updates active state (only one active at a time)',
+      !enabledActive && hoveredActive && hoveredAriaPressed && enabledAriaPressed,
+      'enabled active: ' + enabledActive + ', hovered active: ' + hoveredActive);
+    container.removeChild(testEl6);
+  } catch (e) {
+    addResult('Clicking button updates active state (only one active at a time)', false, e.message);
+  }
+
+  // ─── Test 8: CSS transition uses motion token values ───
+  try {
+    var styleEl = document.getElementById('psp-states-animated-demo-styles');
+    var cssText = styleEl ? styleEl.textContent : '';
+    var motionToken = window.PSP.data.motionTokens.selection;
+    var hasDuration = cssText.indexOf(motionToken.duration + 'ms') !== -1;
+    var hasEasing = cssText.indexOf(motionToken.easing) !== -1;
+
+    addResult('CSS transitions use selection motion token (200ms, cubic-bezier)',
+      hasDuration && hasEasing,
+      'duration (' + motionToken.duration + 'ms): ' + hasDuration + ', easing: ' + hasEasing);
+  } catch (e) {
+    addResult('CSS transitions use selection motion token (200ms, cubic-bezier)', false, e.message);
+  }
+
+  // ─── Test 9: prefers-reduced-motion media query is present ───
+  try {
+    var styleEl9 = document.getElementById('psp-states-animated-demo-styles');
+    var cssText9 = styleEl9 ? styleEl9.textContent : '';
+    var hasReducedMotion = cssText9.indexOf('prefers-reduced-motion: reduce') !== -1;
+    var hasTransitionNone = cssText9.indexOf('transition: none') !== -1;
+
+    addResult('Respects prefers-reduced-motion (transition: none in reduced motion)',
+      hasReducedMotion && hasTransitionNone,
+      'prefers-reduced-motion rule: ' + hasReducedMotion + ', transition: none: ' + hasTransitionNone);
+  } catch (e) {
+    addResult('Respects prefers-reduced-motion (transition: none in reduced motion)', false, e.message);
+  }
+
+  // ─── Test 10: Accessibility attributes are present ───
+  try {
+    var testEl7 = document.createElement('div');
+    container.appendChild(testEl7);
+    window.PSP.renderers.states.renderAnimatedDemo('instrumentTile', testEl7);
+
+    var wrapper7 = testEl7.querySelector('.psp-animated-demo');
+    var hasRole = wrapper7.getAttribute('role') === 'group';
+    var hasAriaLabel = wrapper7.getAttribute('aria-label').indexOf('animated state demo') !== -1;
+    var toolbar = testEl7.querySelector('[role="toolbar"]');
+    var tile7 = testEl7.querySelector('.psp-animated-demo__tile');
+    var hasAriaLive = tile7.getAttribute('aria-live') === 'polite';
+
+    addResult('Accessibility attributes present (role, aria-label, aria-live)',
+      hasRole && hasAriaLabel && !!toolbar && hasAriaLive,
+      'role=group: ' + hasRole + ', aria-label: ' + hasAriaLabel + ', toolbar: ' + !!toolbar + ', aria-live: ' + hasAriaLive);
+    container.removeChild(testEl7);
+  } catch (e) {
+    addResult('Accessibility attributes present (role, aria-label, aria-live)', false, e.message);
+  }
+
+  // ─── Test 11: Works with component that has many null states ───
+  try {
+    var testEl8 = document.createElement('div');
+    container.appendChild(testEl8);
+    // sectionHeader has many null states (disabled, hovered, pressed, dragged)
+    window.PSP.renderers.states.renderAnimatedDemo('sectionHeader', testEl8);
+
+    var buttons8 = testEl8.querySelectorAll('.psp-animated-demo__btn');
+    var states8 = window.PSP.data.components.sectionHeader.states;
+    var applicable8 = 0;
+    ['enabled', 'disabled', 'hovered', 'focused', 'pressed', 'dragged'].forEach(function(k) {
+      if (states8[k] !== null && states8[k] !== undefined) applicable8++;
+    });
+
+    addResult('Works with component having many null states (sectionHeader)',
+      buttons8.length === applicable8,
+      'Expected ' + applicable8 + ' buttons for sectionHeader, got ' + buttons8.length);
+    container.removeChild(testEl8);
+  } catch (e) {
+    addResult('Works with component having many null states (sectionHeader)', false, e.message);
+  }
+
+  showSummary();
+})();
+</script>
+</body>
+</html>

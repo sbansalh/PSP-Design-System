@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBT: Interactive Features (Properties 7, 8, 9 &amp; 10)</title>
+<style>
+/* ═══ Test Runner Styles ═══ */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+#test-container { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Property-Based Tests: Interactive Features</h1>
+<p class="subtitle">Properties 7, 8, 9 &amp; 10 · Validates Requirements 5.5, 6.1, 6.3, 6.5, 6.6, 7.2, 7.3, 7.5</p>
+
+<div id="results"></div>
+
+<!-- Hidden container for rendering test elements -->
+<div id="test-container"></div>
+
+<!-- Load PSP modules in dependency order -->
+<script src="../psp-namespace.js"></script>
+<script src="../data/components.js"></script>
+<script src="../data/motion-tokens.js"></script>
+<script src="../data/themes.js"></script>
+<script src="../data/breakpoints.js"></script>
+<script src="../data/changelog.js"></script>
+<script src="../features/dark-mode.js"></script>
+<script src="../features/search.js"></script>
+<script src="../renderers/playground.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fast-check/lib/bundle.js"></script>
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' properties passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // Get component keys that have playground config
+  var allComponentKeys = Object.keys(window.PSP.data.components);
+  var componentsWithPlayground = allComponentKeys.filter(function(key) {
+    var c = window.PSP.data.components[key];
+    return c.playground && c.playground.defaults && c.playground.controls;
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 7: Dark mode preference persistence round-trip
+  // **Validates: Requirements 5.5**
+  //
+  // For any theme preference value ('light' or 'dark'), calling
+  // setTheme(theme) and then getTheme() returns the same value.
+  // The preference persists to localStorage and survives a
+  // simulated reload (re-reading from localStorage).
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var themeArb = fc.constantFrom('light', 'dark');
+
+    fc.assert(fc.property(
+      themeArb,
+      function(theme) {
+        // Clear any existing state
+        localStorage.removeItem('psp-theme');
+        document.documentElement.removeAttribute('data-theme');
+
+        // Set the theme
+        window.PSP.features.darkMode.setTheme(theme);
+
+        // Verify getTheme() returns the same value
+        var currentTheme = window.PSP.features.darkMode.getTheme();
+        if (currentTheme !== theme) {
+          return false;
+        }
+
+        // Verify localStorage persistence
+        var stored = localStorage.getItem('psp-theme');
+        if (stored !== theme) {
+          return false;
+        }
+
+        // Simulate reload: clear document state, re-read from localStorage
+        document.documentElement.removeAttribute('data-theme');
+        var reloaded = localStorage.getItem('psp-theme');
+        if (reloaded !== theme) {
+          return false;
+        }
+
+        // Apply the reloaded preference (simulating init behavior)
+        window.PSP.features.darkMode.setTheme(reloaded);
+        var afterReload = window.PSP.features.darkMode.getTheme();
+        if (afterReload !== theme) {
+          return false;
+        }
+
+        // Cleanup
+        localStorage.removeItem('psp-theme');
+        document.documentElement.removeAttribute('data-theme');
+
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 7: Dark mode preference persistence round-trip', true,
+      'Validated: For all theme values (light, dark), setTheme() → getTheme() returns the same value, persists to localStorage, and survives reload simulation.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 7: Dark mode preference persistence round-trip', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 8: Component playground provides all state toggles
+  // and generates valid code
+  // **Validates: Requirements 6.1, 6.3, 6.5**
+  //
+  // For any component with playground config:
+  //   - render() produces state buttons for all 6 interaction states
+  //   - generateCode() returns a non-empty HTML string
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var playgroundArb = fc.constantFrom.apply(fc, componentsWithPlayground);
+    var STATES = ['enabled', 'disabled', 'hovered', 'focused', 'pressed', 'dragged'];
+
+    fc.assert(fc.property(
+      playgroundArb,
+      function(componentKey) {
+        // Create a fresh container for rendering
+        var renderContainer = document.createElement('div');
+        renderContainer.style.width = '800px';
+        container.appendChild(renderContainer);
+
+        // Render the playground
+        window.PSP.renderers.playground.render(componentKey, renderContainer);
+
+        // Check: state buttons exist for all 6 states
+        var stateButtons = renderContainer.querySelectorAll('.psp-playground__state-btn');
+        if (stateButtons.length !== STATES.length) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Verify each state has a corresponding button
+        for (var i = 0; i < STATES.length; i++) {
+          var found = false;
+          for (var j = 0; j < stateButtons.length; j++) {
+            if (stateButtons[j].getAttribute('data-value') === STATES[i]) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+        }
+
+        // Check: generateCode() returns a non-empty string
+        var config = window.PSP.renderers.playground.getDefaults(componentKey);
+        var code = window.PSP.renderers.playground.generateCode(componentKey, config);
+        if (!code || typeof code !== 'string' || code.trim().length === 0) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Verify code contains HTML-like content (has angle brackets)
+        if (code.indexOf('<') === -1 || code.indexOf('>') === -1) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        container.removeChild(renderContainer);
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 8: Component playground provides all state toggles and generates valid code', true,
+      'Validated: For all components with playground config, render() produces state buttons for all 6 interaction states and generateCode() returns a non-empty HTML string.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 8: Component playground provides all state toggles and generates valid code', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 9: Playground reset restores default configuration
+  // **Validates: Requirements 6.6**
+  //
+  // For any component, after modifying the config and then calling
+  // resetToDefaults(), the resulting configuration equals the
+  // component's default configuration from the registry.
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var resetArb = fc.constantFrom.apply(fc, componentsWithPlayground);
+    var modificationArb = fc.string({ minLength: 1, maxLength: 20 });
+
+    fc.assert(fc.property(
+      resetArb,
+      modificationArb,
+      function(componentKey, randomValue) {
+        // Create a fresh container for rendering
+        var renderContainer = document.createElement('div');
+        renderContainer.style.width = '800px';
+        container.appendChild(renderContainer);
+
+        // Render the playground (initializes the instance)
+        window.PSP.renderers.playground.render(componentKey, renderContainer);
+
+        // Get the original defaults for comparison
+        var originalDefaults = window.PSP.renderers.playground.getDefaults(componentKey);
+
+        // Modify the config by getting current config and changing a property
+        var currentConfig = window.PSP.renderers.playground.getConfig(componentKey);
+        var controls = window.PSP.data.components[componentKey].playground.controls;
+        // Modify a non-state control with a random value
+        var nonStateControls = controls.filter(function(c) { return c !== 'state'; });
+        if (nonStateControls.length > 0) {
+          currentConfig[nonStateControls[0]] = randomValue;
+        }
+
+        // Now reset to defaults
+        window.PSP.renderers.playground.resetToDefaults(componentKey);
+
+        // Get the config after reset
+        var afterReset = window.PSP.renderers.playground.getConfig(componentKey);
+
+        // Verify all default keys match
+        var defaultKeys = Object.keys(originalDefaults);
+        for (var i = 0; i < defaultKeys.length; i++) {
+          var key = defaultKeys[i];
+          if (afterReset[key] !== originalDefaults[key]) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+        }
+
+        container.removeChild(renderContainer);
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 9: Playground reset restores default configuration', true,
+      'Validated: For all components, after modifying config and calling resetToDefaults(), the resulting configuration equals the original defaults.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 9: Playground reset restores default configuration', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 10: Search index coverage and retrieval
+  // **Validates: Requirements 7.2, 7.3, 7.5**
+  //
+  // After buildIndex():
+  //   - Searching for any component name returns at least 1 result
+  //   - Searching for empty or short queries (<2 chars) returns
+  //     empty array
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    // Build the search index
+    window.PSP.features.search.buildIndex();
+
+    // Arbitrary: component names from the registry
+    var componentNames = allComponentKeys.map(function(key) {
+      return window.PSP.data.components[key].name;
+    });
+    var componentNameArb = fc.constantFrom.apply(fc, componentNames);
+
+    // Arbitrary: short/empty queries that should return no results
+    var shortQueryArb = fc.constantFrom('', ' ', 'a', 'x', '1', '?');
+
+    fc.assert(fc.property(
+      componentNameArb,
+      function(componentName) {
+        // Searching for a component name should return at least 1 result
+        var results = window.PSP.features.search.search(componentName);
+        if (!Array.isArray(results) || results.length < 1) {
+          return false;
+        }
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    fc.assert(fc.property(
+      shortQueryArb,
+      function(query) {
+        // Searching for empty/short queries should return empty array
+        var results = window.PSP.features.search.search(query);
+        if (!Array.isArray(results)) {
+          return false;
+        }
+        if (results.length !== 0) {
+          return false;
+        }
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 10: Search index coverage and retrieval', true,
+      'Validated: After buildIndex(), searching for any component name returns at least 1 result; searching for empty/short queries returns empty array.\n100 runs passed (component names) + 100 runs passed (short queries).');
+  } catch (e) {
+    addResult('Property 10: Search index coverage and retrieval', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // Show summary
+  showSummary();
+})();
+</script>
+</body>
+</html>

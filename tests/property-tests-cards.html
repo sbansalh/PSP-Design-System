@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBT: Card Variant System (Properties 1 &amp; 13)</title>
+<style>
+/* ═══ Test Runner Styles ═══ */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+#test-container { display: none; }
+</style>
+
+<!-- ═══ Design System CSS (copied from index.html for card variants and content density) ═══ -->
+<style>
+:root {
+  --color-surface: #ffffff;
+  --color-surface-variant: #f3f3f3;
+  --color-outline-variant: #d5d9d9;
+  --color-outline: #888c8c;
+  --color-on-surface: #0F1111;
+  --color-on-surface-variant: #565959;
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px 0 rgba(0,0,0,0.3), 0 1px 3px 1px rgba(0,0,0,0.15);
+  --elevation-2: 0 1px 2px 0 rgba(0,0,0,0.3), 0 2px 6px 2px rgba(0,0,0,0.15);
+  --elevation-3: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3);
+  --radius-md: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --type-body-small: 12px;
+  --type-body-small-height: 16px;
+  --type-body-small-tracking: 0.4px;
+  --type-title-large: 22px;
+  --type-title-large-weight: 400;
+  --type-title-large-tracking: 0;
+  --type-title-large-height: 28px;
+}
+
+/* Card Variants */
+.card--elevated { background: var(--color-surface); border: none; border-radius: var(--radius-md); box-shadow: var(--elevation-2); }
+.card--elevated:hover { box-shadow: var(--elevation-3); }
+.card--filled { background: var(--color-surface-variant); border: none; border-radius: var(--radius-md); box-shadow: none; }
+.card--filled:hover { box-shadow: var(--elevation-1); }
+.card--outlined { background: var(--color-surface); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); box-shadow: none; }
+.card--outlined:hover { border-color: var(--color-outline); }
+
+/* Card Content Density */
+.card-body { padding: var(--space-6) var(--space-7); max-width: 720px; }
+.card-separator { height: 1px; background: var(--color-surface-variant); margin: var(--space-4) 0; }
+.card-caption { font-size: var(--type-body-small); color: var(--color-on-surface-variant); line-height: var(--type-body-small-height); letter-spacing: var(--type-body-small-tracking); margin-top: 8px; }
+.card-title { font-size: var(--type-title-large); font-weight: var(--type-title-large-weight); letter-spacing: var(--type-title-large-tracking); line-height: var(--type-title-large-height); color: var(--color-on-surface); margin-bottom: 0; padding: var(--space-6) var(--space-7) var(--space-4); border-bottom: 1px solid var(--color-surface-variant); }
+</style>
+</head>
+<body>
+
+<h1>Property-Based Tests: Card Variant System</h1>
+<p class="subtitle">Properties 1 &amp; 13 · Validates Requirements 1.1, 10.1, 10.4</p>
+
+<div id="results"></div>
+
+<!-- Hidden container for rendering test elements -->
+<div id="test-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fast-check/lib/bundle.js"></script>
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' properties passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // Helper: create a DOM element with a given class, append to container, return it
+  function createElement(tag, className) {
+    var el = document.createElement(tag);
+    el.className = className;
+    container.appendChild(el);
+    return el;
+  }
+
+  // Helper: get computed style value
+  function getComputed(el, prop) {
+    return window.getComputedStyle(el)[prop];
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 1: Card variant style mapping produces correct CSS
+  // Validates: Requirements 1.1
+  //
+  // For any card variant name in {elevated, filled, outlined}, the
+  // CSS class produces the expected styles:
+  //   - elevated: has box-shadow (non-none), no border
+  //   - filled: has background-color != surface (#ffffff), no border, no shadow
+  //   - outlined: has border, no shadow
+  // ═══════════════════════════════════════════════════════════════
+
+  var property1Detail = '';
+  try {
+    var variantArb = fc.constantFrom('elevated', 'filled', 'outlined');
+
+    fc.assert(fc.property(
+      variantArb,
+      function(variant) {
+        // Create a fresh element for each test
+        var el = document.createElement('div');
+        el.className = 'card--' + variant;
+        el.style.width = '200px';
+        el.style.height = '100px';
+        container.appendChild(el);
+
+        var computed = window.getComputedStyle(el);
+        var boxShadow = computed.boxShadow;
+        var border = computed.border;
+        var borderStyle = computed.borderStyle;
+        var backgroundColor = computed.backgroundColor;
+
+        var pass = true;
+
+        if (variant === 'elevated') {
+          // Should have box-shadow (non-none) and no border
+          if (boxShadow === 'none' || boxShadow === '') {
+            pass = false;
+          }
+          if (borderStyle !== 'none' && borderStyle !== '') {
+            pass = false;
+          }
+        } else if (variant === 'filled') {
+          // Should have background != #ffffff (surface), no border, no shadow
+          // var(--color-surface-variant) = #f3f3f3 -> rgb(243, 243, 243)
+          if (backgroundColor === 'rgb(255, 255, 255)') {
+            pass = false;
+          }
+          if (borderStyle !== 'none' && borderStyle !== '') {
+            pass = false;
+          }
+          if (boxShadow !== 'none' && boxShadow !== '') {
+            pass = false;
+          }
+        } else if (variant === 'outlined') {
+          // Should have border and no shadow
+          if (borderStyle === 'none' || borderStyle === '') {
+            pass = false;
+          }
+          if (boxShadow !== 'none' && boxShadow !== '') {
+            pass = false;
+          }
+        }
+
+        container.removeChild(el);
+        return pass;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 1: Card variant style mapping produces correct CSS', true,
+      'Validated: elevated has box-shadow + no border, filled has non-surface background + no border/shadow, outlined has border + no shadow.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 1: Card variant style mapping produces correct CSS', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 13: Card content density constraints
+  // Validates: Requirements 10.1, 10.4
+  //
+  // For any card with .card-body, verify:
+  //   - padding >= 24px on all sides
+  //   - max-width is 720px
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    // Generate arbitrary content to place inside card-body elements
+    var contentArb = fc.tuple(
+      fc.constantFrom('card-body'),
+      fc.string({ minLength: 0, maxLength: 200 }),
+      fc.constantFrom('elevated', 'filled', 'outlined', '')
+    );
+
+    fc.assert(fc.property(
+      contentArb,
+      function(tuple) {
+        var bodyClass = tuple[0];
+        var textContent = tuple[1];
+        var variant = tuple[2];
+
+        // Create card wrapper with optional variant
+        var card = document.createElement('div');
+        card.className = variant ? ('card--' + variant) : '';
+        card.style.width = '900px'; // wider than max-width to test constraint
+
+        // Create card-body inside
+        var body = document.createElement('div');
+        body.className = bodyClass;
+        body.textContent = textContent || 'Test content';
+        card.appendChild(body);
+        container.appendChild(card);
+
+        var computed = window.getComputedStyle(body);
+
+        // Check padding >= 24px on all sides
+        var paddingTop = parseFloat(computed.paddingTop);
+        var paddingRight = parseFloat(computed.paddingRight);
+        var paddingBottom = parseFloat(computed.paddingBottom);
+        var paddingLeft = parseFloat(computed.paddingLeft);
+
+        var paddingOk = paddingTop >= 24 && paddingRight >= 24 &&
+                        paddingBottom >= 24 && paddingLeft >= 24;
+
+        // Check max-width is 720px
+        var maxWidth = computed.maxWidth;
+        var maxWidthOk = (maxWidth === '720px');
+
+        container.removeChild(card);
+
+        if (!paddingOk) {
+          return false;
+        }
+        if (!maxWidthOk) {
+          return false;
+        }
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 13: Card content density constraints', true,
+      'Validated: .card-body has padding >= 24px on all sides and max-width: 720px.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 13: Card content density constraints', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // Show summary
+  showSummary();
+})();
+</script>
+</body>
+</html>

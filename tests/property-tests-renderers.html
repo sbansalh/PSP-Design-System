@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBT: Renderer Properties (Properties 2, 3 &amp; 4)</title>
+<style>
+/* ═══ Test Runner Styles ═══ */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+#test-container { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Property-Based Tests: Renderers</h1>
+<p class="subtitle">Properties 2, 3 &amp; 4 · Validates Requirements 2.1, 2.2, 2.4, 3.1, 3.3, 3.5</p>
+
+<div id="results"></div>
+
+<!-- Hidden container for rendering test elements -->
+<div id="test-container"></div>
+
+<!-- Load PSP modules in dependency order -->
+<script src="../psp-namespace.js"></script>
+<script src="../data/components.js"></script>
+<script src="../renderers/anatomy.js"></script>
+<script src="../renderers/states.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fast-check/lib/bundle.js"></script>
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' properties passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // Get component keys that have anatomy parts
+  var allComponentKeys = Object.keys(window.PSP.data.components);
+  var componentsWithAnatomy = allComponentKeys.filter(function(key) {
+    var c = window.PSP.data.components[key];
+    return c.anatomy && c.anatomy.length > 0;
+  });
+  var componentsWithStates = allComponentKeys.filter(function(key) {
+    var c = window.PSP.data.components[key];
+    return c.states != null;
+  });
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 2: Anatomy diagram generation produces valid SVG with
+  // sequential callouts
+  // **Validates: Requirements 2.1, 2.2**
+  //
+  // For any component with anatomy parts, calling
+  // window.PSP.renderers.anatomy.render(componentKey, container)
+  // produces:
+  //   - A valid SVG element inside the container
+  //   - The SVG contains callout groups with sequential numbering
+  //     (1, 2, 3...)
+  //   - Number of callouts matches the number of anatomy parts
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var anatomyArb = fc.constantFrom.apply(fc, componentsWithAnatomy);
+
+    fc.assert(fc.property(
+      anatomyArb,
+      function(componentKey) {
+        var component = window.PSP.data.components[componentKey];
+        var expectedParts = component.anatomy.length;
+
+        // Create a fresh container for rendering
+        var renderContainer = document.createElement('div');
+        renderContainer.style.width = '600px';
+        renderContainer.style.height = '400px';
+        container.appendChild(renderContainer);
+
+        // Render the anatomy diagram
+        window.PSP.renderers.anatomy.render(componentKey, renderContainer);
+
+        // Check: SVG element exists inside the container
+        var svg = renderContainer.querySelector('svg');
+        if (!svg) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Check: SVG has the correct namespace
+        if (svg.namespaceURI !== 'http://www.w3.org/2000/svg') {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Check: callout groups exist with sequential numbering
+        var callouts = svg.querySelectorAll('.psp-anatomy-callout');
+        if (callouts.length !== expectedParts) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Verify sequential numbering (1, 2, 3, ...)
+        for (var i = 0; i < callouts.length; i++) {
+          var textEl = callouts[i].querySelector('text');
+          if (!textEl) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+          var num = parseInt(textEl.textContent, 10);
+          if (num !== i + 1) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+        }
+
+        // Check: connector lines exist (one per part)
+        var connectors = svg.querySelectorAll('.psp-anatomy-connector');
+        if (connectors.length !== expectedParts) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        container.removeChild(renderContainer);
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 2: Anatomy diagram generation produces valid SVG with sequential callouts', true,
+      'Validated: For all components with anatomy parts, render() produces a valid SVG with correct number of sequentially numbered callouts and connector lines.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 2: Anatomy diagram generation produces valid SVG with sequential callouts', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 3: Anatomy diagram interactive elements meet minimum
+  // touch target size
+  // **Validates: Requirements 2.4**
+  //
+  // For any component, all callout elements in the rendered anatomy
+  // diagram have dimensions >= 44x44 CSS pixels. Uses
+  // getMinCalloutSize() to verify the configured size meets the
+  // requirement.
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var touchArb = fc.constantFrom.apply(fc, componentsWithAnatomy);
+
+    fc.assert(fc.property(
+      touchArb,
+      function(componentKey) {
+        // Verify via getMinCalloutSize() API
+        var minSize = window.PSP.renderers.anatomy.getMinCalloutSize();
+        if (minSize.width < 44 || minSize.height < 44) {
+          return false;
+        }
+
+        // Also verify by rendering and checking the hit area elements
+        var renderContainer = document.createElement('div');
+        renderContainer.style.width = '600px';
+        renderContainer.style.height = '400px';
+        container.appendChild(renderContainer);
+
+        window.PSP.renderers.anatomy.render(componentKey, renderContainer);
+
+        var svg = renderContainer.querySelector('svg');
+        if (!svg) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Check each callout's hit area dimensions
+        var callouts = svg.querySelectorAll('.psp-anatomy-callout');
+        for (var i = 0; i < callouts.length; i++) {
+          var hitArea = callouts[i].querySelector('.psp-anatomy-callout-hit');
+          if (hitArea) {
+            var width = parseFloat(hitArea.getAttribute('width'));
+            var height = parseFloat(hitArea.getAttribute('height'));
+            if (width < 44 || height < 44) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+          } else {
+            // If no explicit hit area, check the circle radius
+            var circle = callouts[i].querySelector('.psp-anatomy-callout-circle');
+            if (circle) {
+              var r = parseFloat(circle.getAttribute('r'));
+              // Diameter must be >= 44
+              if (r * 2 < 44) {
+                container.removeChild(renderContainer);
+                return false;
+              }
+            }
+          }
+        }
+
+        container.removeChild(renderContainer);
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 3: Anatomy diagram interactive elements meet minimum touch target size', true,
+      'Validated: getMinCalloutSize() returns >= 44x44 and all rendered callout hit areas are >= 44x44 CSS pixels.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 3: Anatomy diagram interactive elements meet minimum touch target size', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 4: State documentation completeness and CSS diff
+  // **Validates: Requirements 3.1, 3.3, 3.5**
+  //
+  // For any component with states:
+  //   - render() produces exactly 6 state cards (one per interaction
+  //     state)
+  //   - The enabled state shows base CSS properties
+  //   - Non-null non-enabled states show CSS diffs from enabled
+  //   - Null states show "Not applicable" text
+  //   - getDiff() correctly computes differences between states
+  // ═══════════════════════════════════════════════════════════════
+
+  try {
+    var statesArb = fc.constantFrom.apply(fc, componentsWithStates);
+
+    fc.assert(fc.property(
+      statesArb,
+      function(componentKey) {
+        var component = window.PSP.data.components[componentKey];
+        var states = component.states;
+        var stateOrder = ['enabled', 'disabled', 'hovered', 'focused', 'pressed', 'dragged'];
+
+        // Render the states
+        var renderContainer = document.createElement('div');
+        container.appendChild(renderContainer);
+
+        window.PSP.renderers.states.render(componentKey, renderContainer);
+
+        // Check: exactly 6 state cards rendered
+        var stateCards = renderContainer.querySelectorAll('.psp-state-card');
+        if (stateCards.length !== 6) {
+          container.removeChild(renderContainer);
+          return false;
+        }
+
+        // Check each state card
+        for (var i = 0; i < stateOrder.length; i++) {
+          var stateKey = stateOrder[i];
+          var card = stateCards[i];
+          var stateSpec = states.hasOwnProperty(stateKey) ? states[stateKey] : null;
+
+          // Verify data-state attribute
+          if (card.getAttribute('data-state') !== stateKey) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+
+          if (stateSpec === null) {
+            // Null states must show "Not applicable"
+            var naLabel = card.querySelector('.psp-state-card__na-label');
+            if (!naLabel || naLabel.textContent.indexOf('Not applicable') === -1) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+          } else if (stateKey === 'enabled') {
+            // Enabled state shows base CSS properties
+            var propsSection = card.querySelector('.psp-state-card__diff-title');
+            if (!propsSection || propsSection.textContent.indexOf('Base CSS') === -1) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+            // Should have property list items
+            var propItems = card.querySelectorAll('.psp-state-card__prop');
+            if (propItems.length === 0) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+          } else {
+            // Non-enabled, non-null states show diff from enabled
+            var diffTitle = card.querySelector('.psp-state-card__diff-title');
+            if (!diffTitle || diffTitle.textContent.indexOf('Changes from Enabled') === -1) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+          }
+        }
+
+        // Verify getDiff() computes correct differences
+        var enabledState = states.enabled;
+        for (var j = 0; j < stateOrder.length; j++) {
+          var sk = stateOrder[j];
+          if (sk === 'enabled') continue;
+          var spec = states.hasOwnProperty(sk) ? states[sk] : null;
+          if (spec === null) continue;
+
+          var diffs = window.PSP.renderers.states.getDiff(enabledState, spec);
+
+          // diffs should be an array
+          if (!Array.isArray(diffs)) {
+            container.removeChild(renderContainer);
+            return false;
+          }
+
+          // Each diff entry should have property, from, to
+          for (var d = 0; d < diffs.length; d++) {
+            var diff = diffs[d];
+            if (!diff.property || diff.from === undefined || diff.to === undefined) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+            // from and to should be different
+            if (diff.from === diff.to) {
+              container.removeChild(renderContainer);
+              return false;
+            }
+          }
+        }
+
+        container.removeChild(renderContainer);
+        return true;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 4: State documentation completeness and CSS diff', true,
+      'Validated: For all components with states, render() produces exactly 6 state cards. Enabled shows base CSS, non-null non-enabled states show diffs, null states show "Not applicable". getDiff() returns correct property differences.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 4: State documentation completeness and CSS diff', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // Show summary
+  showSummary();
+})();
+</script>
+</body>
+</html>
