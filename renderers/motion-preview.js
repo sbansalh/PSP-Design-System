@@ -53,46 +53,22 @@
   }
 
   /**
-   * Copy text to clipboard with fallback.
+   * Copy text to clipboard using the PSP clipboard utility with toast notification.
+   * Falls back to internal implementation if clipboard utility is not loaded.
    */
   function copyToClipboard(text, toastContainer) {
-    function showToast(message, success) {
-      var toast = document.createElement('div');
-      toast.className = 'psp-motion-toast';
-      toast.textContent = message;
-      toast.style.cssText = [
-        'position: fixed',
-        'bottom: 24px',
-        'left: 50%',
-        'transform: translateX(-50%)',
-        'padding: 10px 20px',
-        'border-radius: 6px',
-        'font-size: 13px',
-        'font-family: system-ui, -apple-system, sans-serif',
-        'color: #ffffff',
-        'background: ' + (success ? '#037f0c' : '#d13212'),
-        'box-shadow: 0 4px 12px rgba(0,0,0,0.2)',
-        'z-index: 10000',
-        'opacity: 1',
-        'transition: opacity 0.3s'
-      ].join(';');
-      document.body.appendChild(toast);
-      setTimeout(function() {
-        toast.style.opacity = '0';
-        setTimeout(function() {
-          if (toast.parentNode) toast.parentNode.removeChild(toast);
-        }, 300);
-      }, 2000);
+    if (window.PSP && window.PSP.features && window.PSP.features.clipboard) {
+      window.PSP.features.clipboard.copy(text);
+      return;
     }
-
+    // Fallback if clipboard utility not available
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(text).then(function() {
-        showToast('Copied: ' + text, true);
+        if (typeof toast === 'function') toast('Copied!');
       }).catch(function() {
-        showToast('Copy failed — please copy manually', false);
+        if (typeof toast === 'function') toast('Copy failed');
       });
     } else {
-      // Fallback: execCommand
       try {
         var textarea = document.createElement('textarea');
         textarea.value = text;
@@ -101,9 +77,9 @@
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        showToast('Copied: ' + text, true);
+        if (typeof toast === 'function') toast('Copied!');
       } catch (e) {
-        showToast('Copy failed — please copy manually', false);
+        if (typeof toast === 'function') toast('Copy failed');
       }
     }
   }

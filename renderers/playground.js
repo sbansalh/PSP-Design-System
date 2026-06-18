@@ -129,15 +129,14 @@
       '  color: #067d62;',
       '}',
       '.psp-playground__tile-badge {',
-      '  position: absolute;',
-      '  top: -6px;',
-      '  right: 12px;',
       '  background: #e6f2ff;',
       '  color: #0972d3;',
       '  font-size: 10px;',
       '  font-weight: 600;',
       '  padding: 2px 6px;',
       '  border-radius: 4px;',
+      '  display: inline-block;',
+      '  margin-bottom: 3px;',
       '}',
       '.psp-playground__tile-wrapper {',
       '  position: relative;',
@@ -406,6 +405,44 @@
     var state = config.state || 'enabled';
     var stateSpec = comp.states[state];
 
+    if (componentKey === 'instrumentTile') {
+      var isSelected = (state === 'pressed' || state === 'focused');
+      var tileBg = isSelected ? '#EDF8FF' : '#FFF';
+      var tileBorder = isSelected ? '2px solid #2162A1' : '1px solid #D5D9D9';
+      var tileOpacity = stateSpec && stateSpec.opacity !== undefined ? stateSpec.opacity : 1;
+      var radioStroke = isSelected ? '#2162A1' : '#D5D9D9';
+      var radioFill = isSelected ? '<circle cx="10" cy="10" r="5" fill="#2162A1"/>' : '';
+
+      var html = '<div style="width:100%;max-width:340px">';
+      html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + '">';
+      html += '<div style="display:flex;align-items:center;gap:10px">';
+      // Icon LEFT (48x32px)
+      html += '<div style="width:48px;height:32px;background:#e8e8e8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0">' + escapeHtml(config.icon || 'VISA') + '</div>';
+      // Center content
+      html += '<div style="flex:1;min-width:0">';
+      if (config.badge) {
+        html += '<div style="margin-bottom:3px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">' + escapeHtml(config.badge) + '</span></div>';
+      }
+      html += '<div style="font-size:14px;font-weight:400;color:#0F1111">' + escapeHtml(config.name || '') + '</div>';
+      if (config.details) {
+        html += '<div style="font-size:12px;color:#565959;margin-top:2px">' + escapeHtml(config.details) + '</div>';
+      }
+      if (config.offer) {
+        html += '<div style="font-size:12px;color:#0B7B3C;margin-top:2px">' + escapeHtml(config.offer);
+        if (config.detailsLink) {
+          html += ' <span style="color:#2162A1">' + escapeHtml(config.detailsLink) + '</span>';
+        }
+        html += '</div>';
+      }
+      html += '</div>';
+      // Radio RIGHT (20px SVG circle)
+      html += '<svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="' + radioStroke + '" stroke-width="2"/>' + radioFill + '</svg>';
+      html += '</div>';
+      html += '</div>';
+      html += '</div>';
+      return html;
+    }
+
     // Build inline styles from state spec
     var styles = [];
     if (stateSpec) {
@@ -418,26 +455,6 @@
       styles.push('background:#f0f0f0');
       styles.push('border:1px dashed #ccc');
       styles.push('opacity:0.5');
-    }
-
-    if (componentKey === 'instrumentTile') {
-      var html = '<div class="psp-playground__tile-wrapper">';
-      if (config.badge) {
-        html += '<span class="psp-playground__tile-badge">' + escapeHtml(config.badge) + '</span>';
-      }
-      html += '<div class="psp-playground__tile" style="' + styles.join(';') + '">';
-      html += '<div class="psp-playground__tile-radio"></div>';
-      html += '<div class="psp-playground__tile-icon">' + escapeHtml(config.icon || 'VISA') + '</div>';
-      html += '<div class="psp-playground__tile-content">';
-      html += '<div class="psp-playground__tile-name">' + escapeHtml(config.name || '') + '</div>';
-      html += '<div class="psp-playground__tile-details">' + escapeHtml(config.details || '') + '</div>';
-      if (config.offer) {
-        html += '<div class="psp-playground__tile-offer">' + escapeHtml(config.offer) + '</div>';
-      }
-      html += '</div>';
-      html += '</div>';
-      html += '</div>';
-      return html;
     }
 
     // Generic preview for other components

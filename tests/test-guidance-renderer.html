@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Test: Guidance Renderer (Task 8.1)</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+#test-container { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Unit Tests: Usage Guidance Renderer</h1>
+<p class="subtitle">Task 8.1 · Validates Requirements 8.1, 8.2, 8.3, 8.4</p>
+
+<div id="results"></div>
+
+<!-- Hidden container for rendering test elements -->
+<div id="test-container"></div>
+
+<!-- Load PSP modules in dependency order -->
+<script src="../psp-namespace.js"></script>
+<script src="../data/guidance.js"></script>
+<script src="../renderers/guidance.js"></script>
+
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' tests passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 1: Renderer is exposed on window.PSP.renderers.guidance
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var renderer = window.PSP.renderers.guidance;
+    var hasRender = typeof renderer.render === 'function';
+    var hasGenerateHtml = typeof renderer.generateHtml === 'function';
+    var hasRenderAll = typeof renderer.renderAll === 'function';
+    var hasGetComponentIds = typeof renderer.getComponentIds === 'function';
+
+    addResult('Renderer is exposed on window.PSP.renderers.guidance',
+      hasRender && hasGenerateHtml && hasRenderAll && hasGetComponentIds,
+      'render: ' + hasRender + ', generateHtml: ' + hasGenerateHtml + ', renderAll: ' + hasRenderAll + ', getComponentIds: ' + hasGetComponentIds);
+  } catch (e) {
+    addResult('Renderer is exposed on window.PSP.renderers.guidance', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 2: generateHtml produces valid HTML with green indicator
+  // for "When to use" section
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var html = window.PSP.renderers.guidance.generateHtml('instrumentTile');
+    var hasGreenIndicator = html.indexOf('psp-guidance__indicator--green') !== -1;
+    var hasWhenToUse = html.indexOf('When to use') !== -1;
+    var hasSection = html.indexOf('psp-guidance__section--use') !== -1;
+
+    addResult('"When to use" section has green indicator',
+      hasGreenIndicator && hasWhenToUse && hasSection,
+      'Green indicator: ' + hasGreenIndicator + ', Header text: ' + hasWhenToUse + ', Section class: ' + hasSection);
+  } catch (e) {
+    addResult('"When to use" section has green indicator', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 3: generateHtml produces valid HTML with red indicator
+  // for "When not to use" section
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var html = window.PSP.renderers.guidance.generateHtml('instrumentTile');
+    var hasRedIndicator = html.indexOf('psp-guidance__indicator--red') !== -1;
+    var hasWhenNotToUse = html.indexOf('When not to use') !== -1;
+    var hasAvoidSection = html.indexOf('psp-guidance__section--avoid') !== -1;
+
+    addResult('"When not to use" section has red indicator',
+      hasRedIndicator && hasWhenNotToUse && hasAvoidSection,
+      'Red indicator: ' + hasRedIndicator + ', Header text: ' + hasWhenNotToUse + ', Section class: ' + hasAvoidSection);
+  } catch (e) {
+    addResult('"When not to use" section has red indicator', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 4: All components have minimum 3 "when to use" scenarios
+  // rendered
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var componentIds = window.PSP.renderers.guidance.getComponentIds();
+    var allHaveMin3 = true;
+    var details = [];
+
+    componentIds.forEach(function(id) {
+      var html = window.PSP.renderers.guidance.generateHtml(id);
+      var tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      var useSection = tempDiv.querySelector('.psp-guidance__section--use');
+      var useItems = useSection ? useSection.querySelectorAll('.psp-guidance__item') : [];
+      if (useItems.length < 3) {
+        allHaveMin3 = false;
+        details.push(id + ': ' + useItems.length + ' scenarios (need >= 3)');
+      }
+    });
+
+    addResult('All components have minimum 3 "when to use" scenarios',
+      allHaveMin3,
+      allHaveMin3 ? 'All ' + componentIds.length + ' components have >= 3 scenarios' : details.join('\n'));
+  } catch (e) {
+    addResult('All components have minimum 3 "when to use" scenarios', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 5: All components have minimum 2 "when not to use"
+  // anti-patterns with alternatives
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var componentIds = window.PSP.renderers.guidance.getComponentIds();
+    var allHaveMin2 = true;
+    var allHaveAlternatives = true;
+    var details = [];
+
+    componentIds.forEach(function(id) {
+      var html = window.PSP.renderers.guidance.generateHtml(id);
+      var tempDiv = document.createElement('div');
+      tempDiv.innerHTML = html;
+      var avoidSection = tempDiv.querySelector('.psp-guidance__section--avoid');
+      var avoidItems = avoidSection ? avoidSection.querySelectorAll('.psp-guidance__item') : [];
+      if (avoidItems.length < 2) {
+        allHaveMin2 = false;
+        details.push(id + ': ' + avoidItems.length + ' anti-patterns (need >= 2)');
+      }
+      // Check each anti-pattern has an alternative
+      for (var i = 0; i < avoidItems.length; i++) {
+        var altEl = avoidItems[i].querySelector('.psp-guidance__alternative');
+        if (!altEl || altEl.textContent.trim().length === 0) {
+          allHaveAlternatives = false;
+          details.push(id + ' item ' + (i+1) + ': missing alternative');
+        }
+      }
+    });
+
+    addResult('All components have minimum 2 anti-patterns with alternatives',
+      allHaveMin2 && allHaveAlternatives,
+      (allHaveMin2 && allHaveAlternatives) ? 'All ' + componentIds.length + ' components have >= 2 anti-patterns with alternatives' : details.join('\n'));
+  } catch (e) {
+    addResult('All components have minimum 2 anti-patterns with alternatives', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 6: render() injects content into a container element
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var renderContainer = document.createElement('div');
+    container.appendChild(renderContainer);
+    window.PSP.renderers.guidance.render('instrumentTile', renderContainer);
+
+    var hasContent = renderContainer.querySelector('.psp-guidance') !== null;
+    var hasUseSection = renderContainer.querySelector('.psp-guidance__section--use') !== null;
+    var hasAvoidSection = renderContainer.querySelector('.psp-guidance__section--avoid') !== null;
+    var hasComponent = renderContainer.querySelector('.psp-guidance').getAttribute('data-component') === 'instrumentTile';
+
+    container.removeChild(renderContainer);
+
+    addResult('render() populates container with correct structure',
+      hasContent && hasUseSection && hasAvoidSection && hasComponent,
+      'Has guidance wrapper: ' + hasContent + ', Use section: ' + hasUseSection + ', Avoid section: ' + hasAvoidSection + ', data-component: ' + hasComponent);
+  } catch (e) {
+    addResult('render() populates container with correct structure', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 7: render() handles missing component gracefully
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var renderContainer = document.createElement('div');
+    container.appendChild(renderContainer);
+    window.PSP.renderers.guidance.render('nonExistentComponent', renderContainer);
+
+    var emptyMsg = renderContainer.querySelector('.psp-guidance__empty');
+    var noGuidance = renderContainer.querySelector('.psp-guidance') === null;
+
+    container.removeChild(renderContainer);
+
+    addResult('render() handles missing component gracefully',
+      emptyMsg !== null && noGuidance,
+      'Shows empty message: ' + (emptyMsg !== null) + ', No guidance wrapper: ' + noGuidance);
+  } catch (e) {
+    addResult('render() handles missing component gracefully', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 8: renderAll() returns HTML for all components
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    var allHtml = window.PSP.renderers.guidance.renderAll();
+    var keys = Object.keys(allHtml);
+    var expectedKeys = Object.keys(window.PSP.data.guidance);
+    var allPresent = expectedKeys.every(function(k) { return keys.indexOf(k) !== -1; });
+    var allNonEmpty = keys.every(function(k) { return allHtml[k].length > 0; });
+
+    addResult('renderAll() returns HTML for all components',
+      allPresent && allNonEmpty,
+      'Components with guidance: ' + expectedKeys.length + ', All present: ' + allPresent + ', All non-empty: ' + allNonEmpty);
+  } catch (e) {
+    addResult('renderAll() returns HTML for all components', false, e.message);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Test 9: Styles are injected once into document head
+  // ═══════════════════════════════════════════════════════════════
+  try {
+    // Render twice to verify styles are injected only once
+    var renderContainer = document.createElement('div');
+    container.appendChild(renderContainer);
+    window.PSP.renderers.guidance.render('instrumentTile', renderContainer);
+    window.PSP.renderers.guidance.render('badge', renderContainer);
+
+    var styleEls = document.querySelectorAll('#psp-guidance-styles');
+    container.removeChild(renderContainer);
+
+    addResult('Styles are injected exactly once (idempotent)',
+      styleEls.length === 1,
+      'Style elements found: ' + styleEls.length);
+  } catch (e) {
+    addResult('Styles are injected exactly once (idempotent)', false, e.message);
+  }
+
+  // Show summary
+  showSummary();
+})();
+</script>
+</body>
+</html>

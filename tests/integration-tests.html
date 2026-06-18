@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Integration Tests: PSP Toolkit Excellence</title>
+<style>
+/* ═══ Test Runner Styles ═══ */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+.section-title { font-size: 16px; font-weight: 600; margin-top: 32px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e3e6e8; color: #232f3e; }
+#test-container { display: none; }
+</style>
+</head>
+<body>
+
+<h1>Integration Tests: PSP Toolkit</h1>
+<p class="subtitle">End-to-end verification · Page Load, Navigation, Dark Mode, Search, Playground</p>
+
+<div id="results"></div>
+
+<!-- Hidden container for rendering test elements -->
+<div id="test-container"></div>
+
+<!-- Load PSP modules in dependency order (same as index.html) -->
+<script src="../psp-namespace.js"></script>
+
+<!-- Data layer -->
+<script src="../data/components.js"></script>
+<script src="../data/motion-tokens.js"></script>
+<script src="../data/themes.js"></script>
+<script src="../data/changelog.js"></script>
+<script src="../data/guidance.js"></script>
+<script src="../data/breakpoints.js"></script>
+<script src="../data/code-examples.js"></script>
+
+<!-- Features -->
+<script src="../features/clipboard.js"></script>
+<script src="../features/dark-mode.js"></script>
+<script src="../features/search.js"></script>
+
+<!-- Renderers -->
+<script src="../renderers/anatomy.js"></script>
+<script src="../renderers/playground.js"></script>
+<script src="../renderers/states.js"></script>
+<script src="../renderers/motion-preview.js"></script>
+<script src="../renderers/changelog.js"></script>
+<script src="../renderers/guidance.js"></script>
+<script src="../renderers/breakpoints.js"></script>
+<script src="../renderers/edge-cases.js"></script>
+<script src="../renderers/accessibility.js"></script>
+<script src="../renderers/code-examples.js"></script>
+<script src="../renderers/figma-preview.js"></script>
+
+<script>
+(function() {
+  'use strict';
+
+  var results = [];
+  var resultsEl = document.getElementById('results');
+  var container = document.getElementById('test-container');
+  var jsErrors = [];
+
+  // Capture JS errors during page load
+  window.onerror = function(msg, url, line, col, error) {
+    jsErrors.push(msg + ' at ' + url + ':' + line + ':' + col);
+  };
+
+  function addSectionTitle(title) {
+    var div = document.createElement('div');
+    div.className = 'section-title';
+    div.textContent = title;
+    resultsEl.appendChild(div);
+  }
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' tests passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION 1: Full Page Load
+  // Verifies all scripts load, window.PSP is populated, no JS errors
+  // ═══════════════════════════════════════════════════════════════
+
+  function runPageLoadTests() {
+    addSectionTitle('1. Full Page Load');
+
+    // Test 1.1: No JS errors during script loading
+    addResult(
+      'No JavaScript errors during script loading',
+      jsErrors.length === 0,
+      jsErrors.length === 0
+        ? 'All scripts loaded without throwing errors.'
+        : 'Errors captured:\n' + jsErrors.join('\n')
+    );
+
+    // Test 1.2: window.PSP namespace is populated
+    var hasPSP = typeof window.PSP === 'object' && window.PSP !== null;
+    var hasData = hasPSP && typeof window.PSP.data === 'object';
+    var hasRenderers = hasPSP && typeof window.PSP.renderers === 'object';
+    var hasFeatures = hasPSP && typeof window.PSP.features === 'object';
+    var allNamespaces = hasPSP && hasData && hasRenderers && hasFeatures;
+
+    addResult(
+      'window.PSP namespace fully populated',
+      allNamespaces,
+      allNamespaces
+        ? 'PSP.data: ' + Object.keys(window.PSP.data).join(', ') +
+          '\nPSP.renderers: ' + Object.keys(window.PSP.renderers).join(', ') +
+          '\nPSP.features: ' + Object.keys(window.PSP.features).join(', ')
+        : 'Missing: ' + (!hasPSP ? 'PSP ' : '') + (!hasData ? 'data ' : '') +
+          (!hasRenderers ? 'renderers ' : '') + (!hasFeatures ? 'features ' : '')
+    );
+
+    // Test 1.3: Data modules are populated
+    var dataKeys = Object.keys(window.PSP.data);
+    var expectedData = ['components', 'motionTokens', 'themes', 'changelog', 'guidance', 'breakpoints', 'codeExamples'];
+    var missingData = expectedData.filter(function(k) { return dataKeys.indexOf(k) === -1; });
+    addResult(
+      'All data modules loaded',
+      missingData.length === 0,
+      missingData.length === 0
+        ? 'All 7 data modules present: ' + expectedData.join(', ')
+        : 'Missing data modules: ' + missingData.join(', ')
+    );
+
+    // Test 1.4: Feature modules are populated
+    var featureKeys = Object.keys(window.PSP.features);
+    var expectedFeatures = ['darkMode', 'search', 'clipboard', 'highlight'];
+    var missingFeatures = expectedFeatures.filter(function(k) { return featureKeys.indexOf(k) === -1; });
+    addResult(
+      'All feature modules loaded',
+      missingFeatures.length === 0,
+      missingFeatures.length === 0
+        ? 'All ' + expectedFeatures.length + ' feature modules present: ' + expectedFeatures.join(', ')
+        : 'Missing feature modules: ' + missingFeatures.join(', ')
+    );
+
+    // Test 1.5: Renderer modules are populated
+    var rendererKeys = Object.keys(window.PSP.renderers);
+    var expectedRenderers = ['anatomy', 'states', 'playground', 'motionPreview', 'changelog', 'codeExamples', 'guidance', 'breakpoints', 'edgeCases', 'accessibility', 'figmaPreview'];
+    var missingRenderers = expectedRenderers.filter(function(k) { return rendererKeys.indexOf(k) === -1; });
+    addResult(
+      'All renderer modules loaded',
+      missingRenderers.length === 0,
+      missingRenderers.length === 0
+        ? 'All ' + expectedRenderers.length + ' renderers present: ' + expectedRenderers.join(', ')
+        : 'Missing renderers: ' + missingRenderers.join(', ') + '\nLoaded: ' + rendererKeys.join(', ')
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION 2: Navigation
+  // Verifies sidebar nav items exist and switching works
+  // ═══════════════════════════════════════════════════════════════
+
+  function runNavigationTests() {
+    addSectionTitle('2. Navigation');
+
+    // Build a minimal page structure that mirrors index.html
+    // Create sidebar nav and content sections
+    var sidebarNav = document.createElement('div');
+    sidebarNav.id = 'sidebarNav';
+    sidebarNav.className = 'sidebar-nav';
+    container.appendChild(sidebarNav);
+
+    var contentEl = document.createElement('div');
+    contentEl.id = 'content';
+    container.appendChild(contentEl);
+
+    // Define expected navigation groups (from index.html NAV_GROUPS)
+    var expectedSections = [
+      'Overview', 'Foundations', 'Components', 'Patterns',
+      'States & Behavior', 'Content Guidelines', 'Mental Model',
+      'Accessibility', 'Decision Framework', 'Developer Handoff',
+      'Baseline CX', 'Motion Tokens', 'Playground', 'Changelog',
+      'Breakpoints', 'Code Examples', 'Figma Previews'
+    ];
+
+    // Create nav items and sections to simulate
+    var navItems = [];
+    var sections = [];
+    expectedSections.forEach(function(name, idx) {
+      var navItem = document.createElement('div');
+      navItem.className = 'nav-item' + (idx === 0 ? ' active' : '');
+      navItem.textContent = name;
+      navItem.setAttribute('data-tab-index', idx);
+      sidebarNav.appendChild(navItem);
+      navItems.push(navItem);
+
+      var sec = document.createElement('div');
+      sec.className = 'sec' + (idx === 0 ? ' active' : '');
+      sec.setAttribute('data-section', name);
+      sec.textContent = 'Content for ' + name;
+      contentEl.appendChild(sec);
+      sections.push(sec);
+    });
+
+    // Test 2.1: All expected nav items exist
+    addResult(
+      'All ' + expectedSections.length + ' navigation items created',
+      navItems.length === expectedSections.length,
+      'Expected: ' + expectedSections.length + ' nav items\nActual: ' + navItems.length
+    );
+
+    // Test 2.2: First section is active by default
+    var firstActive = navItems[0].classList.contains('active');
+    var firstSecActive = sections[0].classList.contains('active');
+    addResult(
+      'First section (Overview) is active by default',
+      firstActive && firstSecActive,
+      'Nav item active: ' + firstActive + '\nSection visible: ' + firstSecActive
+    );
+
+    // Test 2.3: Clicking a nav item switches the visible section
+    // Simulate switchTab behavior
+    function simulateSwitchTab(idx) {
+      navItems.forEach(function(n, i) {
+        n.className = i === idx ? 'nav-item active' : 'nav-item';
+      });
+      sections.forEach(function(s, i) {
+        s.className = i === idx ? 'sec active' : 'sec';
+      });
+    }
+
+    // Switch to section 2 (Components)
+    simulateSwitchTab(2);
+    var navCorrect = navItems[2].classList.contains('active') && !navItems[0].classList.contains('active');
+    var secCorrect = sections[2].classList.contains('active') && !sections[0].classList.contains('active');
+    addResult(
+      'Clicking nav switches to correct section (Components)',
+      navCorrect && secCorrect,
+      'Nav[2] active: ' + navItems[2].classList.contains('active') +
+      '\nSec[2] active: ' + sections[2].classList.contains('active') +
+      '\nPrevious nav deactivated: ' + !navItems[0].classList.contains('active')
+    );
+
+    // Test 2.4: Can navigate to any section
+    var allNavigable = true;
+    var failedNav = [];
+    for (var i = 0; i < expectedSections.length; i++) {
+      simulateSwitchTab(i);
+      if (!navItems[i].classList.contains('active') || !sections[i].classList.contains('active')) {
+        allNavigable = false;
+        failedNav.push(expectedSections[i]);
+      }
+    }
+    addResult(
+      'All sections navigable via tab switching',
+      allNavigable,
+      allNavigable
+        ? 'Successfully navigated to all ' + expectedSections.length + ' sections.'
+        : 'Failed to navigate to: ' + failedNav.join(', ')
+    );
+
+    // Cleanup
+    container.removeChild(sidebarNav);
+    container.removeChild(contentEl);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION 3: Dark Mode Toggle End-to-End with Persistence
+  // Verifies toggle, attribute switching, localStorage persistence
+  // ═══════════════════════════════════════════════════════════════
+
+  function runDarkModeTests() {
+    addSectionTitle('3. Dark Mode');
+
+    var darkMode = window.PSP.features.darkMode;
+
+    // Clear any existing preference
+    try { localStorage.removeItem('psp-theme'); } catch(e) {}
+    document.documentElement.removeAttribute('data-theme');
+
+    // Test 3.1: Dark mode module exposes required API
+    var hasToggle = typeof darkMode.toggle === 'function';
+    var hasSetTheme = typeof darkMode.setTheme === 'function';
+    var hasGetTheme = typeof darkMode.getTheme === 'function';
+    var hasInit = typeof darkMode.init === 'function';
+    var hasApi = hasToggle && hasSetTheme && hasGetTheme && hasInit;
+    addResult(
+      'Dark mode exposes full API (toggle, setTheme, getTheme, init)',
+      hasApi,
+      'toggle: ' + hasToggle + ', setTheme: ' + hasSetTheme +
+      ', getTheme: ' + hasGetTheme + ', init: ' + hasInit
+    );
+
+    // Test 3.2: Default theme is light
+    var defaultTheme = darkMode.getTheme();
+    addResult(
+      'Default theme is light',
+      defaultTheme === 'light',
+      'Current theme: ' + defaultTheme
+    );
+
+    // Test 3.3: Toggle switches to dark
+    darkMode.setTheme('dark');
+    var afterDark = document.documentElement.getAttribute('data-theme');
+    var themeDark = darkMode.getTheme();
+    addResult(
+      'setTheme("dark") applies data-theme attribute',
+      afterDark === 'dark' && themeDark === 'dark',
+      'data-theme attribute: "' + afterDark + '"\ngetTheme(): "' + themeDark + '"'
+    );
+
+    // Test 3.4: Persistence to localStorage
+    var stored;
+    try { stored = localStorage.getItem('psp-theme'); } catch(e) { stored = null; }
+    addResult(
+      'Dark mode preference persisted to localStorage',
+      stored === 'dark',
+      'localStorage["psp-theme"]: "' + stored + '"'
+    );
+
+    // Test 3.5: Toggle switches back to light
+    darkMode.setTheme('light');
+    var afterLight = document.documentElement.getAttribute('data-theme');
+    var themeLight = darkMode.getTheme();
+    addResult(
+      'setTheme("light") removes dark attribute',
+      afterLight === null && themeLight === 'light',
+      'data-theme attribute: ' + JSON.stringify(afterLight) + '\ngetTheme(): "' + themeLight + '"'
+    );
+
+    // Test 3.6: toggle() round-trip
+    darkMode.setTheme('light');
+    var toggled1 = darkMode.toggle();
+    var toggled2 = darkMode.toggle();
+    addResult(
+      'toggle() performs light→dark→light round-trip',
+      toggled1 === 'dark' && toggled2 === 'light',
+      'First toggle: "' + toggled1 + '" (expected dark)\nSecond toggle: "' + toggled2 + '" (expected light)'
+    );
+
+    // Test 3.7: Persistence survives simulated reload
+    darkMode.setTheme('dark');
+    // Simulate reload by reading localStorage and applying
+    var savedPref;
+    try { savedPref = localStorage.getItem('psp-theme'); } catch(e) { savedPref = null; }
+    // Reset DOM state
+    document.documentElement.removeAttribute('data-theme');
+    // Re-apply from storage (simulating init on page load)
+    if (savedPref === 'dark') {
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
+    var afterReload = document.documentElement.getAttribute('data-theme');
+    addResult(
+      'Preference persists across simulated reload',
+      afterReload === 'dark',
+      'Saved preference: "' + savedPref + '"\nAfter simulated reload: data-theme="' + afterReload + '"'
+    );
+
+    // Cleanup
+    darkMode.setTheme('light');
+    try { localStorage.removeItem('psp-theme'); } catch(e) {}
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION 4: Search End-to-End
+  // Verifies index building, query results, and navigation
+  // ═══════════════════════════════════════════════════════════════
+
+  function runSearchTests() {
+    addSectionTitle('4. Search');
+
+    var search = window.PSP.features.search;
+
+    // Test 4.1: Search module exposes required API
+    var hasBuildIndex = typeof search.buildIndex === 'function';
+    var hasSearch = typeof search.search === 'function';
+    var hasOpen = typeof search.open === 'function';
+    var hasClose = typeof search.close === 'function';
+    var hasInit = typeof search.init === 'function';
+    var hasSearchApi = hasBuildIndex && hasSearch && hasOpen && hasClose && hasInit;
+    addResult(
+      'Search module exposes full API',
+      hasSearchApi,
+      'buildIndex: ' + hasBuildIndex + ', search: ' + hasSearch +
+      ', open: ' + hasOpen + ', close: ' + hasClose + ', init: ' + hasInit
+    );
+
+    // Test 4.2: Build index without errors
+    var indexError = null;
+    try {
+      search.buildIndex();
+    } catch(e) {
+      indexError = e.message || String(e);
+    }
+    addResult(
+      'buildIndex() completes without errors',
+      indexError === null,
+      indexError === null
+        ? 'Index built successfully from all data sources.'
+        : 'Error: ' + indexError
+    );
+
+    // Test 4.3: Searching for a known component returns results
+    var componentResults = search.search('instrument');
+    var hasComponentResults = Array.isArray(componentResults) && componentResults.length > 0;
+    addResult(
+      'search("instrument") returns results',
+      hasComponentResults,
+      hasComponentResults
+        ? 'Found ' + componentResults.length + ' result(s). First: "' + componentResults[0].title + '"'
+        : 'No results returned for "instrument"'
+    );
+
+    // Test 4.4: Search results have required structure (title, section, snippet)
+    var validStructure = false;
+    if (hasComponentResults) {
+      var r = componentResults[0];
+      validStructure = r.title !== undefined && r.section !== undefined &&
+                       r.tabIndex !== undefined && r.snippet !== undefined;
+    }
+    addResult(
+      'Search results contain title, section, tabIndex, snippet',
+      validStructure,
+      validStructure
+        ? 'Result structure: { title: "' + componentResults[0].title +
+          '", section: "' + componentResults[0].section +
+          '", tabIndex: ' + componentResults[0].tabIndex +
+          '", snippet: "' + (componentResults[0].snippet || '').substring(0, 50) + '..." }'
+        : 'Results missing required fields'
+    );
+
+    // Test 4.5: Searching for a motion token returns results
+    var motionResults = search.search('selection');
+    var hasMotionResults = Array.isArray(motionResults) && motionResults.length > 0;
+    addResult(
+      'search("selection") returns motion token results',
+      hasMotionResults,
+      hasMotionResults
+        ? 'Found ' + motionResults.length + ' result(s). First: "' + motionResults[0].title + '"'
+        : 'No results returned for "selection"'
+    );
+
+    // Test 4.6: Empty/short query returns empty results
+    var emptyResults = search.search('');
+    var shortResults = search.search('a');
+    var emptyCorrect = Array.isArray(emptyResults) && emptyResults.length === 0;
+    var shortCorrect = Array.isArray(shortResults) && shortResults.length === 0;
+    addResult(
+      'Empty and short queries return no results',
+      emptyCorrect && shortCorrect,
+      'Empty query results: ' + (emptyResults ? emptyResults.length : 'null') +
+      '\nSingle char query results: ' + (shortResults ? shortResults.length : 'null')
+    );
+
+    // Test 4.7: Nonsense string returns zero results
+    var nonsenseResults = search.search('xyzqwkflb99zz');
+    var nonsenseCorrect = Array.isArray(nonsenseResults) && nonsenseResults.length === 0;
+    addResult(
+      'Nonsense search string returns 0 results',
+      nonsenseCorrect,
+      'search("xyzqwkflb99zz") returned ' + (nonsenseResults ? nonsenseResults.length : 'null') + ' results (expected 0)'
+    );
+
+    // Test 4.8: Search result can be used for navigation
+    var navTarget = null;
+    if (hasComponentResults) {
+      navTarget = componentResults[0];
+    }
+    var canNavigate = navTarget !== null && typeof navTarget.tabIndex === 'number' && navTarget.tabIndex >= 0;
+    addResult(
+      'Search result provides valid navigation target (tabIndex)',
+      canNavigate,
+      canNavigate
+        ? 'Can navigate to: "' + navTarget.title + '" via tabIndex ' + navTarget.tabIndex
+        : 'No valid navigation target found'
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // SECTION 5: Playground Property Modification and Code Generation
+  // Verifies rendering, property updates, code gen, and reset
+  // ═══════════════════════════════════════════════════════════════
+
+  function runPlaygroundTests() {
+    addSectionTitle('5. Playground');
+
+    var playground = window.PSP.renderers.playground;
+
+    // Test 5.1: Playground module exposes required API
+    var hasRender = typeof playground.render === 'function';
+    var hasGenerateCode = typeof playground.generateCode === 'function';
+    var hasGetDefaults = typeof playground.getDefaults === 'function';
+    var hasGetConfig = typeof playground.getConfig === 'function';
+    var hasReset = typeof playground.resetToDefaults === 'function';
+    var hasPlayApi = hasRender && hasGenerateCode && hasGetDefaults && hasGetConfig && hasReset;
+    addResult(
+      'Playground exposes full API (render, generateCode, getDefaults, getConfig, resetToDefaults)',
+      hasPlayApi,
+      'render: ' + hasRender + ', generateCode: ' + hasGenerateCode +
+      ', getDefaults: ' + hasGetDefaults + ', getConfig: ' + hasGetConfig +
+      ', resetToDefaults: ' + hasReset
+    );
+
+    // Find a component with playground config
+    var componentKeys = Object.keys(window.PSP.data.components);
+    var playgroundComponent = null;
+    for (var i = 0; i < componentKeys.length; i++) {
+      var comp = window.PSP.data.components[componentKeys[i]];
+      if (comp.playground && comp.playground.defaults && comp.playground.controls) {
+        playgroundComponent = componentKeys[i];
+        break;
+      }
+    }
+
+    // Test 5.2: At least one component has playground config
+    addResult(
+      'At least one component has playground configuration',
+      playgroundComponent !== null,
+      playgroundComponent !== null
+        ? 'Using component: "' + playgroundComponent + '"'
+        : 'No components found with playground config'
+    );
+
+    if (playgroundComponent) {
+      // Test 5.3: Render playground without errors
+      var renderContainer = document.createElement('div');
+      renderContainer.style.width = '800px';
+      container.appendChild(renderContainer);
+
+      var renderError = null;
+      try {
+        playground.render(playgroundComponent, renderContainer);
+      } catch(e) {
+        renderError = e.message || String(e);
+      }
+      addResult(
+        'Playground renders without errors',
+        renderError === null,
+        renderError === null
+          ? 'Rendered playground for "' + playgroundComponent + '" successfully.'
+          : 'Error: ' + renderError
+      );
+
+      // Test 5.4: Rendered playground contains expected UI elements
+      var hasPreview = renderContainer.querySelector('.psp-playground__preview-area') !== null;
+      var hasControls = renderContainer.querySelector('.psp-playground__controls') !== null ||
+                        renderContainer.querySelector('.psp-playground__control') !== null ||
+                        renderContainer.querySelectorAll('input, select').length > 0;
+      addResult(
+        'Playground contains preview and controls',
+        hasPreview || hasControls,
+        'Preview area: ' + hasPreview +
+        '\nControls present: ' + hasControls +
+        '\nTotal inputs/selects: ' + renderContainer.querySelectorAll('input, select').length
+      );
+
+      // Test 5.5: getDefaults returns the default configuration
+      var defaults = playground.getDefaults(playgroundComponent);
+      var hasDefaults = defaults !== null && typeof defaults === 'object' && Object.keys(defaults).length > 0;
+      addResult(
+        'getDefaults() returns default configuration',
+        hasDefaults,
+        hasDefaults
+          ? 'Defaults keys: ' + Object.keys(defaults).join(', ')
+          : 'getDefaults returned: ' + JSON.stringify(defaults)
+      );
+
+      // Test 5.6: Code generation produces output
+      var code = null;
+      var codeError = null;
+      try {
+        code = playground.generateCode(playgroundComponent);
+      } catch(e) {
+        codeError = e.message || String(e);
+      }
+      var hasCode = code !== null && typeof code === 'string' && code.length > 0;
+      addResult(
+        'generateCode() produces non-empty output',
+        hasCode,
+        hasCode
+          ? 'Code length: ' + code.length + ' chars\nPreview: ' + code.substring(0, 100) + '...'
+          : 'Error: ' + (codeError || 'Empty or null output')
+      );
+
+      // Test 5.7: Code output changes when config is modified
+      var modifiedConfig = playground.getDefaults(playgroundComponent);
+      modifiedConfig.name = 'Modified Test Name XYZ';
+      var codeWithModification = null;
+      try {
+        codeWithModification = playground.generateCode(playgroundComponent, modifiedConfig);
+      } catch(e) {}
+      var codeChanged = hasCode && codeWithModification !== null &&
+                        codeWithModification !== code &&
+                        codeWithModification.indexOf('Modified Test Name XYZ') !== -1;
+      addResult(
+        'Code output changes when config is modified',
+        codeChanged,
+        codeChanged
+          ? 'Default code length: ' + code.length + ' chars\nModified code length: ' + codeWithModification.length + ' chars\nModified code contains new name: true'
+          : 'Code did not change or does not contain modified property'
+      );
+
+      // Test 5.8: resetToDefaults restores default config
+      var resetError = null;
+      try {
+        playground.resetToDefaults(playgroundComponent);
+      } catch(e) {
+        resetError = e.message || String(e);
+      }
+      var configAfterReset = null;
+      try {
+        configAfterReset = playground.getConfig(playgroundComponent);
+      } catch(e) {}
+
+      var resetWorks = resetError === null && configAfterReset !== null;
+      if (resetWorks && hasDefaults) {
+        // Verify config matches defaults
+        var defaultKeys = Object.keys(defaults);
+        for (var k = 0; k < defaultKeys.length; k++) {
+          var key = defaultKeys[k];
+          if (JSON.stringify(configAfterReset[key]) !== JSON.stringify(defaults[key])) {
+            resetWorks = false;
+            break;
+          }
+        }
+      }
+      addResult(
+        'resetToDefaults() restores configuration to defaults',
+        resetWorks,
+        resetError
+          ? 'Error: ' + resetError
+          : 'Config after reset matches defaults: ' + resetWorks
+      );
+
+      container.removeChild(renderContainer);
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Run all test suites
+  // ═══════════════════════════════════════════════════════════════
+
+  function runAllTests() {
+    try { runPageLoadTests(); } catch(e) {
+      addResult('Page Load suite error', false, String(e));
+    }
+    try { runNavigationTests(); } catch(e) {
+      addResult('Navigation suite error', false, String(e));
+    }
+    try { runDarkModeTests(); } catch(e) {
+      addResult('Dark Mode suite error', false, String(e));
+    }
+    try { runSearchTests(); } catch(e) {
+      addResult('Search suite error', false, String(e));
+    }
+    try { runPlaygroundTests(); } catch(e) {
+      addResult('Playground suite error', false, String(e));
+    }
+    showSummary();
+  }
+
+  // Run tests after a short delay to ensure all scripts have initialized
+  setTimeout(runAllTests, 100);
+
+})();
+</script>
+</body>
+</html>

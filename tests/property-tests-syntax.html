@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PBT: Syntax Highlighting (Property 15)</title>
+<style>
+/* ═══ Test Runner Styles ═══ */
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 24px; background: #fafafa; color: #1a1c1e; }
+h1 { font-size: 24px; margin-bottom: 8px; }
+.subtitle { color: #5f6b7a; font-size: 14px; margin-bottom: 24px; }
+.test-result { padding: 16px 20px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; line-height: 1.6; border-left: 4px solid; }
+.test-result.pass { background: #f2fcf3; border-color: #16a34a; color: #065f46; }
+.test-result.fail { background: #fff5f5; border-color: #dc2626; color: #991b1b; }
+.test-result .label { font-weight: 700; margin-bottom: 4px; }
+.test-result .detail { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; white-space: pre-wrap; margin-top: 8px; background: rgba(0,0,0,0.04); padding: 8px 12px; border-radius: 4px; }
+.summary { margin-top: 24px; padding: 16px 20px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+.summary.all-pass { background: #d1fae5; color: #065f46; }
+.summary.has-fail { background: #fecaca; color: #991b1b; }
+</style>
+</head>
+<body>
+
+<h1>Property-Based Tests: Syntax Highlighting</h1>
+<p class="subtitle">Property 15 · Validates Requirements 11.5</p>
+
+<div id="results"></div>
+
+<!-- Load PSP modules in dependency order -->
+<script src="../psp-namespace.js"></script>
+<script src="../features/clipboard.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fast-check/lib/bundle.js"></script>
+<script>
+(function() {
+  var results = [];
+  var resultsEl = document.getElementById('results');
+
+  function addResult(name, passed, detail) {
+    results.push({ name: name, passed: passed, detail: detail });
+    var div = document.createElement('div');
+    div.className = 'test-result ' + (passed ? 'pass' : 'fail');
+    div.innerHTML = '<div class="label">' + (passed ? '✓ PASS' : '✗ FAIL') + ': ' + name + '</div>'
+      + (detail ? '<div class="detail">' + detail + '</div>' : '');
+    resultsEl.appendChild(div);
+  }
+
+  function showSummary() {
+    var total = results.length;
+    var passed = results.filter(function(r) { return r.passed; }).length;
+    var failed = total - passed;
+    var div = document.createElement('div');
+    div.className = 'summary ' + (failed === 0 ? 'all-pass' : 'has-fail');
+    div.textContent = passed + '/' + total + ' properties passed' + (failed > 0 ? ' (' + failed + ' failed)' : '');
+    resultsEl.appendChild(div);
+  }
+
+  // ═══════════════════════════════════════════════════════════════
+  // Property 15: Syntax highlighting produces language-appropriate
+  // output
+  // **Validates: Requirements 11.5**
+  //
+  // For any code string and supported language identifier, the
+  // syntax highlighter SHALL produce output containing at least one
+  // colored span element with a language-appropriate CSS class.
+  // ═══════════════════════════════════════════════════════════════
+
+  // Generator: produce code samples guaranteed to contain
+  // highlightable tokens for each language
+  var htmlSnippets = [
+    '<div class="container">Hello</div>',
+    '<span style="color: red;">Text</span>',
+    '<!-- This is a comment -->',
+    '<a href="https://example.com">Link</a>',
+    '<input type="text" placeholder="Enter" />',
+    '<ul><li>Item 1</li><li>Item 2</li></ul>'
+  ];
+
+  var jsxSnippets = [
+    'import React from "react";\nconst App = () => <View />;',
+    'const styles = { flex: 1 };\nexport default function Main() { return <Text>Hi</Text>; }',
+    'import { View } from "react-native";\n// A comment\nlet x = 42;',
+    'const Component = () => {\n  return <TouchableOpacity onPress={() => {}} />;\n};',
+    'import styled from "styled-components";\nconst Button = () => <Pressable />;',
+    'function render() {\n  /* multi-line\n  comment */\n  return <Image source="icon.png" />;\n}'
+  ];
+
+  var xmlSnippets = [
+    '<LinearLayout\n  android:layout_width="match_parent"\n  android:layout_height="wrap_content" />',
+    '<TextView\n  android:id="@+id/title"\n  android:text="Hello" />',
+    '<!-- XML comment -->\n<FrameLayout\n  android:padding="16dp" />',
+    '<Button\n  android:id="@+id/btn"\n  app:layout_constraintTop_toTopOf="parent" />',
+    '<ImageView\n  android:src="@drawable/icon"\n  android:contentDescription="icon" />',
+    '<ScrollView\n  android:fillViewport="true">\n  <LinearLayout />\n</ScrollView>'
+  ];
+
+  var swiftSnippets = [
+    'import SwiftUI\nstruct ContentView: View {\n  var body: some View {\n    Text("Hello")\n  }\n}',
+    'struct MyButton: View {\n  var label: String\n  var body: some View {\n    Button(label) {}\n      .padding(16)\n  }\n}',
+    '// A swift comment\nimport Foundation\nlet count = 42\nvar name = "Test"',
+    'struct Card: View {\n  var body: some View {\n    VStack {\n      Text("Title")\n        .font(.headline)\n    }\n  }\n}',
+    'func calculate() -> Int {\n  /* block comment */\n  return 100\n}',
+    'private struct Theme {\n  static let primary = Color.blue\n  let spacing: CGFloat = 8.0\n}'
+  ];
+
+  // Arbitrary that generates (language, code) pairs with guaranteed
+  // highlightable content
+  var langCodeArb = fc.oneof(
+    fc.constantFrom.apply(fc, htmlSnippets).map(function(code) {
+      return { language: 'html', code: code };
+    }),
+    fc.constantFrom.apply(fc, jsxSnippets).map(function(code) {
+      return { language: 'jsx', code: code };
+    }),
+    fc.constantFrom.apply(fc, xmlSnippets).map(function(code) {
+      return { language: 'xml', code: code };
+    }),
+    fc.constantFrom.apply(fc, swiftSnippets).map(function(code) {
+      return { language: 'swift', code: code };
+    })
+  );
+
+  try {
+    fc.assert(fc.property(
+      langCodeArb,
+      function(input) {
+        var language = input.language;
+        var code = input.code;
+
+        // Call the syntax highlighter
+        var result = window.PSP.features.highlight.highlight(code, language);
+
+        // Result must be a non-empty string
+        if (typeof result !== 'string' || result.length === 0) {
+          return false;
+        }
+
+        // Must contain at least one span with psp-hl- class
+        var hasHighlightSpan = result.indexOf('<span class="psp-hl-') !== -1;
+        if (!hasHighlightSpan) {
+          return false;
+        }
+
+        // Verify language-appropriate CSS class is present
+        // Valid classes: psp-hl-keyword, psp-hl-string, psp-hl-comment,
+        //               psp-hl-tag, psp-hl-attr, psp-hl-number
+        var validClasses = ['psp-hl-keyword', 'psp-hl-string', 'psp-hl-comment',
+                           'psp-hl-tag', 'psp-hl-attr', 'psp-hl-number'];
+        var hasValidClass = validClasses.some(function(cls) {
+          return result.indexOf('<span class="' + cls + '">') !== -1;
+        });
+
+        return hasValidClass;
+      }
+    ), { numRuns: 100 });
+
+    addResult('Property 15: Syntax highlighting produces language-appropriate output', true,
+      'Validated: For all supported languages (html, jsx, xml, swift) with code containing highlightable tokens, highlight() produces output with at least one <span class="psp-hl-*"> element using a valid CSS class.\n100 runs passed.');
+  } catch (e) {
+    addResult('Property 15: Syntax highlighting produces language-appropriate output', false,
+      'Counterexample: ' + (e.message || String(e)));
+  }
+
+  // Show summary
+  showSummary();
+})();
+</script>
+</body>
+</html>

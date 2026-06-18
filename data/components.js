@@ -10,17 +10,29 @@
   window.PSP.data.components = {
     instrumentTile: {
       name: 'Instrument Tile',
-      description: 'Payment method selection tile with radio button',
-      figmaNodeId: '9:1857',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      description: 'Payment method selection tile with radio button on right, instrument icon on left, name/details/offer in center',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
-        { id: 'radio', label: 'Radio Button', token: '--psp-radio-size: 20px', x: 12, y: 16 },
-        { id: 'icon', label: 'Instrument Icon', token: '--psp-icon-size: 54x36px', x: 44, y: 12 },
-        { id: 'name', label: 'Instrument Name', token: '--type-body-large', x: 108, y: 14 },
-        { id: 'details', label: 'Card Details', token: '--type-body-small', x: 108, y: 34 },
-        { id: 'badge', label: 'Offer Badge', token: '--psp-badge-blue', x: 66, y: 0 },
-        { id: 'offer', label: 'Offer Text', token: '--color-success', x: 108, y: 52 }
+        { id: 'badge', label: 'Offer/Status Badge', token: '--psp-badge-radius: 13px; positioned above icon', x: 72, y: 0 },
+        { id: 'radio', label: 'Radio Button', token: '--psp-radio-size: 20px; right-aligned, vertically centered', x: 320, y: 28 },
+        { id: 'icon', label: 'Instrument Icon', token: '--psp-icon-size: 48x32px; border-radius: 4px', x: 16, y: 20 },
+        { id: 'name', label: 'Instrument Name', token: '--type-body-large; font-weight: 500; line 1', x: 72, y: 20 },
+        { id: 'details', label: 'Card Details (Network ••last4 | Holder)', token: '--type-body-small; --color-text-secondary; line 2', x: 72, y: 36 },
+        { id: 'offer', label: 'Offer/Savings Text', token: '--color-success; --type-body-small; line 3', x: 72, y: 52 },
+        { id: 'detailsLink', label: 'Details Link (inline after offer)', token: '--color-link; --type-body-small; inline on line 3', x: 220, y: 52 }
       ],
+      badgeVariants: {
+        bestOffer: { label: 'Best offer', bg: '#0A7CD1', color: '#FFFFFF' },
+        previouslyUsed: { label: 'Previously used', bg: '#E3E6E6', color: '#232F3E' },
+        featured: { label: 'Featured', bg: '#E3E6E6', color: '#232F3E' }
+      },
+      offerTextRules: {
+        description: 'Offer text on Line 3 changes format based on savings type',
+        cashback: { format: 'Save ₹{amount} as cashback. Details', example: 'Save ₹10 as cashback. Details' },
+        discount: { format: 'Save ₹{amount}. Details', example: 'Save ₹6. Details' },
+        noOffer: { format: null, example: '(Line 3 hidden when no offer available)' }
+      },
       states: {
         enabled: { bg: '#FFFFFF', border: '1px solid #D5D9D9', opacity: 1 },
         disabled: { bg: '#FFFFFF', border: '1px solid #D5D9D9', opacity: 0.6, reason: 'Card expired' },
@@ -41,16 +53,17 @@
         contrastRatio: '4.5:1'
       },
       playground: {
-        defaults: { name: 'Amazon Pay ICICI', details: 'VISA ••••0424', badge: 'Best offer', offer: 'Save ₹10', state: 'enabled' },
-        controls: ['name', 'details', 'badge', 'offer', 'icon', 'state']
+        defaults: { name: 'Amazon Pay ICICI credit card', details: 'VISA ••0424 | Akshay', badge: 'Best offer', offer: 'Save ₹10 as cashback.', detailsLink: 'Details', state: 'enabled' },
+        controls: ['name', 'details', 'badge', 'offer', 'detailsLink', 'icon', 'state'],
+        notes: 'Icon is on the LEFT (40x40px), Radio is on the RIGHT. Offer text format depends on savings type — see offerTextRules.'
       }
     },
 
     sectionHeader: {
       name: 'Section Header',
       description: 'Uppercase section divider label for payment method categories',
-      figmaNodeId: '9:1920',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'label', label: 'Section Label', token: '--type-overline', x: 16, y: 8 },
         { id: 'divider', label: 'Bottom Divider', token: '--color-border-subtle', x: 0, y: 32 },
@@ -84,8 +97,8 @@
     badge: {
       name: 'Badge',
       description: 'Small label indicating offers, status, or promotions on payment instruments',
-      figmaNodeId: '9:1885',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'container', label: 'Badge Container', token: '--psp-badge-radius: 4px', x: 0, y: 0 },
         { id: 'label', label: 'Badge Label', token: '--type-caption-bold', x: 8, y: 4 },
@@ -119,8 +132,8 @@
     ctaBar: {
       name: 'CTA Bar',
       description: 'Bottom sticky call-to-action bar with savings summary, total price, and primary action button',
-      figmaNodeId: '9:2010',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'container', label: 'Sticky Container', token: '--psp-cta-bar-height: 64px', x: 0, y: 0 },
         { id: 'savings', label: 'Savings Text', token: '--color-success', x: 16, y: 12 },
@@ -157,8 +170,8 @@
     savingsBar: {
       name: 'Savings Bar',
       description: 'Green promotional bar displayed above the CTA showing total savings on selected instrument',
-      figmaNodeId: '9:2045',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'container', label: 'Bar Container', token: '--psp-savings-bar-bg: #E7F7E9', x: 0, y: 0 },
         { id: 'icon', label: 'Savings Icon', token: '--psp-savings-icon-size: 16px', x: 12, y: 8 },
@@ -193,8 +206,8 @@
     bankPill: {
       name: 'Bank Pill',
       description: 'Compact pill-shaped element showing bank logo and last 4 digits for UPI linked accounts',
-      figmaNodeId: '9:1960',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'container', label: 'Pill Container', token: '--psp-pill-radius: 16px', x: 0, y: 0 },
         { id: 'bankLogo', label: 'Bank Logo', token: '--psp-bank-logo-size: 20px', x: 8, y: 6 },
@@ -229,8 +242,8 @@
     serviceTile: {
       name: 'Service Tile',
       description: 'Service & Pay variant tile with circular icon, service name, and inline CTA with chevron',
-      figmaNodeId: '9:1990',
-      figmaFileKey: 'XoqbHriFr2Efq18TBPG6VQ',
+      figmaNodeId: '410:45521',
+      figmaFileKey: 'N6ojbzlM3tRsXj5X4cJkkX',
       anatomy: [
         { id: 'icon', label: 'Circular Service Icon', token: '--psp-service-icon-size: 40px', x: 16, y: 12 },
         { id: 'name', label: 'Service Name', token: '--type-body-large', x: 72, y: 14 },

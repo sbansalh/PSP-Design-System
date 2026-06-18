@@ -221,6 +221,41 @@ body{font-family:'Amazon Ember',-apple-system,BlinkMacSystemFont,'Segoe UI',Robo
 @media(max-width:900px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.hamburger{display:flex}.overlay.open{display:block}.content-wrap{margin-left:0}.content{padding:20px 16px;padding-top:60px}.mm-grid{grid-template-columns:1fr!important}.mm-left,.mm-right{display:none!important}.stats-grid{grid-template-columns:repeat(2,1fr)}.grid-2{grid-template-columns:1fr}.bcx-title{font-size:20px}.bcx-sub{font-size:12px}.bcx-hero-inner{padding:20px}.preview{margin:0 16px 12px}.note,.warn{margin:12px 16px}.spec{margin:0 16px 16px}.tbl-wrap{margin:0 16px 12px}.hero{padding:32px 24px;margin-bottom:24px}.hero-title{font-size:32px}.hero-desc{font-size:15px}.hero-actions{flex-direction:column}.hero-actions .btn{width:100%;justify-content:center}.hero-logo{width:90px;top:16px;left:16px}}
 @media(max-width:600px){.grid-2,.grid-3{grid-template-columns:1fr}.stats-grid{grid-template-columns:1fr}.content{padding:16px 12px;padding-top:56px}.page-title{font-size:20px}.page-desc{font-size:13px}.card{border-radius:12px}.card-title{padding:16px 16px 8px;font-size:15px}.preview{margin:0 16px 12px;padding:20px}.site-footer{padding:20px 16px}.swatch-grid{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));padding:0 16px 16px}.bcx-title{font-size:18px}.bcx-badge{top:10px;right:10px}.bcx-icon{width:56px;height:56px;border-radius:12px}.bcx-icon svg{width:28px;height:28px}.bcx-cta{padding:6px 16px;font-size:12px}.note,.warn{margin:12px 12px}.spec{margin:0 12px 12px}.tbl-wrap{margin:0 12px 12px}.hero{padding:24px 20px;border-radius:12px;margin-bottom:20px}.hero-title{font-size:28px}.hero-desc{font-size:14px;margin-bottom:20px}.hero-badge{font-size:11px;padding:5px 12px}.hero-logo{width:80px;top:12px;left:12px}}
 @media(max-width:380px){.content{padding:12px 8px;padding-top:52px}.page-title{font-size:18px}.stats-grid{gap:8px}.stat-card{padding:14px}.stat-num{font-size:24px}.card{margin-bottom:14px}}
+
+/* Code Examples & Syntax Highlighting */
+.psp-code-examples{border:1px solid var(--color-outline-variant,#d5d9d9);border-radius:8px;overflow:hidden;margin:12px 0}
+.psp-code-examples__tabs{display:flex;gap:0;background:var(--color-surface-variant,#f5f5f5);border-bottom:1px solid var(--color-outline-variant,#d5d9d9);overflow-x:auto}
+.psp-code-examples__tab{padding:10px 16px;border:none;background:none;cursor:pointer;font-size:13px;font-weight:500;color:#565656;white-space:nowrap;border-bottom:2px solid transparent;transition:color 0.15s,border-color 0.15s}
+.psp-code-examples__tab:hover{color:#0972d3;background:rgba(9,114,211,0.04)}
+.psp-code-examples__tab--active{color:#0972d3;border-bottom-color:#0972d3;background:#fff}
+.psp-code-examples__panel{display:none;position:relative}
+.psp-code-examples__panel--active{display:block}
+.psp-code-examples__copy{position:absolute;top:8px;right:8px;display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border:1px solid var(--color-outline-variant,#d5d9d9);border-radius:6px;background:var(--color-surface,#fff);color:#565656;font-size:12px;cursor:pointer;z-index:1;transition:background 0.15s,color 0.15s}
+.psp-code-examples__copy:hover{background:#f0f4ff;color:#0972d3;border-color:#0972d3}
+.psp-code-examples__pre{margin:0;padding:16px;padding-right:90px;overflow-x:auto;background:var(--color-surface,#fff);font-family:'SF Mono','Fira Code','Consolas',monospace;font-size:12.5px;line-height:1.6;tab-size:2}
+.psp-code-examples__code{white-space:pre;color:#1a1a1a}
+.psp-code-examples__section{margin-bottom:24px}
+.psp-code-examples__title{font-size:15px;font-weight:600;margin-bottom:8px;color:var(--color-on-surface,#1a1a1a)}
+
+/* Syntax Highlighting Token Colors */
+.psp-hl-keyword{color:#7c3aed}
+.psp-hl-string{color:#16a34a}
+.psp-hl-comment{color:#6b7280;font-style:italic}
+.psp-hl-tag{color:#0972d3}
+.psp-hl-attr{color:#b45309}
+.psp-hl-number{color:#0891b2}
+
+/* Dark mode overrides for syntax highlighting */
+[data-theme="dark"] .psp-code-examples__pre{background:var(--color-surface,#1a1a2e)}
+[data-theme="dark"] .psp-code-examples__code{color:#e2e8f0}
+[data-theme="dark"] .psp-code-examples__tabs{background:var(--color-surface-variant,#2a2a3e)}
+[data-theme="dark"] .psp-code-examples__tab--active{background:var(--color-surface,#1a1a2e)}
+[data-theme="dark"] .psp-hl-keyword{color:#a78bfa}
+[data-theme="dark"] .psp-hl-string{color:#4ade80}
+[data-theme="dark"] .psp-hl-comment{color:#9ca3af}
+[data-theme="dark"] .psp-hl-tag{color:#60a5fa}
+[data-theme="dark"] .psp-hl-attr{color:#fbbf24}
+[data-theme="dark"] .psp-hl-number{color:#22d3ee}
 </style>
 </head>
 <body>
@@ -234,19 +269,19 @@ body{font-family:'Amazon Ember',-apple-system,BlinkMacSystemFont,'Segoe UI',Robo
   </div>
   <div class="sidebar-nav" id="sidebarNav"></div>
   <div class="sidebar-footer">
-    <a href="https://www.figma.com/design/XoqbHriFr2Efq18TBPG6VQ/Modernised-PSP-toolkit?node-id=9-1857" target="_blank">Figma &#8599;</a>
+    <a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" target="_blank">Figma &#8599;</a>
     <span>v2.0.0</span>
   </div>
 </nav>
 <main class="content-wrap">
   <div class="content" id="content"></div>
-  <footer class="site-footer">PSP Design System &middot; v2.0.0 &middot; <a href="https://www.figma.com/design/XoqbHriFr2Efq18TBPG6VQ/Modernised-PSP-toolkit?node-id=9-1857" target="_blank">Figma Source &#8599;</a></footer>
+  <footer class="site-footer">PSP Design System &middot; v2.0.0 &middot; <a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" target="_blank">Figma Source &#8599;</a></footer>
 </main>
 <div class="toast" id="toast"></div>
 <script>
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2200)}
 function toggleCode(btn){var block=btn.nextElementSibling;if(block&&block.classList.contains('code-block')){block.classList.toggle('visible');btn.classList.toggle('open');btn.textContent=block.classList.contains('visible')?'▾ Hide code':'▸ Show code'}}
-function copySpec(el){var text=el.textContent||el.innerText;navigator.clipboard.writeText(text).then(function(){var orig=el.textContent;el.textContent='\u2713 Copied!';setTimeout(function(){el.textContent=orig},1200);toast('Copied: '+text.substring(0,60))});return false}
+function copySpec(el){var text=el.textContent||el.innerText;if(window.PSP&&window.PSP.features&&window.PSP.features.clipboard){window.PSP.features.clipboard.copy(text);var orig=el.textContent;el.textContent='\u2713 Copied!';setTimeout(function(){el.textContent=orig},1200)}else{navigator.clipboard.writeText(text).then(function(){var orig=el.textContent;el.textContent='\u2713 Copied!';setTimeout(function(){el.textContent=orig},1200);toast('Copied: '+text.substring(0,60))})}return false}
 function toggleSidebar(){var s=document.getElementById('sidebar');var o=document.getElementById('overlay');s.classList.toggle('open');o.classList.toggle('open')}
 var NAV_GROUPS=[
   {title:'GETTING STARTED',items:[{icon:'🏠',label:'Overview'}]},
@@ -265,8 +300,15 @@ var NAV_GROUPS=[
     {icon:'🎯',label:'Decision Framework'}
   ]},
   {title:'DOCUMENTATION',items:[
-    {icon:'{}',label:'Developer Handoff'},
     {icon:'⭐',label:'Baseline CX'}
+  ]},
+  {title:'INTERACTIVE',items:[
+    {icon:'🖼️',label:'Figma Previews'},
+    {icon:'🎬',label:'Motion Tokens'},
+    {icon:'🎮',label:'Playground'},
+    {icon:'📋',label:'Changelog'},
+    {icon:'📱',label:'Breakpoints'},
+    {icon:'💻',label:'Code Examples'}
   ]}
 ];
 var sidebarNav=document.getElementById('sidebarNav');
@@ -318,6 +360,12 @@ function switchTab(idx){
 <script src="renderers/states.js"></script>
 <script src="renderers/motion-preview.js"></script>
 <script src="renderers/changelog.js"></script>
+<script src="renderers/guidance.js"></script>
+<script src="renderers/breakpoints.js"></script>
+<script src="renderers/edge-cases.js"></script>
+<script src="renderers/accessibility.js"></script>
+<script src="renderers/code-examples.js"></script>
+<script src="renderers/figma-preview.js"></script>
 
 <!-- Main orchestrator -->
 <script src="app.js"></script>
