@@ -132,11 +132,11 @@ html+='</div>';
    1. FOUNDATIONS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E4A3E 0%,#3D6B5A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🎨 Design Foundations</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Foundations</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.9)">Core design tokens that define the visual language of the PSP — colors, typography, spacing, and more. These tokens ensure consistency across all payment touchpoints.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#16a34a">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Foundations</h1>';
+html+='<p class="section-header__desc">Core design tokens that define the visual language of the PSP — colors, typography, spacing, and more. These tokens ensure consistency across all payment touchpoints.</p>';
+html+='</div></div>';
 
 /* Material Design 3 Type Scale */
 html+='<div class="card card--elevated"><div class="card-title">Material Design 3 Type Scale</div>';
@@ -270,11 +270,11 @@ html+='</div>';
    2. COMPONENTS (kept from Instrument Components)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#1B3A4B 0%,#2D5F7A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🧩 Component Library</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Components</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#0972d3">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Components</h1>';
+html+='<p class="section-header__desc">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
+html+='</div></div>';
 html+='<div class="note note-blue"><strong>⚡ Semi-Modernized PSP:</strong> Radio buttons are used for selection. Only the radio button is clickable, not the entire tile. Selected tiles show blue border + filled radio button.</div>';
 html+='<div class="warn">\u26A0\uFE0F <b>BUTTONS:</b> Do not document buttons here. They come from master libraries (Tuxedo Mobile / RIO).</div>';
 html+='<div class="note note-blue">Line 2 format changes based on instrument type: Cards show network + last 4 + name, UPI shows bank + last 4, Wallets show balance.</div>';
@@ -408,11 +408,11 @@ html+='</div>';
    3. PATTERNS (merged Layout Patterns + Bottom Sticky CTA)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E4A3E 0%,#3D6B5A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">📐 Layout & Structure</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Patterns</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Section grouping, spacing, visual hierarchy rules, and the bottom sticky CTA bar for the PSP page layout.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#7c3aed">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Patterns</h1>';
+html+='<p class="section-header__desc">Section grouping, spacing, visual hierarchy rules, and the bottom sticky CTA bar for the PSP page layout.</p>';
+html+='</div></div>';
 /* Section Anatomy */
 html+='<div class="card"><div class="card-title">Section Anatomy</div>';
 html+='<div class="preview"><div style="width:100%;max-width:340px;background:#fff;border-radius:12px;overflow:hidden;border:0.55px solid #D5D9D9">';
@@ -561,11 +561,11 @@ html+='</div>';
    4. STATES & BEHAVIOR (States Reference + Preselection + Grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#3B2E4A 0%,#5A3D6B 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">⚡ Interactive Behavior</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">States & Behavior</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">All interactive states for instrument tiles, page-level elements, preselection logic, and grouping rules.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#dc2626">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">States & Behavior</h1>';
+html+='<p class="section-header__desc">All interactive states for instrument tiles, page-level elements, preselection logic, and grouping rules.</p>';
+html+='</div></div>';
 /* Tile States */
 html+='<div class="card"><div class="card-title">Tile States Summary</div><div class="tbl-wrap"><table class="tbl"><tr><th>State</th><th>Background</th><th>Border</th><th>Radio Button</th><th>Opacity</th><th>Lines</th></tr>';
 html+='<tr><td><span class="state-label state-active">Transaction Ready</span></td><td>#FFFFFF</td><td>1px solid #D5D9D9</td><td>Empty circle (2px #D5D9D9)</td><td>1.0</td><td>1, 2, 3</td></tr>';
@@ -611,11 +611,11 @@ html+='</div>';
    5. CONTENT GUIDELINES (renamed from Character Constraints)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#4A3B2E 0%,#6B5A3D 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">✏️ Content & Copy</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Content Guidelines</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Maximum character limits for all text elements in the PSP. Exceeding these limits will cause truncation with ellipsis.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#d97706">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Content Guidelines</h1>';
+html+='<p class="section-header__desc">Maximum character limits for all text elements in the PSP. Exceeding these limits will cause truncation with ellipsis.</p>';
+html+='</div></div>';
 html+='<div class="card"><div class="card-title">Instrument Tile Text</div><div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Max</th><th>Font</th><th>Notes</th></tr>';
 html+='<tr><td>Line 1 \u2014 Name</td><td>32</td><td>16px Regular #0F1111</td><td>e.g. \u201CAmazon Pay ICICI credit card\u201D</td></tr>';
 html+='<tr><td>Line 2 \u2014 Card</td><td>36</td><td>13px Regular #565959</td><td>NETWORK \u2022\u2022\u2022\u2022XXXX | Name</td></tr>';
@@ -639,11 +639,11 @@ html+='</div>';
    6. MENTAL MODEL & HIERARCHY (wireframe only, no preselection/grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E3B4A 0%,#3D5A6B 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🧠 User Journey</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Mental Model & Hierarchy</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">The PSP follows a specific hierarchy to optimise conversion and user experience. The wireframe below maps every numbered zone to its purpose and spec.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#0891b2">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Mental Model & Hierarchy</h1>';
+html+='<p class="section-header__desc">The PSP follows a specific hierarchy to optimise conversion and user experience. The wireframe below maps every numbered zone to its purpose and spec.</p>';
+html+='</div></div>';
 html+='<div class="mm-grid" style="display:grid;grid-template-columns:200px 1fr 220px;gap:20px;align-items:start;margin-bottom:32px;position:relative">';
 html+='<div class="mm-left" style="padding-top:8px">';
 html+='<div class="ann" style="margin-top:0"><span class="flow-num">1</span><div class="ann-body"><strong>Header &amp; Navigation</strong><span>Teal gradient bar with back arrow and page title.</span></div></div>';
@@ -701,11 +701,11 @@ html+='</div>';
    7. ACCESSIBILITY (NEW)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E4A3E 0%,#3D6B5A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">♿ WCAG 2.1 AA Compliant</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Accessibility</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">ARIA labels, keyboard navigation, screen reader support, and focus management guidelines to ensure PSP is accessible to all users, including those with disabilities.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#059669">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Accessibility</h1>';
+html+='<p class="section-header__desc">ARIA labels, keyboard navigation, screen reader support, and focus management guidelines to ensure PSP is accessible to all users, including those with disabilities.</p>';
+html+='</div></div>';
 
 /* ARIA Labels */
 html+='<div class="card"><div class="card-title">ARIA Labels & Roles</div>';
@@ -903,11 +903,11 @@ html+='</div>';
    8. DECISION FRAMEWORK
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#3B2E4A 0%,#5A3D6B 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🎯 Logic & Rules</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Decision Framework</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Intelligence layer that governs payment method prioritization, preselection logic, and personalization rules. This framework ensures consistent user experience across 90+ touchpoints.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#6d28d9">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Decision Framework</h1>';
+html+='<p class="section-header__desc">Intelligence layer that governs payment method prioritization, preselection logic, and personalization rules. This framework ensures consistent user experience across 90+ touchpoints.</p>';
+html+='</div></div>';
 
 /* Decision Framework Cards (continuation of section 8) */
 
@@ -1044,21 +1044,15 @@ html+='</div>';
    9. BASELINE CX
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E4A3E 0%,#3D6B5A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">⭐ Reference Design</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Baseline CX</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Current baseline customer experience for Service and Pay. Click the cover below to open the full Figma design file.</p>';
-html+='</div>';
-html+='<div style="padding:24px"><div style="margin-bottom:24px;border:1px solid #e0e0e0;border-radius:8px;overflow:hidden"><iframe src="https://www.figma.com/embed?embed_host=share&url=https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-51546" style="width:100%;height:600px;border:none" allowfullscreen></iframe></div>';
-html+='<a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-51546" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#0972d3;text-decoration:none;padding:8px 14px;border-radius:6px;border:1px solid #0972d3">🖼️ Open in Figma ↗</a></div>';
-html+='<a class="bcx-hero" href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-51546&t=QS59MWp88L06WKDD-1" target="_blank" rel="noopener noreferrer">';
-html+='<div class="bcx-badge">Amazon Internal Only</div>';
-html+='<div class="bcx-hero-inner">';
-html+='<div class="bcx-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#1B2836" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>';
-html+='<div class="bcx-title">Service and Pay</div>';
-html+='<div class="bcx-sub">Baseline CX design file covering the current customer experience flows for Service and Pay.</div>';
-html+='<div class="bcx-cta">Open in Figma <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></div>';
-html+='</div></a>';
+html+='<div class="section-header" style="border-left-color:#0972d3">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Baseline CX</h1>';
+html+='<p class="section-header__desc">Current baseline customer experience for Service and Pay. Click the cover below to open the full Figma design file.</p>';
+html+='</div></div>';
+html+='<div style="padding:24px"><div style="margin-bottom:32px"><h3 style="font-size:16px;font-weight:600;color:#1a1c1e;margin-bottom:12px">Mental Model Flow</h3><div style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden"><iframe src="https://www.figma.com/embed?embed_host=share&url=https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-4327" style="width:100%;height:600px;border:none" allowfullscreen></iframe></div>';
+html+='<div style="margin-top:12px"><a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-4327" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#0972d3;text-decoration:none;padding:8px 14px;border-radius:6px;border:1px solid #0972d3">🖼️ Open Mental Model in Figma ↗</a></div></div>';
+html+='<div style="margin-bottom:32px"><h3 style="font-size:16px;font-weight:600;color:#1a1c1e;margin-bottom:12px">All Baseline Flows</h3><div style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden"><iframe src="https://www.figma.com/embed?embed_host=share&url=https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" style="width:100%;height:700px;border:none" allowfullscreen></iframe></div>';
+html+='<div style="margin-top:12px"><a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:#0972d3;text-decoration:none;padding:8px 14px;border-radius:6px;border:1px solid #0972d3">🖼️ Open All Baseline Flows in Figma ↗</a></div></div></div>';
 html+='<div class="note" style="margin-top:24px">\u26A0\uFE0F This Figma file is restricted to Amazon employees. Do not share the link externally.</div>';
 
 /* Baseline CX Subsections */
@@ -1118,26 +1112,14 @@ html+='</div></div></div>';
 html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
-   11. FIGMA PREVIEWS (moved to top of INTERACTIVE)
+   11. MOTION TOKENS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#4A3B2E 0%,#6B5A3D 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🖼️ Design Source</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Figma Previews</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Live Figma embeds for key component designs. View at actual design dimensions with direct links to the source file.</p>';
-html+='</div>';
-html+='<div id="psp-figma-preview-container"></div>';
-html+='</div>';
-
-/* ══════════════════════════════════════════════════════════════
-   12. MOTION TOKENS
-   ══════════════════════════════════════════════════════════════ */
-html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#1B2E4A 0%,#2D4A7A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🎬 Animation & Transitions</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Motion Tokens</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Standardized motion tokens for consistent animations across all PSP components. Click any token to copy its CSS transition shorthand.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#2563eb">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Motion Tokens</h1>';
+html+='<p class="section-header__desc">Standardized motion tokens for consistent animations across all PSP components. Click any token to copy its CSS transition shorthand.</p>';
+html+='</div></div>';
 html+='<div id="psp-motion-preview-container"></div>';
 html+='</div>';
 
@@ -1145,11 +1127,11 @@ html+='</div>';
    13. PLAYGROUND
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E3B4A 0%,#4A5A6B 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">🎮 Interactive</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Component Playground</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Experiment with component properties in real-time. Modify text, toggle states, and generate code snippets for your configuration.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#0891b2">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Component Playground</h1>';
+html+='<p class="section-header__desc">Experiment with component properties in real-time. Modify text, toggle states, and generate code snippets for your configuration.</p>';
+html+='</div></div>';
 html+='<div id="psp-playground-container"></div>';
 html+='</div>';
 
@@ -1157,11 +1139,11 @@ html+='</div>';
    14. CHANGELOG
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#3B4A2E 0%,#5A6B3D 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">📋 Version History</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Changelog</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Track all design token additions, modifications, and deprecations across versions.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#65a30d">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Changelog</h1>';
+html+='<p class="section-header__desc">Track all design token additions, modifications, and deprecations across versions.</p>';
+html+='</div></div>';
 html+='<div id="psp-changelog-container"></div>';
 html+='</div>';
 
@@ -1169,11 +1151,11 @@ html+='</div>';
    15. BREAKPOINTS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#4A2E3B 0%,#6B3D5A 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">📱 Responsive Design</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Breakpoints</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Responsive breakpoint documentation showing how PSP components adapt across mobile, tablet, desktop, and large desktop viewports.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#c026d3">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Breakpoints</h1>';
+html+='<p class="section-header__desc">Responsive breakpoint documentation showing how PSP components adapt across mobile, tablet, desktop, and large desktop viewports.</p>';
+html+='</div></div>';
 html+='<div id="psp-breakpoints-container"></div>';
 html+='</div>';
 
@@ -1181,11 +1163,11 @@ html+='</div>';
    16. CODE EXAMPLES
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="hero" style="background:linear-gradient(135deg,#2E4A4A 0%,#3D6B6B 100%)">';
-html+='<div class="hero-badge" style="background:rgba(255,255,255,.12);color:#ffffff;border-color:rgba(255,255,255,.2)">💻 Multi-Platform</div>';
-html+='<h1 class="hero-title" style="color:#ffffff">Code Examples</h1>';
-html+='<p class="hero-desc" style="color:rgba(255,255,255,.85)">Implementation examples across HTML/CSS, React Native, Android XML, and iOS SwiftUI with syntax highlighting and copy support.</p>';
-html+='</div>';
+html+='<div class="section-header" style="border-left-color:#0d9488">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Code Examples</h1>';
+html+='<p class="section-header__desc">Implementation examples across HTML/CSS, React Native, Android XML, and iOS SwiftUI with syntax highlighting and copy support.</p>';
+html+='</div></div>';
 html+='<div id="psp-code-examples-container"></div>';
 html+='</div>';
 
@@ -1244,31 +1226,6 @@ if (window.PSP && window.PSP.renderers && window.PSP.renderers.codeExamples) {
   if (codeExamplesContainer) {
     codeExamplesContainer.innerHTML = window.PSP.renderers.codeExamples.renderAll();
     window.PSP.renderers.codeExamples.attachEvents(codeExamplesContainer);
-  }
-}
-
-// Figma Previews (section 10)
-if (window.PSP && window.PSP.renderers && window.PSP.renderers.figmaPreview) {
-  var figmaContainer = document.getElementById('psp-figma-preview-container');
-  if (figmaContainer) {
-    figmaContainer.innerHTML = window.PSP.renderers.figmaPreview.renderAll();
-    window.PSP.renderers.figmaPreview.attachEvents();
-  }
-}
-
-// Anatomy diagrams in Components section (section 2)
-if (window.PSP && window.PSP.renderers && window.PSP.renderers.anatomy) {
-  var allSecs = document.querySelectorAll('#content > .sec');
-  var anatomyTarget = allSecs[2]; // Components section
-  if (anatomyTarget) {
-    var anatomyCard = document.createElement('div');
-    anatomyCard.className = 'card card--elevated';
-    anatomyCard.innerHTML = '<div class="card-title">Component Anatomy</div>';
-    var anatomyInner = document.createElement('div');
-    anatomyInner.style.padding = '24px';
-    anatomyCard.appendChild(anatomyInner);
-    anatomyTarget.appendChild(anatomyCard);
-    window.PSP.renderers.anatomy.render('instrumentTile', anatomyInner);
   }
 }
 
