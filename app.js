@@ -1324,82 +1324,123 @@ buildSections();
   var phoneFrame = document.getElementById('phoneFrame');
   if (!phoneFrame) return;
 
-  // Find all tile containers (they have padding:12px and contain SVG radios)
+  // STEP 1: Tag all elements with stable data attributes during init
+  // Find tile containers (padding:12px divs containing SVG radios)
   var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
   var tileContainers = [];
   for (var i = 0; i < allDivs.length; i++) {
     var div = allDivs[i];
     var svg = div.querySelector('svg');
-    if (svg && div.querySelector('div[style*="display:flex"]')) {
-      div.setAttribute('data-tile', tileContainers.length);
+    var flexRow = div.querySelector('div[style*="display:flex"]');
+    if (svg && flexRow) {
+      var idx = tileContainers.length;
+      div.setAttribute('data-tile', idx);
       div.style.cursor = 'pointer';
-      div.style.transition = 'background 0.15s, border 0.15s';
       tileContainers.push(div);
-    }
-  }
 
-  function deselectTile(t) {
-    t.style.background = '#FFF';
-    t.style.border = 'none';
-    t.style.borderRadius = '0';
-    t.style.padding = '12px';
-    // Reset radio - find ALL circles in SVG
-    var svgEl = t.querySelector('svg');
-    if (svgEl) {
-      var circles = svgEl.querySelectorAll('circle');
-      if (circles.length >= 1) circles[0].setAttribute('stroke', '#D5D9D9');
-      if (circles.length >= 2) { circles[1].setAttribute('r', '0'); circles[1].setAttribute('fill', 'none'); }
-    }
-    // Reset badge to grey
-    var badges = t.querySelectorAll('span[style*="border-radius"]');
-    for (var b = 0; b < badges.length; b++) {
-      var badge = badges[b];
-      if (badge.style.borderRadius.indexOf('13px') !== -1) {
-        badge.style.background = '#E3E6E6';
-        badge.style.color = '#232F3E';
+      // Tag the name element (first div with font-size:14px inside the flex row's content area)
+      var contentDivs = div.querySelectorAll('div[style*="font-size:14px"]');
+      for (var n = 0; n < contentDivs.length; n++) {
+        var cd = contentDivs[n];
+        if (cd.style.fontWeight || cd.getAttribute('style').indexOf('font-weight') !== -1) {
+          cd.setAttribute('data-name', idx);
+          break;
+        }
+      }
+
+      // Tag badge elements (spans with border-radius:13px)
+      var spans = div.querySelectorAll('span');
+      for (var s = 0; s < spans.length; s++) {
+        var spanStyle = spans[s].getAttribute('style') || '';
+        if (spanStyle.indexOf('border-radius') !== -1 && spanStyle.indexOf('13px') !== -1) {
+          spans[s].setAttribute('data-badge', idx);
+        }
       }
     }
-    // Reset name to normal weight
-    var nameEl = t.querySelector('div[style*="font-size:14px"][style*="font-weight"]');
-    if (nameEl) nameEl.style.fontWeight = '400';
   }
 
-  function selectTile(t) {
+  // STEP 2: Define state functions using data attributes (stable, never changes)
+  function deselectAll() {
+    for (var i = 0; i < tileContainers.length; i++) {
+      var t = tileContainers[i];
+      // Container reset
+      t.style.background = '#FFF';
+      t.style.border = 'none';
+      t.style.borderRadius = '0';
+      t.style.padding = '12px';
+
+      // Radio reset (all circles in this tile's SVG)
+      var svg = t.querySelector('svg');
+      if (svg) {
+        var circles = svg.querySelectorAll('circle');
+        for (var c = 0; c < circles.length; c++) {
+          if (c === 0) {
+            circles[c].setAttribute('stroke', '#D5D9D9');
+            circles[c].setAttribute('stroke-width', '2');
+          } else {
+            circles[c].setAttribute('r', '0');
+            circles[c].setAttribute('fill', 'none');
+          }
+        }
+      }
+
+      // Badge reset (use data-badge attribute)
+      var badges = phoneFrame.querySelectorAll('[data-badge="' + i + '"]');
+      for (var b = 0; b < badges.length; b++) {
+        badges[b].style.background = '#E3E6E6';
+        badges[b].style.color = '#232F3E';
+      }
+
+      // Name reset (use data-name attribute)
+      var nameEl = phoneFrame.querySelector('[data-name="' + i + '"]');
+      if (nameEl) nameEl.style.fontWeight = '400';
+    }
+  }
+
+  function selectTile(idx) {
+    var t = tileContainers[idx];
+    if (!t) return;
+
+    // Container selected
     t.style.background = '#EDF8FF';
     t.style.border = '2px solid #2162A1';
     t.style.borderRadius = '12px';
-    t.style.padding = '10px'; // compensate for 2px border
-    // Fill radio
-    var svgEl = t.querySelector('svg');
-    if (svgEl) {
-      var circles = svgEl.querySelectorAll('circle');
-      if (circles.length >= 1) circles[0].setAttribute('stroke', '#2162A1');
-      if (circles.length >= 2) { circles[1].setAttribute('r', '5'); circles[1].setAttribute('fill', '#2162A1'); }
-    }
-    // Make badge blue
-    var badges = t.querySelectorAll('span[style*="border-radius"]');
-    for (var b = 0; b < badges.length; b++) {
-      var badge = badges[b];
-      if (badge.style.borderRadius.indexOf('13px') !== -1) {
-        badge.style.background = '#0A7CD1';
-        badge.style.color = '#FFFFFF';
+    t.style.padding = '10px';
+
+    // Radio selected
+    var svg = t.querySelector('svg');
+    if (svg) {
+      var circles = svg.querySelectorAll('circle');
+      for (var c = 0; c < circles.length; c++) {
+        if (c === 0) {
+          circles[c].setAttribute('stroke', '#2162A1');
+          circles[c].setAttribute('stroke-width', '2');
+        } else {
+          circles[c].setAttribute('r', '5');
+          circles[c].setAttribute('fill', '#2162A1');
+        }
       }
     }
-    // Bold name
-    var nameEl = t.querySelector('div[style*="font-size:14px"][style*="font-weight"]');
+
+    // Badge selected
+    var badges = phoneFrame.querySelectorAll('[data-badge="' + idx + '"]');
+    for (var b = 0; b < badges.length; b++) {
+      badges[b].style.background = '#0A7CD1';
+      badges[b].style.color = '#FFFFFF';
+    }
+
+    // Name bold
+    var nameEl = phoneFrame.querySelector('[data-name="' + idx + '"]');
     if (nameEl) nameEl.style.fontWeight = '700';
   }
 
+  // STEP 3: Click handler
   phoneFrame.addEventListener('click', function(e) {
     var tileEl = e.target.closest('[data-tile]');
     if (!tileEl) return;
-
-    // Deselect ALL tiles
-    for (var i = 0; i < tileContainers.length; i++) {
-      deselectTile(tileContainers[i]);
-    }
-    // Select clicked tile
-    selectTile(tileEl);
+    var idx = parseInt(tileEl.getAttribute('data-tile'), 10);
+    deselectAll();
+    selectTile(idx);
   });
 })();
 
