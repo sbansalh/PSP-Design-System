@@ -1325,29 +1325,41 @@ buildSections();
   if (!phoneFrame) return;
 
   // STEP 1: Tag all elements with stable data attributes during init
-  // Find tile containers (padding:12px divs that directly contain a flex row with an SVG radio)
-  // Key filter: the SVG must be a direct child of the flex row (not deeply nested)
+  // Find tile containers: divs with padding:12px that have an SVG radio (circle element)
+  // Two patterns exist:
+  //   A) padding:12px div → child flex div → SVG (RECOMMENDED tiles)
+  //   B) padding:12px + display:flex combined on same div → SVG direct child (other tiles)
+  // Exclude: parent containers that contain other tiles (card groups)
   var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
   var tileContainers = [];
   for (var i = 0; i < allDivs.length; i++) {
     var div = allDivs[i];
-    // Get immediate child divs that are flex rows
-    var children = div.children;
-    var isValidTile = false;
-    for (var ch = 0; ch < children.length; ch++) {
-      var child = children[ch];
-      if (child.tagName === 'DIV' && child.getAttribute('style') && 
-          child.getAttribute('style').indexOf('display:flex') !== -1 &&
-          child.getAttribute('style').indexOf('align-items') !== -1) {
-        // Check if this flex row has a direct SVG child
-        var svgInRow = child.querySelector(':scope > svg');
-        if (svgInRow && svgInRow.querySelector('circle')) {
-          isValidTile = true;
-          break;
+    var divStyle = div.getAttribute('style') || '';
+    var hasSvgRadio = false;
+
+    // Pattern B: div itself is both padded AND flex, SVG is direct child
+    if (divStyle.indexOf('display:flex') !== -1) {
+      var directSvg = div.querySelector(':scope > svg');
+      if (directSvg && directSvg.querySelector('circle')) {
+        hasSvgRadio = true;
+      }
+    } else {
+      // Pattern A: div is padded container with a child flex row that has SVG
+      var children = div.children;
+      for (var ch = 0; ch < children.length; ch++) {
+        var child = children[ch];
+        if (child.tagName === 'DIV' && child.getAttribute('style') &&
+            child.getAttribute('style').indexOf('display:flex') !== -1 &&
+            child.getAttribute('style').indexOf('align-items') !== -1) {
+          var svgInRow = child.querySelector(':scope > svg');
+          if (svgInRow && svgInRow.querySelector('circle')) {
+            hasSvgRadio = true;
+            break;
+          }
         }
       }
     }
-    if (!isValidTile) continue;
+    if (!hasSvgRadio) continue;
       var idx = tileContainers.length;
       div.setAttribute('data-tile', idx);
       div.style.cursor = 'pointer';
