@@ -670,7 +670,7 @@ html+='</div></div>';
 html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">UPI</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/Any other UPI.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;font-size:14px;font-weight:400;color:#0F1111">Pay by any UPI App</div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add account to Amazon Pay UPI</span></div></div></div>';
 html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">CREDIT &amp; DEBIT CARDS</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px"><div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/HDFC Banks.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:400;color:#0F1111">HDFC debit card</div><div style="font-size:12px;color:#565959">VISA &#8226;&#8226;0333 | Akshay</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div><div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div><div style="padding:12px"><span style="font-size:14px;color:#2162A1">+ Add new credit or debit card</span></div></div></div>';
 html+='<div style="padding:8px 16px 0"><div style="font-size:13px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:8px">MORE WAYS TO PAY</div><div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;overflow:hidden;margin-bottom:8px">';
-html+='<div style="padding:12px;display:flex;align-items:flex-start;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/APay Balance.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:400;color:#0F1111;line-height:20px">Amazon Pay Balance: &#8377;60</div><div style="display:flex;align-items:center;gap:8px;margin-top:2px"><span style="font-size:11.5px;color:#565959;white-space:nowrap">Add &#8377;413.00 to proceed</span><div style="background:#FFF;border:1px solid #888C8C;border-radius:61px;padding:1px 10px;font-size:11.5px;color:#0F1111;white-space:nowrap;flex-shrink:0;line-height:22px">Add Now &rsaquo;</div></div></div><svg width="20" height="20" style="flex-shrink:0;margin-top:6px"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
+html+='<div style="padding:12px;display:flex;align-items:flex-start;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/APay Balance.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:400;color:#0F1111;line-height:20px">Amazon Pay Balance: &#8377;60</div><div style="display:flex;align-items:center;gap:8px;margin-top:6px"><span style="font-size:11.5px;color:#565959;white-space:nowrap">Add &#8377;413.00 to proceed</span><div style="background:#FFF;border:1px solid #888C8C;border-radius:61px;padding:1px 10px;font-size:11.5px;color:#0F1111;white-space:nowrap;flex-shrink:0;line-height:22px">Add Now &rsaquo;</div></div></div><svg width="20" height="20" style="flex-shrink:0;margin-top:8px"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
 html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/APay Later.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;font-weight:400;color:#0F1111">Amazon Pay Later</div><div style="font-size:12px;color:#565959">Available credit: &#8377; 60,000</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
@@ -1318,6 +1318,69 @@ function copyJSON(){
 
 /* ── Initialize app ── */
 buildSections();
+
+/* ── Make Mental Model PSP interactive ── */
+(function() {
+  var phoneFrame = document.getElementById('phoneFrame');
+  if (!phoneFrame) return;
+
+  var tiles = phoneFrame.querySelectorAll('[data-tile]');
+  if (tiles.length === 0) {
+    // Find all tile-like elements (those with radio SVGs inside padding:12px containers)
+    var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
+    var tileIdx = 0;
+    for (var i = 0; i < allDivs.length; i++) {
+      var div = allDivs[i];
+      // Must contain a flex row with a radio SVG
+      var hasFlex = div.querySelector('div[style*="display:flex"][style*="align-items"]');
+      var hasRadio = div.querySelector('svg');
+      if (hasFlex && hasRadio) {
+        div.setAttribute('data-tile', tileIdx);
+        div.style.cursor = 'pointer';
+        tileIdx++;
+      }
+    }
+  }
+
+  phoneFrame.addEventListener('click', function(e) {
+    var tileEl = e.target.closest('[data-tile]');
+    if (!tileEl) return;
+
+    // Deselect all tiles in the phone frame
+    var allTiles = phoneFrame.querySelectorAll('[data-tile]');
+    for (var i = 0; i < allTiles.length; i++) {
+      var t = allTiles[i];
+      t.style.background = '#FFF';
+      t.style.border = 'none';
+      t.style.borderRadius = '0';
+      var radio = t.querySelector('svg circle:first-child');
+      if (radio) radio.setAttribute('stroke', '#D5D9D9');
+      var radioFill = t.querySelector('svg circle:nth-child(2)');
+      if (radioFill) radioFill.setAttribute('r', '0');
+      // Reset badge to grey
+      var badge = t.querySelector('span[style*="border-radius:13px"]');
+      if (badge) {
+        badge.style.background = '#E3E6E6';
+        badge.style.color = '#232F3E';
+      }
+    }
+
+    // Select clicked tile
+    tileEl.style.background = '#EDF8FF';
+    tileEl.style.border = '2px solid #2162A1';
+    tileEl.style.borderRadius = '12px';
+    var radio = tileEl.querySelector('svg circle:first-child');
+    if (radio) radio.setAttribute('stroke', '#2162A1');
+    var radioFill = tileEl.querySelector('svg circle:nth-child(2)');
+    if (radioFill) radioFill.setAttribute('r', '5');
+    // Make badge blue
+    var badge = tileEl.querySelector('span[style*="border-radius:13px"]');
+    if (badge) {
+      badge.style.background = '#0A7CD1';
+      badge.style.color = '#FFFFFF';
+    }
+  });
+})();
 
 /* ── Initialize Dark Mode (reads localStorage, applies theme, renders toggle) ── */
 if (window.PSP && window.PSP.features && window.PSP.features.darkMode) {

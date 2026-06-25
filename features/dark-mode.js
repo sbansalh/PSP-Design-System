@@ -45,27 +45,10 @@
    * @param {string} theme - 'light' or 'dark'
    */
   function setTheme(theme) {
-    if (theme !== 'light' && theme !== 'dark') {
-      theme = 'light';
-    }
-
-    applyTransition();
-
-    if (theme === 'dark') {
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } else {
-      document.documentElement.removeAttribute('data-theme');
-    }
-
-    // Persist to localStorage
-    try {
-      localStorage.setItem(STORAGE_KEY, theme);
-    } catch (e) {
-      // localStorage unavailable (private browsing) — silently fail
-    }
-
-    // Update toggle button icon if it exists
-    updateToggleButton(theme);
+    // Dark mode disabled — only light theme allowed
+    theme = 'light';
+    document.documentElement.removeAttribute('data-theme');
+    try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
   }
 
   /**
@@ -73,10 +56,8 @@
    * @returns {string} The new theme after toggling
    */
   function toggle() {
-    var current = getTheme();
-    var next = current === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    return next;
+    // Dark mode disabled — always return light
+    return 'light';
   }
 
   /**
@@ -176,25 +157,9 @@
    * Initialize dark mode: load preference, apply theme, create toggle
    */
   function init() {
-    // Inject transition styles
-    injectTransitionStyles();
-
-    // Load persisted preference
-    var saved = loadPreference();
-    if (saved === 'dark' || saved === 'light') {
-      // Apply without transition on initial load
-      if (saved === 'dark') {
-        document.documentElement.setAttribute('data-theme', 'dark');
-      } else {
-        document.documentElement.removeAttribute('data-theme');
-      }
-      try {
-        localStorage.setItem(STORAGE_KEY, saved);
-      } catch (e) {}
-    }
-
-    // Create toggle button
-    createToggleButton();
+    // Dark mode disabled — always use light theme
+    document.documentElement.removeAttribute('data-theme');
+    try { localStorage.removeItem('psp-theme'); } catch(e) {}
   }
 
   // Expose on window.PSP.features.darkMode

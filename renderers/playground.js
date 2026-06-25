@@ -10,15 +10,14 @@
 (function() {
   'use strict';
 
-  // The 6 canonical interaction states
-  var STATES = ['enabled', 'disabled', 'hovered', 'focused', 'pressed', 'dragged'];
+  // The 5 canonical interaction states
+  var STATES = ['enabled', 'disabled', 'hovered', 'focused', 'dragged'];
 
   var STATE_LABELS = {
     enabled: 'Enabled',
     disabled: 'Disabled',
     hovered: 'Hovered',
     focused: 'Focused',
-    pressed: 'Pressed',
     dragged: 'Dragged'
   };
 
@@ -143,6 +142,23 @@
       '}',
       '.psp-playground__code-panel {',
       '  margin-top: 8px;',
+      '}',
+      '.psp-playground__code-toggle {',
+      '  padding: 6px 14px;',
+      '  border: 1px solid #e3e5e8;',
+      '  border-radius: 6px;',
+      '  background: #f7f8f9;',
+      '  font-size: 12px;',
+      '  font-weight: 600;',
+      '  color: #5f6b7a;',
+      '  cursor: pointer;',
+      '  transition: all 0.15s;',
+      '  margin-top: 8px;',
+      '}',
+      '.psp-playground__code-toggle:hover {',
+      '  background: #eef3f8;',
+      '  border-color: #0972d3;',
+      '  color: #0972d3;',
       '}',
       '.psp-playground__code-title {',
       '  font-size: 12px;',
@@ -406,22 +422,25 @@
     var stateSpec = comp.states[state];
 
     if (componentKey === 'instrumentTile') {
-      var isSelected = (state === 'pressed' || state === 'focused');
+      var isSelected = (state === 'focused');
       var tileBg = isSelected ? '#EDF8FF' : '#FFF';
-      var tileBorder = isSelected ? '2px solid #2162A1' : '1px solid #D5D9D9';
+      var tileBorder = '1px solid ' + (isSelected ? '#0972d3' : '#D5D9D9');
+      var tileOutline = isSelected ? 'outline:2px solid #0972d3;outline-offset:2px;' : '';
       var tileOpacity = stateSpec && stateSpec.opacity !== undefined ? stateSpec.opacity : 1;
       var radioStroke = isSelected ? '#2162A1' : '#D5D9D9';
       var radioFill = isSelected ? '<circle cx="10" cy="10" r="5" fill="#2162A1"/>' : '';
 
       var html = '<div style="width:100%;max-width:340px">';
-      html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + '">';
+      html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + ';' + tileOutline + '">';
       html += '<div style="display:flex;align-items:center;gap:10px">';
       // Icon LEFT (48x32px)
       html += '<div style="width:48px;height:32px;background:#e8e8e8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0">' + escapeHtml(config.icon || 'VISA') + '</div>';
       // Center content
       html += '<div style="flex:1;min-width:0">';
       if (config.badge) {
-        html += '<div style="margin-bottom:3px"><span style="background:#E3E6E6;color:#232F3E;font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">' + escapeHtml(config.badge) + '</span></div>';
+        var badgeBg = (isSelected || state === 'enabled') ? '#0A7CD1' : '#E3E6E6';
+        var badgeColor = (isSelected || state === 'enabled') ? '#fff' : '#232F3E';
+        html += '<div style="margin-bottom:3px"><span style="background:' + badgeBg + ';color:' + badgeColor + ';font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">' + escapeHtml(config.badge) + '</span></div>';
       }
       html += '<div style="font-size:14px;font-weight:400;color:#0F1111">' + escapeHtml(config.name || '') + '</div>';
       if (config.details) {
@@ -637,8 +656,8 @@
     html += renderPreview(componentKey, config);
     html += '</div>';
     html += '<div class="psp-playground__code-panel">';
-    html += '<h4 class="psp-playground__code-title">Generated Code</h4>';
-    html += '<pre class="psp-playground__code-block">' + escapeCodeHtml(generateCode(componentKey, config)) + '</pre>';
+    html += '<button type="button" class="psp-playground__code-toggle" data-action="toggle-code">\u25B8 Show Code</button>';
+    html += '<pre class="psp-playground__code-block" style="display:none">' + escapeCodeHtml(generateCode(componentKey, config)) + '</pre>';
     html += '</div>';
     html += '</div>';
 
@@ -717,6 +736,19 @@
     if (resetBtn) {
       resetBtn.addEventListener('click', function() {
         resetToDefaults(componentKey);
+      });
+    }
+
+    // Handle code toggle button
+    var codeToggle = containerEl.querySelector('.psp-playground__code-toggle');
+    if (codeToggle) {
+      codeToggle.addEventListener('click', function() {
+        var codeBlock = containerEl.querySelector('.psp-playground__code-block');
+        if (codeBlock) {
+          var isVisible = codeBlock.style.display !== 'none';
+          codeBlock.style.display = isVisible ? 'none' : 'block';
+          codeToggle.textContent = isVisible ? '\u25B8 Show Code' : '\u25BE Hide Code';
+        }
       });
     }
   }
