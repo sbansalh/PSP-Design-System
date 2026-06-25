@@ -29,11 +29,12 @@
     { name: 'Accessibility', tabIndex: 7 },
     { name: 'Decision Framework', tabIndex: 8 },
     { name: 'Service & Pay Baseline', tabIndex: 9 },
-    { name: 'Motion Tokens', tabIndex: 10 },
-    { name: 'Playground', tabIndex: 11 },
-    { name: 'Changelog', tabIndex: 12 },
-    { name: 'Breakpoints', tabIndex: 13 },
-    { name: 'Code Examples', tabIndex: 14 }
+    { name: 'Create Your PSP', tabIndex: 10 },
+    { name: 'Motion Tokens', tabIndex: 11 },
+    { name: 'Playground', tabIndex: 12 },
+    { name: 'Changelog', tabIndex: 13 },
+    { name: 'Breakpoints', tabIndex: 14 },
+    { name: 'Code Examples', tabIndex: 15 }
   ];
 
   /**

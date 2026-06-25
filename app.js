@@ -1112,6 +1112,44 @@ html+='</div></div></div>';
 html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
+   10. CREATE YOUR PSP (AI Generator)
+   ══════════════════════════════════════════════════════════════ */
+html+='<div class="sec">';
+html+='<div class="section-header" style="border-left-color: #FF9900">';
+html+='<div class="section-header__content">';
+html+='<h1 class="section-header__title">Create Your PSP</h1>';
+html+='<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup with exact design system components, colors, and states.</p>';
+html+='</div></div>';
+html+='<div style="padding:0 4px">';
+html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start" id="psp-generator-layout">';
+// Left: input
+html+='<div>';
+html+='<div style="margin-bottom:16px">';
+html+='<label style="font-size:12px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Describe your PSP</label>';
+html+='<textarea id="psp-generator-input" style="width:100%;min-height:120px;padding:12px 16px;border:1px solid #d5d9d9;border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.15s" placeholder="Example: Create a PSP for a ₹2,500 order. Customer has Amazon Pay ICICI with best offer ₹50 cashback, HDFC credit card previously used, UPI linked. Show Pay Later and COD too."></textarea>';
+html+='</div>';
+html+='<div style="display:flex;gap:10px;margin-bottom:20px">';
+html+='<button id="psp-generator-btn" style="background:#FF9900;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:inherit">Generate PSP →</button>';
+html+='<button id="psp-generator-reset" style="background:#fff;color:#5f6368;border:1px solid #d5d9d9;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit">Reset</button>';
+html+='</div>';
+html+='<div style="font-size:12px;color:#5f6368;line-height:1.6">';
+html+='<strong style="display:block;margin-bottom:6px;color:#1a1c1e">Quick examples:</strong>';
+html+='<div id="psp-generator-examples" style="display:flex;flex-direction:column;gap:6px">';
+html+='<div class="psp-example-chip" data-prompt="PSP for ₹499 order with CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💳 Standard checkout — 3 recommended + UPI</div>';
+html+='<div class="psp-example-chip" data-prompt="Create PSP for ₹15000 order. CBCC with best offer ₹200 cashback, HDFC credit expired, Amazon Pay Balance insufficient, Pay Later, EMI, Net Banking" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💰 High-value order — with disabled card + EMI</div>';
+html+='<div class="psp-example-chip" data-prompt="Simple PSP with only COD and Net Banking for ₹299 order" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">📦 Minimal — COD + Net Banking only</div>';
+html+='</div>';
+html+='</div>';
+html+='</div>';
+// Right: output (phone frame)
+html+='<div style="display:flex;justify-content:center;align-items:flex-start">';
+html+='<div id="psp-generator-output" style="width:100%;max-width:380px"></div>';
+html+='</div>';
+html+='</div>';
+html+='</div>';
+html+='</div>';
+
+/* ══════════════════════════════════════════════════════════════
    11. MOTION TOKENS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
@@ -1498,6 +1536,63 @@ buildSections();
     deselectAll();
     selectTile(idx);
   });
+})();
+
+/* ── Wire "Create Your PSP" Generator ── */
+(function() {
+  var genBtn = document.getElementById('psp-generator-btn');
+  var genInput = document.getElementById('psp-generator-input');
+  var genOutput = document.getElementById('psp-generator-output');
+  var genReset = document.getElementById('psp-generator-reset');
+  var genExamples = document.getElementById('psp-generator-examples');
+
+  if (!genBtn || !genInput || !genOutput) return;
+
+  function generatePSP() {
+    var prompt = genInput.value.trim();
+    if (!window.PSP || !window.PSP.features || !window.PSP.features.pspGenerator) return;
+    if (!window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
+
+    var config = window.PSP.features.pspGenerator.parse(prompt);
+    var html = window.PSP.renderers.pspFrame.render(config);
+    genOutput.innerHTML = html;
+    window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
+  }
+
+  // Generate button
+  genBtn.addEventListener('click', generatePSP);
+
+  // Enter key in textarea (Ctrl+Enter or Cmd+Enter)
+  genInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      generatePSP();
+    }
+  });
+
+  // Reset button
+  if (genReset) {
+    genReset.addEventListener('click', function() {
+      genInput.value = '';
+      genOutput.innerHTML = '';
+    });
+  }
+
+  // Example chips
+  if (genExamples) {
+    genExamples.addEventListener('click', function(e) {
+      var chip = e.target.closest('.psp-example-chip');
+      if (!chip) return;
+      var prompt = chip.getAttribute('data-prompt');
+      if (prompt) {
+        genInput.value = prompt;
+        generatePSP();
+      }
+    });
+  }
+
+  // Generate default on load
+  generatePSP();
 })();
 
 /* ── Initialize Dark Mode (reads localStorage, applies theme, renders toggle) ── */
