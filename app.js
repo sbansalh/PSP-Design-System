@@ -1325,14 +1325,29 @@ buildSections();
   if (!phoneFrame) return;
 
   // STEP 1: Tag all elements with stable data attributes during init
-  // Find tile containers (padding:12px divs containing SVG radios)
+  // Find tile containers (padding:12px divs that directly contain a flex row with an SVG radio)
+  // Key filter: the SVG must be a direct child of the flex row (not deeply nested)
   var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
   var tileContainers = [];
   for (var i = 0; i < allDivs.length; i++) {
     var div = allDivs[i];
-    var svg = div.querySelector('svg');
-    var flexRow = div.querySelector('div[style*="display:flex"]');
-    if (svg && flexRow) {
+    // Get immediate child divs that are flex rows
+    var children = div.children;
+    var isValidTile = false;
+    for (var ch = 0; ch < children.length; ch++) {
+      var child = children[ch];
+      if (child.tagName === 'DIV' && child.getAttribute('style') && 
+          child.getAttribute('style').indexOf('display:flex') !== -1 &&
+          child.getAttribute('style').indexOf('align-items') !== -1) {
+        // Check if this flex row has a direct SVG child
+        var svgInRow = child.querySelector(':scope > svg');
+        if (svgInRow && svgInRow.querySelector('circle')) {
+          isValidTile = true;
+          break;
+        }
+      }
+    }
+    if (!isValidTile) continue;
       var idx = tileContainers.length;
       div.setAttribute('data-tile', idx);
       div.style.cursor = 'pointer';
@@ -1356,7 +1371,6 @@ buildSections();
           spans[s].setAttribute('data-badge', idx);
         }
       }
-    }
   }
 
   // STEP 2: Determine position of each tile (top/middle/bottom) within its parent group
