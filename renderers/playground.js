@@ -424,25 +424,24 @@
     if (componentKey === 'instrumentTile') {
       var isSelected = (state === 'focused');
       var tileBg = isSelected ? '#EDF8FF' : '#FFF';
-      var tileBorder = '1px solid ' + (isSelected ? '#0972d3' : '#D5D9D9');
-      var tileOutline = isSelected ? 'outline:2px solid #0972d3;outline-offset:2px;' : '';
+      var tileBorder = isSelected ? '2px solid #2162A1' : '1px solid #D5D9D9';
       var tileOpacity = stateSpec && stateSpec.opacity !== undefined ? stateSpec.opacity : 1;
       var radioStroke = isSelected ? '#2162A1' : '#D5D9D9';
       var radioFill = isSelected ? '<circle cx="10" cy="10" r="5" fill="#2162A1"/>' : '';
 
       var html = '<div style="width:100%;max-width:340px">';
-      html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + ';' + tileOutline + '">';
+      html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + '">';
       html += '<div style="display:flex;align-items:center;gap:10px">';
       // Icon LEFT (48x32px)
       html += '<div style="width:48px;height:32px;background:#e8e8e8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0">' + escapeHtml(config.icon || 'VISA') + '</div>';
       // Center content
       html += '<div style="flex:1;min-width:0">';
       if (config.badge) {
-        var badgeBg = (isSelected || state === 'enabled') ? '#0A7CD1' : '#E3E6E6';
-        var badgeColor = (isSelected || state === 'enabled') ? '#fff' : '#232F3E';
+        var badgeBg = isSelected ? '#0A7CD1' : '#E3E6E6';
+        var badgeColor = isSelected ? '#fff' : '#232F3E';
         html += '<div style="margin-bottom:3px"><span style="background:' + badgeBg + ';color:' + badgeColor + ';font-size:10px;padding:2px 8px;border-radius:13px;display:inline-block">' + escapeHtml(config.badge) + '</span></div>';
       }
-      html += '<div style="font-size:14px;font-weight:400;color:#0F1111">' + escapeHtml(config.name || '') + '</div>';
+      html += '<div style="font-size:14px;font-weight:' + (isSelected ? '700' : '400') + ';color:#0F1111">' + escapeHtml(config.name || '') + '</div>';
       if (config.details) {
         html += '<div style="font-size:12px;color:#565959;margin-top:2px">' + escapeHtml(config.details) + '</div>';
       }

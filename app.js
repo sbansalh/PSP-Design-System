@@ -106,7 +106,7 @@ html+='<div style="font-size:13px;color:#565959;line-height:1.8;margin-bottom:16
 html+='<div style="background:#fff;border-radius:8px;padding:16px;border:1px solid #D5D9D9">';
 html+='<div style="font-size:11px;font-weight:700;color:#565959;letter-spacing:.5px;margin-bottom:10px">MORE WAYS TO PAY</div>';
 html+='<div style="background:#FFF;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px">';
-html+='<div style="display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/POD.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:400;color:#0F1111;margin-bottom:3px">Cash on Delivery/Pay on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="1.5"/></svg></div></div></div>';
+html+='<div style="display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="PSP Instument icons/POD.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:400;color:#0F1111;margin-bottom:3px">Cash on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="1.5"/></svg></div></div></div>';
 html+='<div style="font-size:12px;color:#5a6c7d;margin-top:12px;font-style:italic"><strong>When:</strong> PIN code supports COD, order value < &#8377;5,000<br><strong>Result:</strong> Total increases by &#8377;7, no online payment needed</div></div>';
 
 /* Use Case 5: Bottom Sticky CTA */
@@ -674,7 +674,7 @@ html+='<div style="padding:12px;display:flex;align-items:flex-start;gap:10px"><d
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
 html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/APay Later.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;font-weight:400;color:#0F1111">Amazon Pay Later</div><div style="font-size:12px;color:#565959">Available credit: &#8377; 60,000</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
-html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/POD.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;font-weight:400;color:#0F1111">Cash on Delivery/Pay on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
+html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/POD.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1"><div style="font-size:14px;font-weight:400;color:#0F1111">Cash on Delivery</div><div style="font-size:12px;color:#565959">Convenience fee of &#8377;7 will apply</div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
 html+='<div style="padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;"><img src="PSP Instument icons/EMI.png" style="width:100%;height:100%;object-fit:contain"></div><div style="flex:1;font-size:14px;font-weight:400;color:#0F1111">EMI</div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div>';
 html+='<div style="margin:0 12px;border-top:0.5px dashed #6F7373"></div>';
@@ -1324,61 +1324,82 @@ buildSections();
   var phoneFrame = document.getElementById('phoneFrame');
   if (!phoneFrame) return;
 
-  var tiles = phoneFrame.querySelectorAll('[data-tile]');
-  if (tiles.length === 0) {
-    // Find all tile-like elements (those with radio SVGs inside padding:12px containers)
-    var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
-    var tileIdx = 0;
-    for (var i = 0; i < allDivs.length; i++) {
-      var div = allDivs[i];
-      // Must contain a flex row with a radio SVG
-      var hasFlex = div.querySelector('div[style*="display:flex"][style*="align-items"]');
-      var hasRadio = div.querySelector('svg');
-      if (hasFlex && hasRadio) {
-        div.setAttribute('data-tile', tileIdx);
-        div.style.cursor = 'pointer';
-        tileIdx++;
+  // Find all tile containers (they have padding:12px and contain SVG radios)
+  var allDivs = phoneFrame.querySelectorAll('div[style*="padding:12px"]');
+  var tileContainers = [];
+  for (var i = 0; i < allDivs.length; i++) {
+    var div = allDivs[i];
+    var svg = div.querySelector('svg');
+    if (svg && div.querySelector('div[style*="display:flex"]')) {
+      div.setAttribute('data-tile', tileContainers.length);
+      div.style.cursor = 'pointer';
+      div.style.transition = 'background 0.15s, border 0.15s';
+      tileContainers.push(div);
+    }
+  }
+
+  function deselectTile(t) {
+    t.style.background = '#FFF';
+    t.style.border = 'none';
+    t.style.borderRadius = '0';
+    t.style.padding = '12px';
+    // Reset radio - find ALL circles in SVG
+    var svgEl = t.querySelector('svg');
+    if (svgEl) {
+      var circles = svgEl.querySelectorAll('circle');
+      if (circles.length >= 1) circles[0].setAttribute('stroke', '#D5D9D9');
+      if (circles.length >= 2) { circles[1].setAttribute('r', '0'); circles[1].setAttribute('fill', 'none'); }
+    }
+    // Reset badge to grey
+    var badges = t.querySelectorAll('span[style*="border-radius"]');
+    for (var b = 0; b < badges.length; b++) {
+      var badge = badges[b];
+      if (badge.style.borderRadius.indexOf('13px') !== -1) {
+        badge.style.background = '#E3E6E6';
+        badge.style.color = '#232F3E';
       }
     }
+    // Reset name to normal weight
+    var nameEl = t.querySelector('div[style*="font-size:14px"][style*="font-weight"]');
+    if (nameEl) nameEl.style.fontWeight = '400';
+  }
+
+  function selectTile(t) {
+    t.style.background = '#EDF8FF';
+    t.style.border = '2px solid #2162A1';
+    t.style.borderRadius = '12px';
+    t.style.padding = '10px'; // compensate for 2px border
+    // Fill radio
+    var svgEl = t.querySelector('svg');
+    if (svgEl) {
+      var circles = svgEl.querySelectorAll('circle');
+      if (circles.length >= 1) circles[0].setAttribute('stroke', '#2162A1');
+      if (circles.length >= 2) { circles[1].setAttribute('r', '5'); circles[1].setAttribute('fill', '#2162A1'); }
+    }
+    // Make badge blue
+    var badges = t.querySelectorAll('span[style*="border-radius"]');
+    for (var b = 0; b < badges.length; b++) {
+      var badge = badges[b];
+      if (badge.style.borderRadius.indexOf('13px') !== -1) {
+        badge.style.background = '#0A7CD1';
+        badge.style.color = '#FFFFFF';
+      }
+    }
+    // Bold name
+    var nameEl = t.querySelector('div[style*="font-size:14px"][style*="font-weight"]');
+    if (nameEl) nameEl.style.fontWeight = '700';
   }
 
   phoneFrame.addEventListener('click', function(e) {
     var tileEl = e.target.closest('[data-tile]');
     if (!tileEl) return;
 
-    // Deselect all tiles in the phone frame
-    var allTiles = phoneFrame.querySelectorAll('[data-tile]');
-    for (var i = 0; i < allTiles.length; i++) {
-      var t = allTiles[i];
-      t.style.background = '#FFF';
-      t.style.border = 'none';
-      t.style.borderRadius = '0';
-      var radio = t.querySelector('svg circle:first-child');
-      if (radio) radio.setAttribute('stroke', '#D5D9D9');
-      var radioFill = t.querySelector('svg circle:nth-child(2)');
-      if (radioFill) radioFill.setAttribute('r', '0');
-      // Reset badge to grey
-      var badge = t.querySelector('span[style*="border-radius:13px"]');
-      if (badge) {
-        badge.style.background = '#E3E6E6';
-        badge.style.color = '#232F3E';
-      }
+    // Deselect ALL tiles
+    for (var i = 0; i < tileContainers.length; i++) {
+      deselectTile(tileContainers[i]);
     }
-
     // Select clicked tile
-    tileEl.style.background = '#EDF8FF';
-    tileEl.style.border = '2px solid #2162A1';
-    tileEl.style.borderRadius = '12px';
-    var radio = tileEl.querySelector('svg circle:first-child');
-    if (radio) radio.setAttribute('stroke', '#2162A1');
-    var radioFill = tileEl.querySelector('svg circle:nth-child(2)');
-    if (radioFill) radioFill.setAttribute('r', '5');
-    // Make badge blue
-    var badge = tileEl.querySelector('span[style*="border-radius:13px"]');
-    if (badge) {
-      badge.style.background = '#0A7CD1';
-      badge.style.color = '#FFFFFF';
-    }
+    selectTile(tileEl);
   });
 })();
 
