@@ -53,7 +53,7 @@
         contrastRatio: '4.5:1'
       },
       playground: {
-        defaults: { name: 'Amazon Pay ICICI credit card', details: 'VISA ••0424 | Akshay', badge: 'Best offer', offer: 'Save ₹10 as cashback.', detailsLink: 'Details', state: 'enabled' },
+        defaults: { name: 'Amazon Pay ICICI credit card', details: 'VISA \u2022\u20220424 | Akshay', badge: 'Best offer', offer: 'Save \u20B910 as cashback.', detailsLink: 'Details', icon: 'cbcc', state: 'enabled' },
         controls: ['name', 'details', 'badge', 'offer', 'detailsLink', 'icon', 'state'],
         notes: 'Icon is on the LEFT (40x40px), Radio is on the RIGHT. Offer text format depends on savings type — see offerTextRules.'
       }

@@ -21,15 +21,20 @@
     dragged: 'Dragged'
   };
 
-  // Available icons for instrument tile icon selector
-  var ICON_OPTIONS = [
-    { value: 'credit-card', label: 'Credit Card' },
-    { value: 'upi', label: 'UPI' },
-    { value: 'netbanking', label: 'Netbanking' },
-    { value: 'wallet', label: 'Wallet' },
-    { value: 'emi', label: 'EMI' },
-    { value: 'cod', label: 'Cash on Delivery' }
+  // Instrument presets — each has icon, defaults for name/details/badge/offer
+  var INSTRUMENT_PRESETS = [
+    { value: 'cbcc', label: 'Amazon Pay ICICI Credit Card', icon: 'PSP Instument icons/Amazon Pay ICICI credit card.png', name: 'Amazon Pay ICICI credit card', details: 'VISA \u2022\u20220424 | Akshay', badge: 'Best offer', offer: 'Save \u20B910 as cashback.', detailsLink: 'Details' },
+    { value: 'hdfc', label: 'HDFC Credit Card', icon: 'PSP Instument icons/HDFC Banks.png', name: 'HDFC credit card', details: 'VISA \u2022\u2022\u2022\u20220422 | Akshay', badge: 'Previously used', offer: 'Save \u20B96.', detailsLink: 'Details' },
+    { value: 'upi', label: 'Amazon Pay UPI', icon: 'PSP Instument icons/APay UPI.png', name: 'Amazon Pay UPI', details: 'ICICI Bank \u2022\u20220911', badge: 'Featured', offer: '', detailsLink: '' },
+    { value: 'apb', label: 'Amazon Pay Balance', icon: 'PSP Instument icons/APay Balance.png', name: 'Amazon Pay Balance: \u20B960', details: 'Add \u20B9413.00 to proceed', badge: '', offer: '', detailsLink: '' },
+    { value: 'apl', label: 'Amazon Pay Later', icon: 'PSP Instument icons/APay Later.png', name: 'Amazon Pay Later', details: 'Available credit: \u20B9 60,000', badge: '', offer: '', detailsLink: '' },
+    { value: 'cod', label: 'Cash on Delivery', icon: 'PSP Instument icons/POD.png', name: 'Cash on Delivery', details: 'Convenience fee of \u20B97 will apply', badge: '', offer: '', detailsLink: '' },
+    { value: 'emi', label: 'EMI', icon: 'PSP Instument icons/EMI.png', name: 'EMI', details: '', badge: '', offer: '', detailsLink: '' },
+    { value: 'nb', label: 'Net Banking', icon: 'PSP Instument icons/Net Banking.png', name: 'Net Banking', details: '', badge: '', offer: '', detailsLink: '' }
   ];
+
+  // Available icons for instrument tile icon selector (legacy compatibility)
+  var ICON_OPTIONS = INSTRUMENT_PRESETS;
 
   // Track active playground instances: componentKey -> { config, containerEl }
   var instances = {};
@@ -432,8 +437,16 @@
       var html = '<div style="width:100%;max-width:340px">';
       html += '<div style="background:' + tileBg + ';border:' + tileBorder + ';border-radius:12px;padding:12px;opacity:' + tileOpacity + '">';
       html += '<div style="display:flex;align-items:center;gap:10px">';
-      // Icon LEFT (48x32px)
-      html += '<div style="width:48px;height:32px;background:#e8e8e8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0">' + escapeHtml(config.icon || 'VISA') + '</div>';
+      // Icon LEFT (48x32px) — use real instrument icon
+      var iconSrc = '';
+      for (var pi = 0; pi < INSTRUMENT_PRESETS.length; pi++) {
+        if (INSTRUMENT_PRESETS[pi].value === config.icon) { iconSrc = INSTRUMENT_PRESETS[pi].icon; break; }
+      }
+      if (iconSrc) {
+        html += '<div style="width:48px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden"><img src="' + iconSrc + '" style="width:100%;height:100%;object-fit:contain" alt=""></div>';
+      } else {
+        html += '<div style="width:48px;height:32px;background:#e8e8e8;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#666;flex-shrink:0">' + escapeHtml(config.icon || 'ICON') + '</div>';
+      }
       // Center content
       html += '<div style="flex:1;min-width:0">';
       if (config.badge) {
@@ -550,11 +563,11 @@
         html += '</div>';
         html += '</div>';
       } else if (ctrl === 'icon') {
-        // Icon selector dropdown
+        // Instrument selector dropdown — changing this updates all fields
         html += '<div class="psp-playground__control-group">';
-        html += '<label class="psp-playground__control-label">Icon</label>';
-        html += '<select class="psp-playground__control-select" data-control="icon">';
-        ICON_OPTIONS.forEach(function(opt) {
+        html += '<label class="psp-playground__control-label">Instrument</label>';
+        html += '<select class="psp-playground__control-select" data-control="icon" data-preset="true">';
+        INSTRUMENT_PRESETS.forEach(function(opt) {
           var selected = config.icon === opt.value ? ' selected' : '';
           html += '<option value="' + opt.value + '"' + selected + '>' + opt.label + '</option>';
         });
@@ -703,7 +716,26 @@
       (function(select) {
         select.addEventListener('input', function() {
           var ctrl = select.getAttribute('data-control');
+          var isPreset = select.getAttribute('data-preset') === 'true';
           instance.config[ctrl] = select.value;
+
+          // If this is the instrument preset selector, auto-fill other fields
+          if (isPreset && ctrl === 'icon') {
+            for (var pi = 0; pi < INSTRUMENT_PRESETS.length; pi++) {
+              if (INSTRUMENT_PRESETS[pi].value === select.value) {
+                var preset = INSTRUMENT_PRESETS[pi];
+                instance.config.name = preset.name;
+                instance.config.details = preset.details;
+                instance.config.badge = preset.badge;
+                instance.config.offer = preset.offer;
+                instance.config.detailsLink = preset.detailsLink;
+                // Re-render entire playground to update input values
+                renderInto(componentKey, instance.containerEl);
+                return;
+              }
+            }
+          }
+
           updatePreview(componentKey);
         });
       })(selects[j]);
