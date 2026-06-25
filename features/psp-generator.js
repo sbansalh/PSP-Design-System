@@ -297,42 +297,104 @@
     return 0;
   }
 
+  // ═══════════════════════════════════════════════════════════════
+  // BASE PSP DEFINITION (the default full PSP — always shown unless excluded)
+  // ═══════════════════════════════════════════════════════════════
+
+  // Default RECOMMENDED section (3 tiles max)
+  var BASE_RECOMMENDED = ['cbcc', 'hdfc_credit', 'apay_upi'];
+  var BASE_RECOMMENDED_BADGES = { cbcc: 'Best offer', hdfc_credit: 'Previously used', apay_upi: 'Featured' };
+
+  // Default UPI section
+  var BASE_UPI = ['other_upi'];
+
+  // Default CARDS section
+  var BASE_CARDS = ['hdfc_debit'];
+
+  // Default MORE WAYS section
+  var BASE_MORE_WAYS = ['apay_balance', 'apay_later', 'cod', 'emi', 'net_banking'];
+
   /**
-   * Group instruments into sections following PSP hierarchy rules.
-   * @param {string[]} instrumentIds
-   * @param {object} badges
-   * @param {object} offers
-   * @param {object} states
-   * @param {object} parsedData
+   * Build PSP sections using "base + modifications" approach.
+   * ALWAYS starts with full default PSP, then applies prompt overrides.
+   *
+   * @param {string[]} mentionedIds - Instruments explicitly mentioned in prompt
+   * @param {object} badges - Badge overrides from prompt
+   * @param {object} offers - Offer amounts from prompt
+   * @param {object} states - State overrides (disabled, etc.)
+   * @param {object} parsedData - { orderAmount, customerName, address }
    * @returns {object[]} Array of section configs for psp-frame.render()
    */
-  function buildSections(instrumentIds, badges, offers, states, parsedData) {
+  function buildSections(mentionedIds, badges, offers, states, parsedData) {
     var reg = getRegistry();
     if (!reg) return [];
 
-    var sections = [];
-    var recommended = [];
-    var upi = [];
-    var cards = [];
-    var moreWays = [];
+    // Start with base PSP structure
+    var recommended = BASE_RECOMMENDED.slice();
+    var recommendedBadges = {};
+    for (var k in BASE_RECOMMENDED_BADGES) { recommendedBadges[k] = BASE_RECOMMENDED_BADGES[k]; }
+    var upiList = BASE_UPI.slice();
+    var cardsList = BASE_CARDS.slice();
+    var moreWaysList = BASE_MORE_WAYS.slice();
 
-    // Build tiles and sort into groups
-    for (var i = 0; i < instrumentIds.length; i++) {
-      var instId = instrumentIds[i];
+    // Apply badge overrides from prompt — move instruments to RECOMMENDED if they have a badge
+    for (var bid in badges) {
+      recommendedBadges[bid] = badges[bid];
+      // If this instrument isn't in RECOMMENDED yet, we need to add it
+      if (recommended.indexOf(bid) === -1) {
+        // Remove from other sections
+        upiList = upiList.filter(function(x) { return x !== bid; });
+        cardsList = cardsList.filter(function(x) { return x !== bid; });
+        moreWaysList = moreWaysList.filter(function(x) { return x !== bid; });
+
+        if (recommended.length < 3) {
+          // Space available, just add
+          recommended.push(bid);
+        } else {
+          // RECOMMENDED is full — replace the lowest priority instrument
+          // Find the one with lowest badge priority to kick out
+          var lowestIdx = -1;
+          var lowestPri = 0;
+          var bp = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
+          for (var ri = 0; ri < recommended.length; ri++) {
+            var rBadge = recommendedBadges[recommended[ri]] || '';
+            var rPri = bp[rBadge] || 99;
+            if (rPri > lowestPri) { lowestPri = rPri; lowestIdx = ri; }
+          }
+          // Only replace if new instrument has equal or higher priority
+          var newPri = bp[badges[bid]] || 99;
+          if (lowestIdx >= 0 && newPri <= lowestPri) {
+            var kicked = recommended[lowestIdx];
+            recommended[lowestIdx] = bid;
+            // Put kicked instrument back in its NATIVE section (not more_ways)
+            var kickedInst = reg.getInstrument(kicked);
+            if (kickedInst) {
+              delete recommendedBadges[kicked];
+              // Route to native section based on instrument type
+              var nativeGroup = kickedInst.groupCategory;
+              if (nativeGroup === 'upi' || kickedInst.type === 'upi') {
+                if (upiList.indexOf(kicked) === -1) upiList.unshift(kicked);
+              } else if (nativeGroup === 'cards' || kickedInst.type === 'card') {
+                if (cardsList.indexOf(kicked) === -1) cardsList.unshift(kicked);
+              } else {
+                if (moreWaysList.indexOf(kicked) === -1) moreWaysList.unshift(kicked);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Build tile objects
+    function buildTileForSection(instId) {
       var inst = reg.getInstrument(instId);
-      if (!inst) continue;
-
+      if (!inst) return null;
       var overrides = {
         holder: parsedData.customerName || 'Akshay',
-        badge: badges[instId] || (inst.badges.length > 0 ? inst.badges[0] : ''),
+        badge: recommendedBadges[instId] || '',
         disabled: states[instId] === 'disabled'
       };
-
-      if (offers[instId]) {
-        overrides.offerAmount = offers[instId];
-      }
-
-      // Handle APB balance
+      if (offers[instId]) overrides.offerAmount = offers[instId];
       if (instId === 'apay_balance' && parsedData.orderAmount) {
         var balance = inst.defaultBalance || 60;
         overrides.balance = balance;
@@ -341,53 +403,46 @@
           overrides.shortfall = (parsedData.orderAmount - balance).toFixed(2);
         }
       }
-
       var tile = reg.buildTile(instId, overrides);
       tile._instId = instId;
       tile._badge = overrides.badge;
       tile._insufficientBalance = overrides.insufficientBalance;
-
-      // Route to correct group
-      var groupCat = inst.groupCategory;
-      // If instrument has a badge (best offer/previously used/featured), put in RECOMMENDED
-      if (overrides.badge && recommended.length < 3) {
-        recommended.push(tile);
-      } else if (groupCat === 'upi') {
-        upi.push(tile);
-      } else if (groupCat === 'cards') {
-        cards.push(tile);
-      } else {
-        moreWays.push(tile);
-      }
+      return tile;
     }
+
+    var recTiles = recommended.map(buildTileForSection).filter(Boolean);
+    var upiTiles = upiList.map(buildTileForSection).filter(Boolean);
+    var cardsTiles = cardsList.map(buildTileForSection).filter(Boolean);
+    var moreTiles = moreWaysList.map(buildTileForSection).filter(Boolean);
 
     // Sort RECOMMENDED by badge priority: Best offer first, Previously used second, Featured third
     var badgePriority = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
-    recommended.sort(function(a, b) {
+    recTiles.sort(function(a, b) {
       var pa = badgePriority[a._badge] || 99;
       var pb = badgePriority[b._badge] || 99;
       return pa - pb;
     });
 
-    // Determine preselection across all tiles
-    var allTiles = recommended.concat(upi).concat(cards).concat(moreWays);
+    // Determine preselection
+    var allTiles = recTiles.concat(upiTiles).concat(cardsTiles).concat(moreTiles);
     var preselIdx = determinePreselection(allTiles, parsedData);
     if (preselIdx >= 0 && preselIdx < allTiles.length) {
       allTiles[preselIdx].selected = true;
     }
 
-    // Build sections
-    if (recommended.length > 0) {
-      sections.push({ title: 'RECOMMENDED', tiles: recommended });
+    // Build sections (always include all 4, matching PSP hierarchy)
+    var sections = [];
+    if (recTiles.length > 0) {
+      sections.push({ title: 'RECOMMENDED', tiles: recTiles });
     }
-    if (upi.length > 0) {
-      sections.push({ title: 'UPI', tiles: upi, addLink: '+ Add account to Amazon Pay UPI' });
+    if (upiTiles.length > 0) {
+      sections.push({ title: 'UPI', tiles: upiTiles, addLink: '+ Add account to Amazon Pay UPI' });
     }
-    if (cards.length > 0) {
-      sections.push({ title: 'CREDIT & DEBIT CARDS', tiles: cards, addLink: '+ Add new credit or debit card' });
+    if (cardsTiles.length > 0) {
+      sections.push({ title: 'CREDIT & DEBIT CARDS', tiles: cardsTiles, addLink: '+ Add new credit or debit card' });
     }
-    if (moreWays.length > 0) {
-      sections.push({ title: 'MORE WAYS TO PAY', tiles: moreWays });
+    if (moreTiles.length > 0) {
+      sections.push({ title: 'MORE WAYS TO PAY', tiles: moreTiles });
     }
 
     return sections;
@@ -421,12 +476,8 @@
     var customerName = extractCustomerName(prompt);
     var address = extractAddress(prompt);
 
-    // If no instruments found, use defaults
-    if (instrumentIds.length === 0) {
-      instrumentIds = ['cbcc', 'hdfc_credit', 'apay_upi', 'apay_balance', 'cod'];
-      badges = { cbcc: 'Best offer', hdfc_credit: 'Previously used', apay_upi: 'Featured' };
-      offers = { cbcc: '10' };
-    }
+    // If no instruments found, the base PSP is still used (buildSections handles defaults)
+    // Only extracted instruments are used for overrides
 
     var parsedData = {
       orderAmount: orderAmount,
