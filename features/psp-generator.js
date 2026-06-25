@@ -361,6 +361,14 @@
       }
     }
 
+    // Sort RECOMMENDED by badge priority: Best offer first, Previously used second, Featured third
+    var badgePriority = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
+    recommended.sort(function(a, b) {
+      var pa = badgePriority[a._badge] || 99;
+      var pb = badgePriority[b._badge] || 99;
+      return pa - pb;
+    });
+
     // Determine preselection across all tiles
     var allTiles = recommended.concat(upi).concat(cards).concat(moreWays);
     var preselIdx = determinePreselection(allTiles, parsedData);
