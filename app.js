@@ -1359,7 +1359,36 @@ buildSections();
     }
   }
 
-  // STEP 2: Define state functions using data attributes (stable, never changes)
+  // STEP 2: Determine position of each tile (top/middle/bottom) within its parent group
+  // Tiles inside the RECOMMENDED card group share the same parent
+  var tilePositions = []; // 'top', 'middle', 'bottom', 'only'
+  for (var p = 0; p < tileContainers.length; p++) {
+    var parent = tileContainers[p].parentElement;
+    // Count how many data-tile siblings share this parent
+    var siblings = [];
+    for (var q = 0; q < tileContainers.length; q++) {
+      if (tileContainers[q].parentElement === parent) siblings.push(q);
+    }
+    if (siblings.length === 1) {
+      tilePositions[p] = 'only';
+    } else {
+      var posInGroup = siblings.indexOf(p);
+      if (posInGroup === 0) tilePositions[p] = 'top';
+      else if (posInGroup === siblings.length - 1) tilePositions[p] = 'bottom';
+      else tilePositions[p] = 'middle';
+    }
+  }
+
+  function getSelectedRadius(pos) {
+    switch (pos) {
+      case 'top': return '12px 12px 0 0';
+      case 'bottom': return '0 0 12px 12px';
+      case 'only': return '12px';
+      default: return '0';
+    }
+  }
+
+  // STEP 3: Define state functions using data attributes (stable, never changes)
   function deselectAll() {
     for (var i = 0; i < tileContainers.length; i++) {
       var t = tileContainers[i];
@@ -1369,29 +1398,28 @@ buildSections();
       t.style.borderRadius = '0';
       t.style.padding = '12px';
 
-      // Radio reset (all circles in this tile's SVG)
+      // Radio reset - remove inner fill circle if it exists, reset outer stroke
       var svg = t.querySelector('svg');
       if (svg) {
         var circles = svg.querySelectorAll('circle');
-        for (var c = 0; c < circles.length; c++) {
-          if (c === 0) {
-            circles[c].setAttribute('stroke', '#D5D9D9');
-            circles[c].setAttribute('stroke-width', '2');
-          } else {
-            circles[c].setAttribute('r', '0');
-            circles[c].setAttribute('fill', 'none');
-          }
+        if (circles.length >= 1) {
+          circles[0].setAttribute('stroke', '#D5D9D9');
+          circles[0].setAttribute('stroke-width', '2');
+        }
+        // Remove any inner fill circles (r=5)
+        if (circles.length >= 2) {
+          circles[1].parentNode.removeChild(circles[1]);
         }
       }
 
-      // Badge reset (use data-badge attribute)
+      // Badge reset
       var badges = phoneFrame.querySelectorAll('[data-badge="' + i + '"]');
       for (var b = 0; b < badges.length; b++) {
         badges[b].style.background = '#E3E6E6';
         badges[b].style.color = '#232F3E';
       }
 
-      // Name reset (use data-name attribute)
+      // Name reset
       var nameEl = phoneFrame.querySelector('[data-name="' + i + '"]');
       if (nameEl) nameEl.style.fontWeight = '400';
     }
@@ -1401,25 +1429,27 @@ buildSections();
     var t = tileContainers[idx];
     if (!t) return;
 
-    // Container selected
+    // Container selected with position-aware border-radius
     t.style.background = '#EDF8FF';
     t.style.border = '2px solid #2162A1';
-    t.style.borderRadius = '12px';
+    t.style.borderRadius = getSelectedRadius(tilePositions[idx]);
     t.style.padding = '10px';
 
-    // Radio selected
+    // Radio selected - set outer stroke + add inner fill circle
     var svg = t.querySelector('svg');
     if (svg) {
-      var circles = svg.querySelectorAll('circle');
-      for (var c = 0; c < circles.length; c++) {
-        if (c === 0) {
-          circles[c].setAttribute('stroke', '#2162A1');
-          circles[c].setAttribute('stroke-width', '2');
-        } else {
-          circles[c].setAttribute('r', '5');
-          circles[c].setAttribute('fill', '#2162A1');
-        }
+      var outerCircle = svg.querySelector('circle');
+      if (outerCircle) {
+        outerCircle.setAttribute('stroke', '#2162A1');
+        outerCircle.setAttribute('stroke-width', '2');
       }
+      // Create inner filled circle (same as CBCC selected state)
+      var innerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      innerCircle.setAttribute('cx', '10');
+      innerCircle.setAttribute('cy', '10');
+      innerCircle.setAttribute('r', '5');
+      innerCircle.setAttribute('fill', '#2162A1');
+      svg.appendChild(innerCircle);
     }
 
     // Badge selected
