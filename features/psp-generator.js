@@ -169,35 +169,68 @@
     var lower = prompt.toLowerCase();
     var badges = {};
 
-    // Check for explicit badge assignments near instrument keywords
+    // Strategy: Find direct patterns first:
+    // "INSTRUMENT as/in/with BADGE" or "BADGE remain/on/for INSTRUMENT"
+    var directPatterns = [
+      // "APL as featured", "UPI as previously used"
+      { regex: /(\w[\w\s]{2,30}?)\s+(?:as|in|is|=)\s+(best offer|previously used|featured)/gi, instFirst: true },
+      // "best offer remain CBCC", "featured for UPI"
+      { regex: /(best offer|previously used|featured)\s+(?:remain|on|for|=|is)\s+(\w[\w\s]{2,20})/gi, instFirst: false },
+      // "CBCC with best offer", "CBCC best offer"
+      { regex: /(\w[\w\s]{2,20}?)\s+(?:with\s+)?(best offer|previously used|featured)/gi, instFirst: true }
+    ];
+
+    for (var dp = 0; dp < directPatterns.length; dp++) {
+      var pattern = directPatterns[dp];
+      var match;
+      pattern.regex.lastIndex = 0;
+      while ((match = pattern.regex.exec(lower)) !== null) {
+        var instText = pattern.instFirst ? match[1].trim() : match[2].trim();
+        var badgeText = pattern.instFirst ? match[2].trim() : match[1].trim();
+
+        // Map instText to an instrument ID
+        for (var inst = 0; inst < instrumentIds.length; inst++) {
+          var instId = instrumentIds[inst];
+          var instKws = INSTRUMENT_KEYWORDS[instId];
+          for (var ik = 0; ik < instKws.length; ik++) {
+            if (instText.indexOf(instKws[ik]) !== -1) {
+              // Capitalize badge text properly
+              if (badgeText === 'best offer') badges[instId] = 'Best offer';
+              else if (badgeText === 'previously used') badges[instId] = 'Previously used';
+              else if (badgeText === 'featured') badges[instId] = 'Featured';
+              break;
+            }
+          }
+          if (badges[instId]) break;
+        }
+      }
+    }
+
+    // If some instruments mentioned still have no badge, try proximity fallback
     var badgeKeys = Object.keys(BADGE_KEYWORDS);
     for (var b = 0; b < badgeKeys.length; b++) {
-      var badgeText = badgeKeys[b];
-      var badgeKws = BADGE_KEYWORDS[badgeText];
+      var bText = badgeKeys[b];
+      // Skip if this badge is already assigned
+      var alreadyAssigned = false;
+      for (var check in badges) { if (badges[check] === bText || badges[check] === bText.charAt(0).toUpperCase() + bText.slice(1)) { alreadyAssigned = true; break; } }
+      if (alreadyAssigned) continue;
+
+      var badgeKws = BADGE_KEYWORDS[bText];
       for (var bk = 0; bk < badgeKws.length; bk++) {
-        if (lower.indexOf(badgeKws[bk]) !== -1) {
-          // Find which instrument this badge is near
-          for (var inst = 0; inst < instrumentIds.length; inst++) {
-            var instKws = INSTRUMENT_KEYWORDS[instrumentIds[inst]];
-            for (var ik = 0; ik < instKws.length; ik++) {
-              var instIdx = lower.indexOf(instKws[ik]);
-              var badgeIdx = lower.indexOf(badgeKws[bk]);
-              if (instIdx !== -1 && badgeIdx !== -1 && Math.abs(instIdx - badgeIdx) < 50) {
-                badges[instrumentIds[inst]] = badgeText;
-                break;
-              }
-            }
-            if (badges[instrumentIds[inst]]) break;
-          }
-          // If no instrument found near badge, assign to first instrument without badge
-          if (!Object.values(badges).some(function(v) { return v === badgeText; })) {
-            for (var fi = 0; fi < instrumentIds.length; fi++) {
-              if (!badges[instrumentIds[fi]]) {
-                badges[instrumentIds[fi]] = badgeText;
-                break;
-              }
+        var badgeIdx = lower.indexOf(badgeKws[bk]);
+        if (badgeIdx === -1) continue;
+        // Find nearest unassigned instrument
+        for (var inst2 = 0; inst2 < instrumentIds.length; inst2++) {
+          if (badges[instrumentIds[inst2]]) continue;
+          var instKws2 = INSTRUMENT_KEYWORDS[instrumentIds[inst2]];
+          for (var ik2 = 0; ik2 < instKws2.length; ik2++) {
+            var instIdx2 = lower.indexOf(instKws2[ik2]);
+            if (instIdx2 !== -1 && Math.abs(instIdx2 - badgeIdx) < 60) {
+              badges[instrumentIds[inst2]] = bText.charAt(0).toUpperCase() + bText.slice(1);
+              break;
             }
           }
+          if (badges[instrumentIds[inst2]]) break;
         }
       }
     }
@@ -245,8 +278,12 @@
    * @returns {string}
    */
   function extractCustomerName(prompt) {
-    var match = prompt.match(/(?:deliver to|customer|user|name)\s+([A-Z][a-z]+)/i);
-    return match ? match[1] : 'Akshay';
+    // Only match "deliver to Name" or "customer Name" patterns with proper capitalized names
+    var match = prompt.match(/deliver\s+to\s+([A-Z][a-z]{2,})/);
+    if (match) return match[1];
+    match = prompt.match(/customer\s+(?:is\s+|named?\s+)?([A-Z][a-z]{2,})/);
+    if (match) return match[1];
+    return 'Akshay';
   }
 
   /**
@@ -351,19 +388,28 @@
           // Space available, just add
           recommended.push(bid);
         } else {
-          // RECOMMENDED is full — replace the lowest priority instrument
-          // Find the one with lowest badge priority to kick out
+          // RECOMMENDED is full — force the user's explicit choice in
+          // Replace the instrument that was LEAST recently mentioned in the prompt
+          // (i.e., the one from base defaults that the user didn't mention)
           var lowestIdx = -1;
-          var lowestPri = 0;
-          var bp = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
-          for (var ri = 0; ri < recommended.length; ri++) {
-            var rBadge = recommendedBadges[recommended[ri]] || '';
-            var rPri = bp[rBadge] || 99;
-            if (rPri > lowestPri) { lowestPri = rPri; lowestIdx = ri; }
+          for (var ri = recommended.length - 1; ri >= 0; ri--) {
+            if (mentionedIds.indexOf(recommended[ri]) === -1) {
+              // This instrument is from base defaults, not mentioned by user — safe to kick
+              lowestIdx = ri;
+              break;
+            }
           }
-          // Only replace if new instrument has equal or higher priority
-          var newPri = bp[badges[bid]] || 99;
-          if (lowestIdx >= 0 && newPri <= lowestPri) {
+          // If all are mentioned, kick the one with lowest badge priority
+          if (lowestIdx === -1) {
+            var lowestPri = 0;
+            var bp = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
+            for (var ri2 = 0; ri2 < recommended.length; ri2++) {
+              var rBadge = recommendedBadges[recommended[ri2]] || '';
+              var rPri = bp[rBadge] || 99;
+              if (rPri > lowestPri) { lowestPri = rPri; lowestIdx = ri2; }
+            }
+          }
+          if (lowestIdx >= 0) {
             var kicked = recommended[lowestIdx];
             recommended[lowestIdx] = bid;
             // Put kicked instrument back in its NATIVE section (not more_ways)
