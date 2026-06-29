@@ -1538,7 +1538,7 @@ buildSections();
   });
 })();
 
-/* ── Wire "Create Your PSP" Generator ── */
+/* ── Wire "Create Your PSP" AI Generator ── */
 (function() {
   var genBtn = document.getElementById('psp-generator-btn');
   var genInput = document.getElementById('psp-generator-input');
@@ -1548,25 +1548,31 @@ buildSections();
 
   if (!genBtn || !genInput || !genOutput) return;
 
-  function generatePSP() {
+  function generatePSP(skipLoading) {
     var prompt = genInput.value.trim();
     if (!window.PSP || !window.PSP.features || !window.PSP.features.pspGenerator) return;
     if (!window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
 
-    var config = window.PSP.features.pspGenerator.parse(prompt);
-    var html = window.PSP.renderers.pspFrame.render(config);
-    genOutput.innerHTML = html;
-    window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
+    if (skipLoading) {
+      // Instant render (used for initial load so page doesn't flash loading)
+      var config = window.PSP.features.pspGenerator.parse(prompt);
+      var html = window.PSP.renderers.pspFrame.render(config);
+      genOutput.innerHTML = html;
+      window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
+    } else {
+      // AI-style generation with loading animation
+      window.PSP.features.pspGenerator.generate(prompt, genOutput);
+    }
   }
 
   // Generate button
-  genBtn.addEventListener('click', generatePSP);
+  genBtn.addEventListener('click', function() { generatePSP(false); });
 
   // Enter key in textarea (Ctrl+Enter or Cmd+Enter)
   genInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
-      generatePSP();
+      generatePSP(false);
     }
   });
 
@@ -1586,13 +1592,13 @@ buildSections();
       var prompt = chip.getAttribute('data-prompt');
       if (prompt) {
         genInput.value = prompt;
-        generatePSP();
+        generatePSP(false);
       }
     });
   }
 
-  // Generate default on load
-  generatePSP();
+  // Generate default on load (instant, no loading animation)
+  generatePSP(true);
 })();
 
 /* ── Initialize Dark Mode (reads localStorage, applies theme, renders toggle) ── */

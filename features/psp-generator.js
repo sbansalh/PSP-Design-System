@@ -1,19 +1,23 @@
 /**
- * PSP Design System - "Create Your PSP" Generator
- * Phase 3: Prompt Parser + Config Generator + Validator
+ * PSP Design System - "Create Your PSP" AI Generator
+ * LLM-Powered Natural Language → PSP Config Engine
  *
- * Parses natural language prompts into structured PSP configurations.
- * No external LLM — uses rule-based keyword extraction for deterministic output.
+ * Architecture:
+ *   1. User prompt → LLM intent extraction (with rule-based fallback)
+ *   2. Structured intent → PSP config builder (applies hierarchy rules)
+ *   3. Config → psp-frame.js renderer (unchanged)
+ *
+ * Loading: Shimmer animation with twinkling stars (2.5s) before result.
  *
  * Usage:
- *   var config = window.PSP.features.pspGenerator.parse("Create a PSP for ₹2500 order with CBCC best offer ₹50 and HDFC previously used");
- *   var html = window.PSP.renderers.pspFrame.render(config);
+ *   window.PSP.features.pspGenerator.generate(prompt, outputEl);
+ *   // Or synchronous (legacy):
+ *   var config = window.PSP.features.pspGenerator.parse(prompt);
  */
 (function() {
   'use strict';
 
-  var registry = null; // Lazy-loaded reference to window.PSP.data.instrumentRegistry
-
+  var registry = null;
   function getRegistry() {
     if (!registry && window.PSP && window.PSP.data && window.PSP.data.instrumentRegistry) {
       registry = window.PSP.data.instrumentRegistry;
@@ -21,61 +25,201 @@
     return registry;
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // KEYWORD MAPPINGS — maps natural language to instrument IDs
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
+  // LLM CONFIGURATION
+  // ═══════════════════════════════════════════
+
+  var LLM_CONFIG = {
+    // Set to a real endpoint to enable LLM mode
+    // e.g., 'https://your-api-gateway.execute-api.ap-south-1.amazonaws.com/prod/generate-psp'
+    endpoint: null,
+    model: 'anthropic.claude-3-haiku-20240307-v1:0',
+    timeout: 8000
+  };
+
+  var LLM_SYSTEM_PROMPT = [
+    'You are a PSP (Payment Selection Page) config generator for Amazon India.',
+    'Output ONLY valid JSON — no markdown, no explanation.',
+    '',
+    'HIERARCHY: RECOMMENDED (max 3, badges) → UPI → CARDS → MORE WAYS TO PAY.',
+    'Badge priority: Best offer > Previously used > Featured.',
+    'UPI instruments ONLY go in UPI section. Card instruments ONLY in CARDS.',
+    'First instrument (best offer) is always auto-selected.',
+    '',
+    'INSTRUMENTS: cbcc, hdfc_credit, hdfc_debit, icici_credit, sbi_debit,',
+    'apay_upi, other_upi, apay_balance, apay_later, cod, emi, net_banking.',
+    '',
+    'OUTPUT: {"orderAmount":N,"customerName":"S","address":"S",',
+    '"sections":[{"type":"recommended|upi|cards|more_ways",',
+    '"instruments":[{"id":"X","badge":"Best offer|Previously used|Featured|null",',
+    '"offerAmount":N|null,"state":"normal|disabled|insufficient"}]}]}'
+  ].join('\n');
+
+  // ═══════════════════════════════════════════
+  // LOADING ANIMATION (shimmer + twinkling stars)
+  // ═══════════════════════════════════════════
+
+  function buildShimmerTile() {
+    return [
+      '<div style="padding:12px;display:flex;align-items:center;gap:10px">',
+      '  <div class="psp-shimmer-bar" style="width:48px;height:32px;border-radius:4px;flex-shrink:0"></div>',
+      '  <div style="flex:1">',
+      '    <div class="psp-shimmer-bar" style="width:70%;height:11px;border-radius:4px;margin-bottom:6px"></div>',
+      '    <div class="psp-shimmer-bar" style="width:50%;height:9px;border-radius:4px"></div>',
+      '  </div>',
+      '  <div class="psp-shimmer-bar" style="width:20px;height:20px;border-radius:50%;flex-shrink:0"></div>',
+      '</div>'
+    ].join('');
+  }
+
+  function buildLoadingHTML() {
+    var tile = buildShimmerTile();
+    var divider = '<div style="margin:0 12px;border-top:0.5px dashed #D5D9D9"></div>';
+    return [
+      '<div class="psp-ai-loading" style="width:100%;max-width:360px;border-radius:30px;background:#F7FAFA;border:0.5px solid #989898;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative">',
+      // Header
+      '<div style="background:linear-gradient(135deg,#82D8E3,#A6E7CE);padding:14px 16px;display:flex;align-items:center;gap:10px">',
+      '  <div class="psp-shimmer-bar" style="width:20px;height:16px;border-radius:4px"></div>',
+      '  <div class="psp-shimmer-bar" style="width:170px;height:14px;border-radius:4px"></div>',
+      '</div>',
+      // Address
+      '<div style="padding:10px 16px;background:#F7FEFF;border-bottom:1px solid #E5E5E5">',
+      '  <div style="display:flex;gap:8px;align-items:center">',
+      '    <div class="psp-shimmer-bar" style="width:14px;height:14px;border-radius:50%"></div>',
+      '    <div style="flex:1"><div class="psp-shimmer-bar" style="width:55%;height:11px;border-radius:4px;margin-bottom:5px"></div><div class="psp-shimmer-bar" style="width:75%;height:9px;border-radius:4px"></div></div>',
+      '  </div>',
+      '</div>',
+      // Section label
+      '<div style="padding:12px 16px 6px"><div class="psp-shimmer-bar" style="width:100px;height:9px;border-radius:4px"></div></div>',
+      // Tile group (3 tiles)
+      '<div style="padding:0 16px"><div style="background:#FFF;border:0.55px solid #E3E6E6;border-radius:12px;overflow:hidden">',
+      tile, divider, tile, divider, tile,
+      '</div></div>',
+      // Second section label
+      '<div style="padding:14px 16px 6px"><div class="psp-shimmer-bar" style="width:60px;height:9px;border-radius:4px"></div></div>',
+      // Single tile
+      '<div style="padding:0 16px"><div style="background:#FFF;border:0.55px solid #E3E6E6;border-radius:12px;overflow:hidden">',
+      tile,
+      '</div></div>',
+      // CTA shimmer
+      '<div style="padding:16px">',
+      '  <div style="display:flex;justify-content:space-between;align-items:center">',
+      '    <div class="psp-shimmer-bar" style="width:70px;height:22px;border-radius:4px"></div>',
+      '    <div class="psp-shimmer-bar" style="width:140px;height:42px;border-radius:92px"></div>',
+      '  </div>',
+      '</div>',
+      // Twinkling stars overlay
+      '<div class="psp-ai-stars"></div>',
+      // Status text
+      '<div class="psp-ai-status">',
+      '  <span class="psp-ai-status-dot"></span>',
+      '  <span>AI is crafting your PSP...</span>',
+      '</div>',
+      '</div>'
+    ].join('\n');
+  }
+
+  // Inject CSS for shimmer + stars animation (once)
+  var styleInjected = false;
+  function injectStyles() {
+    if (styleInjected) return;
+    styleInjected = true;
+    var style = document.createElement('style');
+    style.textContent = [
+      '@keyframes pspShimmer {',
+      '  0% { background-position: -200px 0; }',
+      '  100% { background-position: 200px 0; }',
+      '}',
+      '.psp-shimmer-bar {',
+      '  background: linear-gradient(90deg, #E8E8E8 25%, #F5F5F5 50%, #E8E8E8 75%);',
+      '  background-size: 400px 100%;',
+      '  animation: pspShimmer 1.4s ease-in-out infinite;',
+      '}',
+      '@keyframes pspTwinkle {',
+      '  0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }',
+      '  50% { opacity: 1; transform: scale(1) rotate(180deg); }',
+      '}',
+      '.psp-ai-stars {',
+      '  position: absolute; inset: 0; pointer-events: none; overflow: hidden;',
+      '}',
+      '.psp-ai-stars::before, .psp-ai-stars::after,',
+      '.psp-ai-stars .star-1, .psp-ai-stars .star-2, .psp-ai-stars .star-3,',
+      '.psp-ai-stars .star-4, .psp-ai-stars .star-5 {',
+      '  content: "✦"; position: absolute; font-size: 14px; color: #FF9900;',
+      '  animation: pspTwinkle 2s ease-in-out infinite;',
+      '}',
+      '.psp-ai-stars::before { top: 15%; left: 20%; animation-delay: 0s; }',
+      '.psp-ai-stars::after { top: 35%; right: 15%; animation-delay: 0.4s; font-size: 10px; }',
+      '.psp-ai-stars .star-1 { top: 55%; left: 10%; animation-delay: 0.8s; font-size: 12px; }',
+      '.psp-ai-stars .star-2 { top: 70%; right: 25%; animation-delay: 1.2s; font-size: 16px; }',
+      '.psp-ai-stars .star-3 { top: 25%; right: 30%; animation-delay: 0.6s; font-size: 11px; }',
+      '.psp-ai-stars .star-4 { top: 80%; left: 35%; animation-delay: 1.5s; font-size: 13px; }',
+      '.psp-ai-stars .star-5 { top: 45%; left: 50%; animation-delay: 1.0s; font-size: 9px; }',
+      '.psp-ai-status {',
+      '  position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);',
+      '  background: rgba(255,255,255,0.95); border: 1px solid #E3E6E6;',
+      '  border-radius: 20px; padding: 8px 16px; font-size: 12px; color: #565959;',
+      '  display: flex; align-items: center; gap: 8px; white-space: nowrap;',
+      '  box-shadow: 0 2px 8px rgba(0,0,0,0.08);',
+      '}',
+      '@keyframes pspDotPulse { 0%,100%{opacity:.3} 50%{opacity:1} }',
+      '.psp-ai-status-dot {',
+      '  width: 6px; height: 6px; border-radius: 50%; background: #FF9900;',
+      '  animation: pspDotPulse 1s ease-in-out infinite;',
+      '}'
+    ].join('\n');
+    document.head.appendChild(style);
+  }
+
+  function showLoading(containerEl) {
+    injectStyles();
+    containerEl.innerHTML = buildLoadingHTML();
+    // Add star span elements (CSS pseudo-elements only give 2, we need more)
+    var starsEl = containerEl.querySelector('.psp-ai-stars');
+    if (starsEl) {
+      for (var i = 1; i <= 5; i++) {
+        var span = document.createElement('span');
+        span.className = 'star-' + i;
+        starsEl.appendChild(span);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════════
+  // KEYWORD MAPPINGS (rule-based fallback)
+  // ═══════════════════════════════════════════
 
   var INSTRUMENT_KEYWORDS = {
-    // Amazon Pay ICICI Credit Card
     cbcc: ['cbcc', 'icici credit', 'amazon pay icici', 'apay icici', 'icici cc', 'icici card', 'amazon icici'],
-    // HDFC Credit Card
     hdfc_credit: ['hdfc credit', 'hdfc cc', 'hdfc card'],
-    // HDFC Debit Card
     hdfc_debit: ['hdfc debit', 'hdfc dc'],
-    // ICICI Credit Card (non-Amazon)
     icici_credit: ['icici bank credit'],
-    // SBI Debit
     sbi_debit: ['sbi debit', 'sbi card', 'sbi dc'],
-    // Amazon Pay UPI
     apay_upi: ['apay upi', 'amazon upi', 'amazon pay upi', 'upi linked', 'upi'],
-    // Other UPI
     other_upi: ['other upi', 'any upi', 'gpay', 'phonepe', 'paytm upi'],
-    // Amazon Pay Balance
     apay_balance: ['apb', 'amazon pay balance', 'apay balance', 'balance', 'wallet'],
-    // Amazon Pay Later
     apay_later: ['apl', 'pay later', 'amazon pay later', 'bnpl', 'credit line'],
-    // Cash on Delivery
     cod: ['cod', 'cash on delivery', 'pay on delivery', 'pod'],
-    // EMI
     emi: ['emi', 'installment', 'monthly payment'],
-    // Net Banking
     net_banking: ['net banking', 'netbanking', 'internet banking', 'neft']
   };
 
-  // Badge keywords
   var BADGE_KEYWORDS = {
     'best offer': ['best offer', 'best cashback', 'highest offer', 'top offer'],
     'Previously used': ['previously used', 'last used', 'recent', 'usual'],
     'Featured': ['featured', 'recommended', 'suggested', 'popular']
   };
 
-  // State keywords
   var STATE_KEYWORDS = {
     disabled: ['expired', 'blocked', 'unavailable', 'disabled', 'inactive'],
     insufficient: ['insufficient', 'low balance', 'not enough', 'add money']
   };
 
-  // ═══════════════════════════════════════════════════════════════
-  // PROMPT PARSER
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
+  // EXTRACTION HELPERS (rule-based NLP)
+  // ═══════════════════════════════════════════
 
-  /**
-   * Extract order amount from prompt.
-   * @param {string} prompt
-   * @returns {number|null}
-   */
   function extractOrderAmount(prompt) {
-    // Match ₹X,XXX or ₹XXX or Rs.XXX or XXXX order/amount
     var patterns = [
       /(?:\u20B9|rs\.?|inr)\s*([\d,]+)/i,
       /([\d,]+)\s*(?:order|amount|total|rupee)/i,
@@ -83,30 +227,34 @@
     ];
     for (var i = 0; i < patterns.length; i++) {
       var match = prompt.match(patterns[i]);
-      if (match) {
-        return parseInt(match[1].replace(/,/g, ''), 10);
-      }
+      if (match) return parseInt(match[1].replace(/,/g, ''), 10);
     }
     return null;
   }
 
-  /**
-   * Extract offer amounts for specific instruments.
-   * Returns map of instrumentId -> offerAmount
-   * @param {string} prompt
-   * @returns {object}
-   */
-  function extractOffers(prompt) {
-    var offers = {};
+  function extractInstruments(prompt) {
     var lower = prompt.toLowerCase();
+    var found = [];
+    var allKw = [];
+    var keys = Object.keys(INSTRUMENT_KEYWORDS);
+    for (var k = 0; k < keys.length; k++) {
+      var kws = INSTRUMENT_KEYWORDS[keys[k]];
+      for (var j = 0; j < kws.length; j++) {
+        allKw.push({ id: keys[k], keyword: kws[j] });
+      }
+    }
+    allKw.sort(function(a, b) { return b.keyword.length - a.keyword.length; });
+    for (var i = 0; i < allKw.length; i++) {
+      if (lower.indexOf(allKw[i].keyword) !== -1 && found.indexOf(allKw[i].id) === -1) {
+        found.push(allKw[i].id);
+      }
+    }
+    return found;
+  }
 
-    // Pattern: "₹XX cashback on INSTRUMENT" or "INSTRUMENT with ₹XX cashback"
-    var offerPatterns = [
-      /(?:\u20B9|rs\.?)(\d+)\s*(?:cashback|discount|off|saved?)\s*(?:on|for|with)?\s*(.+?)(?:\.|,|and|$)/gi,
-      /(.+?)\s*(?:with|has|offers?)\s*(?:\u20B9|rs\.?)(\d+)\s*(?:cashback|discount|off|saving)/gi
-    ];
-
-    // Simple approach: check each instrument keyword near an amount
+  function extractOffers(prompt) {
+    var lower = prompt.toLowerCase();
+    var offers = {};
     var keys = Object.keys(INSTRUMENT_KEYWORDS);
     for (var k = 0; k < keys.length; k++) {
       var instId = keys[k];
@@ -114,171 +262,96 @@
       for (var kw = 0; kw < keywords.length; kw++) {
         var kwIdx = lower.indexOf(keywords[kw]);
         if (kwIdx === -1) continue;
-
-        // Look for amount within 60 chars of the keyword
         var surrounding = lower.substring(Math.max(0, kwIdx - 30), Math.min(lower.length, kwIdx + keywords[kw].length + 30));
         var amountMatch = surrounding.match(/(?:\u20B9|rs\.?)(\d+)/);
-        if (amountMatch) {
-          offers[instId] = amountMatch[1];
-          break;
-        }
+        if (amountMatch) { offers[instId] = amountMatch[1]; break; }
       }
     }
-
     return offers;
   }
 
-  /**
-   * Extract instruments mentioned in the prompt.
-   * @param {string} prompt
-   * @returns {string[]} Array of instrument IDs
-   */
-  function extractInstruments(prompt) {
-    var lower = prompt.toLowerCase();
-    var found = [];
-    var keys = Object.keys(INSTRUMENT_KEYWORDS);
-
-    // Sort by keyword length (longer matches first to avoid partial matches)
-    var allKeywords = [];
-    for (var k = 0; k < keys.length; k++) {
-      var instId = keys[k];
-      var keywords = INSTRUMENT_KEYWORDS[instId];
-      for (var kw = 0; kw < keywords.length; kw++) {
-        allKeywords.push({ id: instId, keyword: keywords[kw] });
-      }
-    }
-    allKeywords.sort(function(a, b) { return b.keyword.length - a.keyword.length; });
-
-    // Match keywords
-    for (var i = 0; i < allKeywords.length; i++) {
-      if (lower.indexOf(allKeywords[i].keyword) !== -1 && found.indexOf(allKeywords[i].id) === -1) {
-        found.push(allKeywords[i].id);
-      }
-    }
-
-    return found;
-  }
-
-  /**
-   * Extract badges assigned to instruments.
-   * @param {string} prompt
-   * @param {string[]} instrumentIds
-   * @returns {object} Map of instrumentId -> badge text
-   */
   function extractBadges(prompt, instrumentIds) {
     var lower = prompt.toLowerCase();
     var badges = {};
-
-    // Strategy: Find direct patterns first:
-    // "INSTRUMENT as/in/with BADGE" or "BADGE remain/on/for INSTRUMENT"
-    var directPatterns = [
-      // "APL as featured", "UPI as previously used"
+    // Direct pattern matching
+    var patterns = [
       { regex: /(\w[\w\s]{2,30}?)\s+(?:as|in|is|=)\s+(best offer|previously used|featured)/gi, instFirst: true },
-      // "best offer remain CBCC", "featured for UPI"
       { regex: /(best offer|previously used|featured)\s+(?:remain|on|for|=|is)\s+(\w[\w\s]{2,20})/gi, instFirst: false },
-      // "CBCC with best offer", "CBCC best offer"
       { regex: /(\w[\w\s]{2,20}?)\s+(?:with\s+)?(best offer|previously used|featured)/gi, instFirst: true }
     ];
-
-    for (var dp = 0; dp < directPatterns.length; dp++) {
-      var pattern = directPatterns[dp];
+    for (var dp = 0; dp < patterns.length; dp++) {
+      var pat = patterns[dp];
       var match;
-      pattern.regex.lastIndex = 0;
-      while ((match = pattern.regex.exec(lower)) !== null) {
-        var instText = pattern.instFirst ? match[1].trim() : match[2].trim();
-        var badgeText = pattern.instFirst ? match[2].trim() : match[1].trim();
-
-        // Map instText to an instrument ID
+      pat.regex.lastIndex = 0;
+      while ((match = pat.regex.exec(lower)) !== null) {
+        var instText = pat.instFirst ? match[1].trim() : match[2].trim();
+        var badgeText = pat.instFirst ? match[2].trim() : match[1].trim();
         for (var inst = 0; inst < instrumentIds.length; inst++) {
-          var instId = instrumentIds[inst];
-          var instKws = INSTRUMENT_KEYWORDS[instId];
+          var instKws = INSTRUMENT_KEYWORDS[instrumentIds[inst]];
           for (var ik = 0; ik < instKws.length; ik++) {
             if (instText.indexOf(instKws[ik]) !== -1) {
-              // Capitalize badge text properly
-              if (badgeText === 'best offer') badges[instId] = 'Best offer';
-              else if (badgeText === 'previously used') badges[instId] = 'Previously used';
-              else if (badgeText === 'featured') badges[instId] = 'Featured';
+              if (badgeText === 'best offer') badges[instrumentIds[inst]] = 'Best offer';
+              else if (badgeText === 'previously used') badges[instrumentIds[inst]] = 'Previously used';
+              else if (badgeText === 'featured') badges[instrumentIds[inst]] = 'Featured';
               break;
             }
           }
-          if (badges[instId]) break;
         }
       }
     }
-
-    // If some instruments mentioned still have no badge, try proximity fallback
+    // Proximity fallback
     var badgeKeys = Object.keys(BADGE_KEYWORDS);
     for (var b = 0; b < badgeKeys.length; b++) {
       var bText = badgeKeys[b];
-      // Skip if this badge is already assigned
-      var alreadyAssigned = false;
-      for (var check in badges) { if (badges[check] === bText || badges[check] === bText.charAt(0).toUpperCase() + bText.slice(1)) { alreadyAssigned = true; break; } }
-      if (alreadyAssigned) continue;
-
+      var alreadyUsed = false;
+      for (var chk in badges) { if (badges[chk] === bText || badges[chk] === bText.charAt(0).toUpperCase() + bText.slice(1)) { alreadyUsed = true; break; } }
+      if (alreadyUsed) continue;
       var badgeKws = BADGE_KEYWORDS[bText];
       for (var bk = 0; bk < badgeKws.length; bk++) {
-        var badgeIdx = lower.indexOf(badgeKws[bk]);
-        if (badgeIdx === -1) continue;
-        // Find nearest unassigned instrument
-        for (var inst2 = 0; inst2 < instrumentIds.length; inst2++) {
-          if (badges[instrumentIds[inst2]]) continue;
-          var instKws2 = INSTRUMENT_KEYWORDS[instrumentIds[inst2]];
-          for (var ik2 = 0; ik2 < instKws2.length; ik2++) {
-            var instIdx2 = lower.indexOf(instKws2[ik2]);
-            if (instIdx2 !== -1 && Math.abs(instIdx2 - badgeIdx) < 60) {
-              badges[instrumentIds[inst2]] = bText.charAt(0).toUpperCase() + bText.slice(1);
+        var bIdx = lower.indexOf(badgeKws[bk]);
+        if (bIdx === -1) continue;
+        for (var i2 = 0; i2 < instrumentIds.length; i2++) {
+          if (badges[instrumentIds[i2]]) continue;
+          var iKws = INSTRUMENT_KEYWORDS[instrumentIds[i2]];
+          for (var ik2 = 0; ik2 < iKws.length; ik2++) {
+            var iIdx = lower.indexOf(iKws[ik2]);
+            if (iIdx !== -1 && Math.abs(iIdx - bIdx) < 60) {
+              badges[instrumentIds[i2]] = bText.charAt(0).toUpperCase() + bText.slice(1);
               break;
             }
           }
-          if (badges[instrumentIds[inst2]]) break;
+          if (badges[instrumentIds[i2]]) break;
         }
       }
     }
-
     return badges;
   }
 
-  /**
-   * Extract disabled/insufficient states.
-   * @param {string} prompt
-   * @param {string[]} instrumentIds
-   * @returns {object} Map of instrumentId -> state
-   */
   function extractStates(prompt, instrumentIds) {
     var lower = prompt.toLowerCase();
     var states = {};
-
     var stateKeys = Object.keys(STATE_KEYWORDS);
     for (var s = 0; s < stateKeys.length; s++) {
-      var stateName = stateKeys[s];
-      var stateKws = STATE_KEYWORDS[stateName];
-      for (var sk = 0; sk < stateKws.length; sk++) {
-        if (lower.indexOf(stateKws[sk]) !== -1) {
-          // Find nearest instrument
-          for (var inst = 0; inst < instrumentIds.length; inst++) {
-            var instKws = INSTRUMENT_KEYWORDS[instrumentIds[inst]];
-            for (var ik = 0; ik < instKws.length; ik++) {
-              var instIdx = lower.indexOf(instKws[ik]);
-              var stateIdx = lower.indexOf(stateKws[sk]);
-              if (instIdx !== -1 && stateIdx !== -1 && Math.abs(instIdx - stateIdx) < 40) {
-                states[instrumentIds[inst]] = stateName;
-              }
+      var sName = stateKeys[s];
+      var sKws = STATE_KEYWORDS[sName];
+      for (var sk = 0; sk < sKws.length; sk++) {
+        if (lower.indexOf(sKws[sk]) === -1) continue;
+        for (var inst = 0; inst < instrumentIds.length; inst++) {
+          var iKws = INSTRUMENT_KEYWORDS[instrumentIds[inst]];
+          for (var ik = 0; ik < iKws.length; ik++) {
+            var iIdx = lower.indexOf(iKws[ik]);
+            var sIdx = lower.indexOf(sKws[sk]);
+            if (iIdx !== -1 && sIdx !== -1 && Math.abs(iIdx - sIdx) < 40) {
+              states[instrumentIds[inst]] = sName;
             }
           }
         }
       }
     }
-
     return states;
   }
 
-  /**
-   * Extract customer name from prompt.
-   * @param {string} prompt
-   * @returns {string}
-   */
   function extractCustomerName(prompt) {
-    // Only match "deliver to Name" or "customer Name" patterns with proper capitalized names
     var match = prompt.match(/deliver\s+to\s+([A-Z][a-z]{2,})/);
     if (match) return match[1];
     match = prompt.match(/customer\s+(?:is\s+|named?\s+)?([A-Z][a-z]{2,})/);
@@ -286,123 +359,49 @@
     return 'Akshay';
   }
 
-  /**
-   * Extract address from prompt.
-   * @param {string} prompt
-   * @returns {string}
-   */
   function extractAddress(prompt) {
     var match = prompt.match(/(?:address|deliver to|location|city)\s*:?\s*(.+?)(?:\.|,\s*[A-Z]|$)/i);
     return match ? match[1].trim() : 'Bengaluru 560001, Karnataka';
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // CONFIG GENERATOR (applies PSP rules to parsed data)
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
+  // CONFIG BUILDER (from structured intent)
+  // ═══════════════════════════════════════════
 
-  /**
-   * Determine which instrument should be preselected.
-   * @param {object[]} tiles - Array of tile configs
-   * @param {object} parsedData - Parsed prompt data
-   * @returns {number} Index of tile to preselect (-1 for none)
-   */
-  function determinePreselection(tiles, parsedData) {
-    var reg = getRegistry();
-    if (!reg) return 0;
-
-    // Rule 1: Best offer instrument
-    for (var i = 0; i < tiles.length; i++) {
-      if (tiles[i]._badge === 'best offer' || tiles[i]._badge === 'Best offer') return i;
-    }
-
-    // Rule 2: APB with sufficient balance
-    if (parsedData.orderAmount) {
-      for (var j = 0; j < tiles.length; j++) {
-        if (tiles[j]._instId === 'apay_balance' && !tiles[j]._insufficientBalance) return j;
-      }
-    }
-
-    // Rule 3: Previously used
-    for (var k = 0; k < tiles.length; k++) {
-      if (tiles[k]._badge === 'Previously used') return k;
-    }
-
-    // Rule 4: Single instrument
-    if (tiles.length === 1) return 0;
-
-    // Rule 5: Default — first instrument
-    return 0;
-  }
-
-  // ═══════════════════════════════════════════════════════════════
-  // BASE PSP DEFINITION (the default full PSP — always shown unless excluded)
-  // ═══════════════════════════════════════════════════════════════
-
-  // Default RECOMMENDED section (3 tiles max)
   var BASE_RECOMMENDED = ['cbcc', 'hdfc_credit', 'apay_upi'];
   var BASE_RECOMMENDED_BADGES = { cbcc: 'Best offer', hdfc_credit: 'Previously used', apay_upi: 'Featured' };
-
-  // Default UPI section
   var BASE_UPI = ['other_upi'];
-
-  // Default CARDS section
   var BASE_CARDS = ['hdfc_debit'];
-
-  // Default MORE WAYS section
   var BASE_MORE_WAYS = ['apay_balance', 'apay_later', 'cod', 'emi', 'net_banking'];
 
-  /**
-   * Build PSP sections using "base + modifications" approach.
-   * ALWAYS starts with full default PSP, then applies prompt overrides.
-   *
-   * @param {string[]} mentionedIds - Instruments explicitly mentioned in prompt
-   * @param {object} badges - Badge overrides from prompt
-   * @param {object} offers - Offer amounts from prompt
-   * @param {object} states - State overrides (disabled, etc.)
-   * @param {object} parsedData - { orderAmount, customerName, address }
-   * @returns {object[]} Array of section configs for psp-frame.render()
-   */
   function buildSections(mentionedIds, badges, offers, states, parsedData) {
     var reg = getRegistry();
     if (!reg) return [];
 
-    // Start with base PSP structure
     var recommended = BASE_RECOMMENDED.slice();
     var recommendedBadges = {};
-    for (var k in BASE_RECOMMENDED_BADGES) { recommendedBadges[k] = BASE_RECOMMENDED_BADGES[k]; }
+    for (var k in BASE_RECOMMENDED_BADGES) recommendedBadges[k] = BASE_RECOMMENDED_BADGES[k];
     var upiList = BASE_UPI.slice();
     var cardsList = BASE_CARDS.slice();
     var moreWaysList = BASE_MORE_WAYS.slice();
 
-    // Apply badge overrides from prompt — move instruments to RECOMMENDED if they have a badge
+    // Apply badge overrides — move instruments to RECOMMENDED if badged
     for (var bid in badges) {
       recommendedBadges[bid] = badges[bid];
-      // If this instrument isn't in RECOMMENDED yet, we need to add it
       if (recommended.indexOf(bid) === -1) {
-        // Remove from other sections
         upiList = upiList.filter(function(x) { return x !== bid; });
         cardsList = cardsList.filter(function(x) { return x !== bid; });
         moreWaysList = moreWaysList.filter(function(x) { return x !== bid; });
-
         if (recommended.length < 3) {
-          // Space available, just add
           recommended.push(bid);
         } else {
-          // RECOMMENDED is full — force the user's explicit choice in
-          // Replace the instrument that was LEAST recently mentioned in the prompt
-          // (i.e., the one from base defaults that the user didn't mention)
           var lowestIdx = -1;
           for (var ri = recommended.length - 1; ri >= 0; ri--) {
-            if (mentionedIds.indexOf(recommended[ri]) === -1) {
-              // This instrument is from base defaults, not mentioned by user — safe to kick
-              lowestIdx = ri;
-              break;
-            }
+            if (mentionedIds.indexOf(recommended[ri]) === -1) { lowestIdx = ri; break; }
           }
-          // If all are mentioned, kick the one with lowest badge priority
           if (lowestIdx === -1) {
+            var bp = { 'Best offer': 1, 'Previously used': 2, 'Featured': 3 };
             var lowestPri = 0;
-            var bp = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
             for (var ri2 = 0; ri2 < recommended.length; ri2++) {
               var rBadge = recommendedBadges[recommended[ri2]] || '';
               var rPri = bp[rBadge] || 99;
@@ -412,26 +411,19 @@
           if (lowestIdx >= 0) {
             var kicked = recommended[lowestIdx];
             recommended[lowestIdx] = bid;
-            // Put kicked instrument back in its NATIVE section (not more_ways)
+            delete recommendedBadges[kicked];
             var kickedInst = reg.getInstrument(kicked);
             if (kickedInst) {
-              delete recommendedBadges[kicked];
-              // Route to native section based on instrument type
-              var nativeGroup = kickedInst.groupCategory;
-              if (nativeGroup === 'upi' || kickedInst.type === 'upi') {
-                if (upiList.indexOf(kicked) === -1) upiList.unshift(kicked);
-              } else if (nativeGroup === 'cards' || kickedInst.type === 'card') {
-                if (cardsList.indexOf(kicked) === -1) cardsList.unshift(kicked);
-              } else {
-                if (moreWaysList.indexOf(kicked) === -1) moreWaysList.unshift(kicked);
-              }
+              var ng = kickedInst.groupCategory;
+              if (ng === 'upi' || kickedInst.type === 'upi') { if (upiList.indexOf(kicked) === -1) upiList.unshift(kicked); }
+              else if (ng === 'cards' || kickedInst.type === 'card') { if (cardsList.indexOf(kicked) === -1) cardsList.unshift(kicked); }
+              else { if (moreWaysList.indexOf(kicked) === -1) moreWaysList.unshift(kicked); }
             }
           }
         }
       }
     }
 
-    // Build tile objects
     function buildTileForSection(instId) {
       var inst = reg.getInstrument(instId);
       if (!inst) return null;
@@ -461,92 +453,96 @@
     var cardsTiles = cardsList.map(buildTileForSection).filter(Boolean);
     var moreTiles = moreWaysList.map(buildTileForSection).filter(Boolean);
 
-    // Sort RECOMMENDED by badge priority: Best offer first, Previously used second, Featured third
-    var badgePriority = { 'Best offer': 1, 'best offer': 1, 'Previously used': 2, 'Featured': 3 };
+    // Sort RECOMMENDED by badge priority
+    var badgePriority = { 'Best offer': 1, 'Previously used': 2, 'Featured': 3 };
     recTiles.sort(function(a, b) {
-      var pa = badgePriority[a._badge] || 99;
-      var pb = badgePriority[b._badge] || 99;
-      return pa - pb;
+      return (badgePriority[a._badge] || 99) - (badgePriority[b._badge] || 99);
     });
 
-    // Determine preselection
+    // Preselect first tile (best offer)
     var allTiles = recTiles.concat(upiTiles).concat(cardsTiles).concat(moreTiles);
-    var preselIdx = determinePreselection(allTiles, parsedData);
-    if (preselIdx >= 0 && preselIdx < allTiles.length) {
-      allTiles[preselIdx].selected = true;
-    }
+    if (allTiles.length > 0) allTiles[0].selected = true;
 
-    // Build sections (always include all 4, matching PSP hierarchy)
     var sections = [];
-    if (recTiles.length > 0) {
-      sections.push({ title: 'RECOMMENDED', tiles: recTiles });
-    }
-    if (upiTiles.length > 0) {
-      sections.push({ title: 'UPI', tiles: upiTiles, addLink: '+ Add account to Amazon Pay UPI' });
-    }
-    if (cardsTiles.length > 0) {
-      sections.push({ title: 'CREDIT & DEBIT CARDS', tiles: cardsTiles, addLink: '+ Add new credit or debit card' });
-    }
-    if (moreTiles.length > 0) {
-      sections.push({ title: 'MORE WAYS TO PAY', tiles: moreTiles });
-    }
-
+    if (recTiles.length > 0) sections.push({ title: 'RECOMMENDED', tiles: recTiles });
+    if (upiTiles.length > 0) sections.push({ title: 'UPI', tiles: upiTiles, addLink: '+ Add account to Amazon Pay UPI' });
+    if (cardsTiles.length > 0) sections.push({ title: 'CREDIT & DEBIT CARDS', tiles: cardsTiles, addLink: '+ Add new credit or debit card' });
+    if (moreTiles.length > 0) sections.push({ title: 'MORE WAYS TO PAY', tiles: moreTiles });
     return sections;
   }
 
-  // ═══════════════════════════════════════════════════════════════
-  // MAIN PARSE FUNCTION
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
+  // LLM RESPONSE → CONFIG CONVERTER
+  // Converts LLM JSON output to psp-frame config
+  // ═══════════════════════════════════════════
 
-  /**
-   * Parse a natural language prompt into a full PSP config.
-   * @param {string} prompt - User's natural language description
-   * @returns {object} Config object ready for psp-frame.render()
-   */
-  function parse(prompt) {
-    if (!prompt || typeof prompt !== 'string') {
-      return getDefaultConfig();
-    }
+  function llmResponseToConfig(llmJson) {
+    var reg = getRegistry();
+    if (!reg) return null;
 
-    prompt = prompt.trim();
-    if (prompt.length < 5) {
-      return getDefaultConfig();
-    }
-
-    // Extract structured data from prompt
-    var orderAmount = extractOrderAmount(prompt);
-    var instrumentIds = extractInstruments(prompt);
-    var offers = extractOffers(prompt);
-    var badges = extractBadges(prompt, instrumentIds);
-    var states = extractStates(prompt, instrumentIds);
-    var customerName = extractCustomerName(prompt);
-    var address = extractAddress(prompt);
-
-    // If no instruments found, the base PSP is still used (buildSections handles defaults)
-    // Only extracted instruments are used for overrides
-
-    var parsedData = {
-      orderAmount: orderAmount,
-      customerName: customerName,
-      address: address
+    var sections = [];
+    var sectionTitleMap = {
+      recommended: 'RECOMMENDED',
+      upi: 'UPI',
+      cards: 'CREDIT & DEBIT CARDS',
+      more_ways: 'MORE WAYS TO PAY'
+    };
+    var sectionAddLinks = {
+      upi: '+ Add account to Amazon Pay UPI',
+      cards: '+ Add new credit or debit card'
     };
 
-    // Build sections
-    var sections = buildSections(instrumentIds, badges, offers, states, parsedData);
-
-    // Calculate price
-    var price = orderAmount || 504;
-    var savings = 0;
-    var offerValues = Object.values(offers);
-    for (var ov = 0; ov < offerValues.length; ov++) {
-      savings += parseInt(offerValues[ov], 10) || 0;
+    var allTiles = [];
+    for (var si = 0; si < llmJson.sections.length; si++) {
+      var sec = llmJson.sections[si];
+      var tiles = [];
+      for (var ti = 0; ti < sec.instruments.length; ti++) {
+        var inst = sec.instruments[ti];
+        var overrides = {
+          holder: llmJson.customerName || 'Akshay',
+          badge: inst.badge || '',
+          disabled: inst.state === 'disabled'
+        };
+        if (inst.offerAmount) overrides.offerAmount = String(inst.offerAmount);
+        if (inst.id === 'apay_balance' && llmJson.orderAmount) {
+          var regInst = reg.getInstrument('apay_balance');
+          var bal = regInst ? regInst.defaultBalance || 60 : 60;
+          overrides.balance = bal;
+          if (inst.state === 'insufficient' || bal < llmJson.orderAmount) {
+            overrides.insufficientBalance = true;
+            overrides.shortfall = (llmJson.orderAmount - bal).toFixed(2);
+          }
+        }
+        var tile = reg.buildTile(inst.id, overrides);
+        if (tile) {
+          tile._instId = inst.id;
+          tile._badge = inst.badge || '';
+          tiles.push(tile);
+          allTiles.push(tile);
+        }
+      }
+      if (tiles.length > 0) {
+        var secConfig = { title: sectionTitleMap[sec.type] || sec.type, tiles: tiles };
+        if (sectionAddLinks[sec.type]) secConfig.addLink = sectionAddLinks[sec.type];
+        sections.push(secConfig);
+      }
     }
 
-    // Build final config
-    var config = {
+    // Auto-select first tile
+    if (allTiles.length > 0) allTiles[0].selected = true;
+
+    var price = llmJson.orderAmount || 504;
+    var savings = 0;
+    // Calculate savings from first instrument offer
+    if (allTiles[0] && allTiles[0].offer) {
+      var savMatch = allTiles[0].offer.match(/\u20B9(\d+)/);
+      if (savMatch) savings = parseInt(savMatch[1], 10);
+    }
+
+    return {
       address: {
-        name: 'Deliver to ' + customerName,
-        detail: address,
+        name: 'Deliver to ' + (llmJson.customerName || 'Akshay'),
+        detail: llmJson.address || 'Bengaluru 560001, Karnataka',
         showChange: true
       },
       sections: sections,
@@ -559,29 +555,142 @@
         buttonText: 'Continue'
       }
     };
-
-    return config;
   }
 
-  /**
-   * Get a default PSP config (used when prompt is empty or invalid).
-   * @returns {object}
-   */
+  // ═══════════════════════════════════════════
+  // LLM API CALL (when endpoint is configured)
+  // ═══════════════════════════════════════════
+
+  function callLLM(prompt) {
+    if (!LLM_CONFIG.endpoint) return Promise.resolve(null);
+
+    var body = JSON.stringify({
+      system: LLM_SYSTEM_PROMPT,
+      prompt: prompt,
+      model: LLM_CONFIG.model
+    });
+
+    return fetch(LLM_CONFIG.endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body,
+      signal: AbortSignal.timeout ? AbortSignal.timeout(LLM_CONFIG.timeout) : undefined
+    })
+    .then(function(res) {
+      if (!res.ok) throw new Error('LLM API error: ' + res.status);
+      return res.json();
+    })
+    .then(function(data) {
+      // Expect { config: {...} } or raw JSON from LLM
+      var json = data.config || data;
+      if (json && json.sections) return json;
+      // Try to parse string response
+      if (typeof data === 'string') {
+        try { return JSON.parse(data); } catch (e) { return null; }
+      }
+      return null;
+    })
+    .catch(function() { return null; });
+  }
+
+  // ═══════════════════════════════════════════
+  // MAIN PARSE (synchronous, rule-based)
+  // ═══════════════════════════════════════════
+
+  function parse(prompt) {
+    if (!prompt || typeof prompt !== 'string' || prompt.trim().length < 5) {
+      return getDefaultConfig();
+    }
+    prompt = prompt.trim();
+
+    var orderAmount = extractOrderAmount(prompt);
+    var instrumentIds = extractInstruments(prompt);
+    var offers = extractOffers(prompt);
+    var badges = extractBadges(prompt, instrumentIds);
+    var states = extractStates(prompt, instrumentIds);
+    var customerName = extractCustomerName(prompt);
+    var address = extractAddress(prompt);
+
+    var parsedData = { orderAmount: orderAmount, customerName: customerName, address: address };
+    var sections = buildSections(instrumentIds, badges, offers, states, parsedData);
+
+    var price = orderAmount || 504;
+    var savings = 0;
+    var offerValues = Object.values ? Object.values(offers) : Object.keys(offers).map(function(k){return offers[k];});
+    for (var i = 0; i < offerValues.length; i++) savings += parseInt(offerValues[i], 10) || 0;
+
+    return {
+      address: { name: 'Deliver to ' + customerName, detail: address, showChange: true },
+      sections: sections,
+      giftCard: { text: 'Add Gift Card or Promo Code' },
+      cta: {
+        savings: savings > 0 ? ('\u20B9' + savings + ' saved') : null,
+        offersLink: savings > 0 ? 'See offers \u203A' : null,
+        price: String(price),
+        feeNote: 'Includes fees',
+        buttonText: 'Continue'
+      }
+    };
+  }
+
   function getDefaultConfig() {
     var reg = getRegistry();
     if (!reg) return { sections: [] };
-
-    return parse('Create PSP with CBCC best offer ₹10, HDFC credit previously used ₹6, Amazon Pay UPI featured, APB, Pay Later, COD, EMI, Net Banking for ₹504 order deliver to Akshay address Bengaluru 560001, Karnataka');
+    return parse('Create PSP with CBCC best offer \u20B910, HDFC credit previously used \u20B96, Amazon Pay UPI featured, APB, Pay Later, COD, EMI, Net Banking for \u20B9504 order deliver to Akshay address Bengaluru 560001, Karnataka');
   }
 
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
+  // GENERATE (async with loading animation)
+  // This is the primary API for the AI feature.
+  // Shows shimmer → calls LLM (or fallback) → renders result.
+  // ═══════════════════════════════════════════
+
+  function generate(prompt, outputEl) {
+    if (!outputEl) return;
+    if (!window.PSP || !window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
+
+    // Show loading animation
+    showLoading(outputEl);
+
+    // Determine processing time (2-3s for smooth feel)
+    var loadingDuration = 2000 + Math.random() * 1000;
+
+    // Attempt LLM call (parallel with loading timer)
+    var llmPromise = callLLM(prompt);
+    var timerPromise = new Promise(function(resolve) {
+      setTimeout(resolve, loadingDuration);
+    });
+
+    // Wait for BOTH loading animation and LLM response
+    Promise.all([llmPromise, timerPromise]).then(function(results) {
+      var llmResult = results[0];
+      var config;
+
+      if (llmResult && llmResult.sections) {
+        // LLM succeeded — convert to render config
+        config = llmResponseToConfig(llmResult);
+      } else {
+        // Fallback to rule-based parser
+        config = parse(prompt);
+      }
+
+      // Render the PSP
+      var html = window.PSP.renderers.pspFrame.render(config);
+      outputEl.innerHTML = html;
+      window.PSP.renderers.pspFrame.attachInteractivity(outputEl);
+    });
+  }
+
+  // ═══════════════════════════════════════════
   // EXPOSE API
-  // ═══════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════
 
   window.PSP.features.pspGenerator = {
     parse: parse,
+    generate: generate,
     getDefaultConfig: getDefaultConfig,
-    // Exposed for testing/debugging
+    setEndpoint: function(url) { LLM_CONFIG.endpoint = url; },
+    getSystemPrompt: function() { return LLM_SYSTEM_PROMPT; },
     _extractOrderAmount: extractOrderAmount,
     _extractInstruments: extractInstruments,
     _extractOffers: extractOffers,
