@@ -25,6 +25,15 @@
     return registry;
   }
 
+  /** Format number in Indian number system (1,23,456) */
+  function formatIndian(num) {
+    var n = String(parseInt(num, 10) || 0);
+    if (n.length <= 3) return n;
+    var last3 = n.slice(-3);
+    var rest = n.slice(0, -3);
+    return rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',') + ',' + last3;
+  }
+
   // ═══════════════════════════════════════════
   // LLM CONFIGURATION
   // ═══════════════════════════════════════════
@@ -56,111 +65,46 @@
   ].join('\n');
 
   // ═══════════════════════════════════════════
-  // LOADING ANIMATION (shimmer + twinkling stars)
+  // LOADING ANIMATION (scattered dots — Gemini/Grok style)
   // ═══════════════════════════════════════════
 
-  function buildShimmerTile() {
-    return [
-      '<div style="padding:12px;display:flex;align-items:center;gap:10px">',
-      '  <div class="psp-shimmer-bar" style="width:48px;height:32px;border-radius:4px;flex-shrink:0"></div>',
-      '  <div style="flex:1">',
-      '    <div class="psp-shimmer-bar" style="width:70%;height:11px;border-radius:4px;margin-bottom:6px"></div>',
-      '    <div class="psp-shimmer-bar" style="width:50%;height:9px;border-radius:4px"></div>',
-      '  </div>',
-      '  <div class="psp-shimmer-bar" style="width:20px;height:20px;border-radius:50%;flex-shrink:0"></div>',
-      '</div>'
-    ].join('');
-  }
-
   function buildLoadingHTML() {
-    var tile = buildShimmerTile();
-    var divider = '<div style="margin:0 12px;border-top:0.5px dashed #D5D9D9"></div>';
     return [
-      '<div class="psp-ai-loading" style="width:100%;max-width:360px;border-radius:30px;background:#F7FAFA;border:0.5px solid #989898;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative">',
-      // Header
-      '<div style="background:linear-gradient(135deg,#82D8E3,#A6E7CE);padding:14px 16px;display:flex;align-items:center;gap:10px">',
-      '  <div class="psp-shimmer-bar" style="width:20px;height:16px;border-radius:4px"></div>',
-      '  <div class="psp-shimmer-bar" style="width:170px;height:14px;border-radius:4px"></div>',
-      '</div>',
-      // Address
-      '<div style="padding:10px 16px;background:#F7FEFF;border-bottom:1px solid #E5E5E5">',
-      '  <div style="display:flex;gap:8px;align-items:center">',
-      '    <div class="psp-shimmer-bar" style="width:14px;height:14px;border-radius:50%"></div>',
-      '    <div style="flex:1"><div class="psp-shimmer-bar" style="width:55%;height:11px;border-radius:4px;margin-bottom:5px"></div><div class="psp-shimmer-bar" style="width:75%;height:9px;border-radius:4px"></div></div>',
+      '<div class="psp-ai-loading" style="width:100%;max-width:360px;height:520px;border-radius:30px;background:#F7FAFA;border:0.5px solid #989898;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.12);position:relative;display:flex;align-items:center;justify-content:center">',
+      '  <div class="psp-dots-field"></div>',
+      '  <div class="psp-ai-status">',
+      '    <span class="psp-ai-status-dot"></span>',
+      '    <span>AI is crafting your PSP...</span>',
       '  </div>',
-      '</div>',
-      // Section label
-      '<div style="padding:12px 16px 6px"><div class="psp-shimmer-bar" style="width:100px;height:9px;border-radius:4px"></div></div>',
-      // Tile group (3 tiles)
-      '<div style="padding:0 16px"><div style="background:#FFF;border:0.55px solid #E3E6E6;border-radius:12px;overflow:hidden">',
-      tile, divider, tile, divider, tile,
-      '</div></div>',
-      // Second section label
-      '<div style="padding:14px 16px 6px"><div class="psp-shimmer-bar" style="width:60px;height:9px;border-radius:4px"></div></div>',
-      // Single tile
-      '<div style="padding:0 16px"><div style="background:#FFF;border:0.55px solid #E3E6E6;border-radius:12px;overflow:hidden">',
-      tile,
-      '</div></div>',
-      // CTA shimmer
-      '<div style="padding:16px">',
-      '  <div style="display:flex;justify-content:space-between;align-items:center">',
-      '    <div class="psp-shimmer-bar" style="width:70px;height:22px;border-radius:4px"></div>',
-      '    <div class="psp-shimmer-bar" style="width:140px;height:42px;border-radius:92px"></div>',
-      '  </div>',
-      '</div>',
-      // Twinkling stars overlay
-      '<div class="psp-ai-stars"></div>',
-      // Status text
-      '<div class="psp-ai-status">',
-      '  <span class="psp-ai-status-dot"></span>',
-      '  <span>AI is crafting your PSP...</span>',
-      '</div>',
       '</div>'
     ].join('\n');
   }
 
-  // Inject CSS for shimmer + stars animation (once)
+  // Inject CSS for dots animation (once)
   var styleInjected = false;
   function injectStyles() {
     if (styleInjected) return;
     styleInjected = true;
     var style = document.createElement('style');
     style.textContent = [
-      '@keyframes pspShimmer {',
-      '  0% { background-position: -200px 0; }',
-      '  100% { background-position: 200px 0; }',
+      '.psp-dots-field {',
+      '  position: absolute; inset: 0; overflow: hidden;',
       '}',
-      '.psp-shimmer-bar {',
-      '  background: linear-gradient(90deg, #E8E8E8 25%, #F5F5F5 50%, #E8E8E8 75%);',
-      '  background-size: 400px 100%;',
-      '  animation: pspShimmer 1.4s ease-in-out infinite;',
+      '.psp-dot {',
+      '  position: absolute; width: 6px; height: 6px; border-radius: 50%;',
+      '  opacity: 0; animation: pspDotFade 2.5s ease-in-out infinite;',
       '}',
-      '@keyframes pspTwinkle {',
-      '  0%, 100% { opacity: 0; transform: scale(0.5) rotate(0deg); }',
-      '  50% { opacity: 1; transform: scale(1) rotate(180deg); }',
+      '@keyframes pspDotFade {',
+      '  0%, 100% { opacity: 0; transform: scale(0.3); }',
+      '  40% { opacity: 0.7; transform: scale(1); }',
+      '  60% { opacity: 0.5; transform: scale(0.8); }',
       '}',
-      '.psp-ai-stars {',
-      '  position: absolute; inset: 0; pointer-events: none; overflow: hidden;',
-      '}',
-      '.psp-ai-stars::before, .psp-ai-stars::after,',
-      '.psp-ai-stars .star-1, .psp-ai-stars .star-2, .psp-ai-stars .star-3,',
-      '.psp-ai-stars .star-4, .psp-ai-stars .star-5 {',
-      '  content: "✦"; position: absolute; font-size: 14px; color: #FF9900;',
-      '  animation: pspTwinkle 2s ease-in-out infinite;',
-      '}',
-      '.psp-ai-stars::before { top: 15%; left: 20%; animation-delay: 0s; }',
-      '.psp-ai-stars::after { top: 35%; right: 15%; animation-delay: 0.4s; font-size: 10px; }',
-      '.psp-ai-stars .star-1 { top: 55%; left: 10%; animation-delay: 0.8s; font-size: 12px; }',
-      '.psp-ai-stars .star-2 { top: 70%; right: 25%; animation-delay: 1.2s; font-size: 16px; }',
-      '.psp-ai-stars .star-3 { top: 25%; right: 30%; animation-delay: 0.6s; font-size: 11px; }',
-      '.psp-ai-stars .star-4 { top: 80%; left: 35%; animation-delay: 1.5s; font-size: 13px; }',
-      '.psp-ai-stars .star-5 { top: 45%; left: 50%; animation-delay: 1.0s; font-size: 9px; }',
       '.psp-ai-status {',
-      '  position: absolute; bottom: 70px; left: 50%; transform: translateX(-50%);',
+      '  position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);',
       '  background: rgba(255,255,255,0.95); border: 1px solid #E3E6E6;',
       '  border-radius: 20px; padding: 8px 16px; font-size: 12px; color: #565959;',
       '  display: flex; align-items: center; gap: 8px; white-space: nowrap;',
-      '  box-shadow: 0 2px 8px rgba(0,0,0,0.08);',
+      '  box-shadow: 0 2px 8px rgba(0,0,0,0.08); z-index: 2;',
       '}',
       '@keyframes pspDotPulse { 0%,100%{opacity:.3} 50%{opacity:1} }',
       '.psp-ai-status-dot {',
@@ -174,13 +118,22 @@
   function showLoading(containerEl) {
     injectStyles();
     containerEl.innerHTML = buildLoadingHTML();
-    // Add star span elements (CSS pseudo-elements only give 2, we need more)
-    var starsEl = containerEl.querySelector('.psp-ai-stars');
-    if (starsEl) {
-      for (var i = 1; i <= 5; i++) {
-        var span = document.createElement('span');
-        span.className = 'star-' + i;
-        starsEl.appendChild(span);
+    // Generate random scattered dots
+    var dotsField = containerEl.querySelector('.psp-dots-field');
+    if (dotsField) {
+      var colors = ['#FF9900', '#2162A1', '#0A7CD1', '#82D8E3', '#A6E7CE', '#D5D9D9', '#565959'];
+      var dotCount = 40;
+      for (var i = 0; i < dotCount; i++) {
+        var dot = document.createElement('div');
+        dot.className = 'psp-dot';
+        dot.style.left = (Math.random() * 90 + 5) + '%';
+        dot.style.top = (Math.random() * 80 + 5) + '%';
+        dot.style.width = (3 + Math.random() * 5) + 'px';
+        dot.style.height = dot.style.width;
+        dot.style.background = colors[Math.floor(Math.random() * colors.length)];
+        dot.style.animationDelay = (Math.random() * 2.5) + 's';
+        dot.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+        dotsField.appendChild(dot);
       }
     }
   }
@@ -438,7 +391,7 @@
         overrides.balance = balance;
         if (balance < parsedData.orderAmount) {
           overrides.insufficientBalance = true;
-          overrides.shortfall = (parsedData.orderAmount - balance).toFixed(2);
+          overrides.shortfall = formatIndian(parsedData.orderAmount - balance);
         }
       }
       var tile = reg.buildTile(instId, overrides);
@@ -510,7 +463,7 @@
           overrides.balance = bal;
           if (inst.state === 'insufficient' || bal < llmJson.orderAmount) {
             overrides.insufficientBalance = true;
-            overrides.shortfall = (llmJson.orderAmount - bal).toFixed(2);
+            overrides.shortfall = formatIndian(llmJson.orderAmount - bal);
           }
         }
         var tile = reg.buildTile(inst.id, overrides);
@@ -548,9 +501,9 @@
       sections: sections,
       giftCard: { text: 'Add Gift Card or Promo Code' },
       cta: {
-        savings: savings > 0 ? ('\u20B9' + savings + ' saved') : null,
+        savings: savings > 0 ? ('\u20B9' + formatIndian(savings) + ' saved') : null,
         offersLink: savings > 0 ? 'See offers \u203A' : null,
-        price: String(price),
+        price: formatIndian(price),
         feeNote: 'Includes fees',
         buttonText: 'Continue'
       }
@@ -624,9 +577,9 @@
       sections: sections,
       giftCard: { text: 'Add Gift Card or Promo Code' },
       cta: {
-        savings: savings > 0 ? ('\u20B9' + savings + ' saved') : null,
+        savings: savings > 0 ? ('\u20B9' + formatIndian(savings) + ' saved') : null,
         offersLink: savings > 0 ? 'See offers \u203A' : null,
-        price: String(price),
+        price: formatIndian(price),
         feeNote: 'Includes fees',
         buttonText: 'Continue'
       }

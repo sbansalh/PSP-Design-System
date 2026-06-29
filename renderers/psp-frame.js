@@ -113,6 +113,25 @@
   };
 
   // ═══════════════════════════════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Format a number using Indian number system (e.g., 1,00,000).
+   * @param {number|string} num
+   * @returns {string}
+   */
+  function formatIndian(num) {
+    var n = String(parseInt(num, 10) || 0);
+    if (n.length <= 3) return n;
+    var last3 = n.slice(-3);
+    var rest = n.slice(0, -3);
+    // Add commas every 2 digits to the rest
+    var formatted = rest.replace(/\B(?=(\d{2})+(?!\d))/g, ',');
+    return formatted + ',' + last3;
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // TILE RENDERER
   // ═══════════════════════════════════════════════════════════════
 
@@ -159,11 +178,11 @@
     // Build HTML
     var html = '';
     html += '<div data-psp-tile style="background:' + bg + ';border:' + border + ';border-radius:' + radius + ';padding:' + padding + ';opacity:' + opacity + ';cursor:pointer">';
-    html += '<div style="display:flex;align-items:center;gap:10px">';
+    html += '<div style="display:flex;align-items:flex-start;gap:10px">';
 
     // Icon
     if (tile.icon) {
-      html += '<div style="width:' + TOKENS.iconWidth + ';height:' + TOKENS.iconHeight + ';border-radius:' + TOKENS.iconRadius + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">';
+      html += '<div style="width:' + TOKENS.iconWidth + ';height:' + TOKENS.iconHeight + ';border-radius:' + TOKENS.iconRadius + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;margin-top:2px">';
       html += '<img src="' + tile.icon + '" style="width:100%;height:100%;object-fit:contain" alt="">';
       html += '</div>';
     }
@@ -215,7 +234,7 @@
     html += '</div>'; // close content
 
     // Radio button
-    html += '<svg width="' + TOKENS.radioSize + '" height="' + TOKENS.radioSize + '" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="' + radioStroke + '" stroke-width="' + TOKENS.radioStrokeWidth + '"/>' + radioInner + '</svg>';
+    html += '<svg width="' + TOKENS.radioSize + '" height="' + TOKENS.radioSize + '" style="flex-shrink:0;margin-top:2px"><circle cx="10" cy="10" r="9" fill="none" stroke="' + radioStroke + '" stroke-width="' + TOKENS.radioStrokeWidth + '"/>' + radioInner + '</svg>';
 
     html += '</div>'; // close flex row
     html += '</div>'; // close tile container
@@ -292,7 +311,7 @@
 
     // Price + button
     html += '<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;background:#FFF">';
-    html += '<div><span style="font-size:13px;font-weight:700">&#8377;</span><span style="font-size:' + TOKENS.priceSize + ';font-weight:700">' + (cta.price || '0') + '</span>';
+    html += '<div><span style="font-size:13px;font-weight:700">&#8377;</span><span style="font-size:' + TOKENS.priceSize + ';font-weight:700">' + formatIndian(cta.price || '0') + '</span>';
     if (cta.feeNote) {
       html += '<div style="font-size:14px;color:#565959">' + cta.feeNote + '</div>';
     }
@@ -486,6 +505,7 @@
     renderSection: renderSection,
     renderCtaBar: renderCtaBar,
     attachInteractivity: attachInteractivity,
+    formatIndian: formatIndian,
     TOKENS: TOKENS
   };
 
