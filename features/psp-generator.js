@@ -148,10 +148,10 @@
     hdfc_debit: ['hdfc debit', 'hdfc dc'],
     icici_credit: ['icici bank credit'],
     sbi_debit: ['sbi debit', 'sbi card', 'sbi dc'],
-    apay_upi: ['apay upi', 'amazon upi', 'amazon pay upi', 'upi linked', 'upi'],
-    other_upi: ['other upi', 'any upi', 'gpay', 'phonepe', 'paytm upi'],
+    apay_upi: ['apay upi', 'amazon upi', 'amazon pay upi'],
+    other_upi: ['other upi', 'any upi', 'gpay', 'phonepe', 'paytm upi', 'upi linked', 'upi'],
     apay_balance: ['apb', 'amazon pay balance', 'apay balance', 'balance', 'wallet'],
-    apay_later: ['apl', 'pay later', 'amazon pay later', 'bnpl', 'credit line'],
+    apay_later: ['apl', 'pay later', 'amazon pay later', 'bnpl'],
     cod: ['cod', 'cash on delivery', 'pay on delivery', 'pod'],
     emi: ['emi', 'installment', 'monthly payment'],
     net_banking: ['net banking', 'netbanking', 'internet banking', 'neft']
@@ -174,9 +174,9 @@
 
   function extractOrderAmount(prompt) {
     var patterns = [
-      /(?:\u20B9|rs\.?|inr)\s*([\d,]+)/i,
+      /order\s*(?:of|for|worth|value)?\s*(?:\u20B9|rs\.?|inr)?\s*([\d,]+)/i,
       /([\d,]+)\s*(?:order|amount|total|rupee)/i,
-      /order\s*(?:of|for|worth|value)?\s*(?:\u20B9|rs\.?|inr)?\s*([\d,]+)/i
+      /(?:for|worth)\s*(?:\u20B9|rs\.?|inr)\s*([\d,]+)/i
     ];
     for (var i = 0; i < patterns.length; i++) {
       var match = prompt.match(patterns[i]);
@@ -208,6 +208,7 @@
   function extractOffers(prompt) {
     var lower = prompt.toLowerCase();
     var offers = {};
+    // Only match amounts that are clearly offers (near cashback/save/off keywords OR directly after instrument keyword with ₹)
     var keys = Object.keys(INSTRUMENT_KEYWORDS);
     for (var k = 0; k < keys.length; k++) {
       var instId = keys[k];
@@ -215,9 +216,21 @@
       for (var kw = 0; kw < keywords.length; kw++) {
         var kwIdx = lower.indexOf(keywords[kw]);
         if (kwIdx === -1) continue;
-        var surrounding = lower.substring(Math.max(0, kwIdx - 30), Math.min(lower.length, kwIdx + keywords[kw].length + 30));
-        var amountMatch = surrounding.match(/(?:\u20B9|rs\.?)(\d+)/);
-        if (amountMatch) { offers[instId] = amountMatch[1]; break; }
+        var afterKw = lower.substring(kwIdx, Math.min(lower.length, kwIdx + keywords[kw].length + 50));
+        // Look for offer patterns: "₹XX cashback", "₹XX off", "save ₹XX", "offer ₹XX"
+        var offerMatch = afterKw.match(/(?:\u20B9|rs\.?)(\d+)\s*(?:cashback|off|saved?|discount)/i);
+        if (!offerMatch) offerMatch = afterKw.match(/(?:save|cashback|offer|discount)\s*(?:\u20B9|rs\.?)(\d+)/i);
+        if (!offerMatch) {
+          // Direct amount right after keyword (e.g., "CBCC ₹10") but NOT if followed by "order|limit|balance"
+          var directMatch = afterKw.match(/(?:\u20B9|rs\.?)(\d+)/);
+          if (directMatch) {
+            var afterAmount = afterKw.substring(afterKw.indexOf(directMatch[0]) + directMatch[0].length, afterKw.indexOf(directMatch[0]) + directMatch[0].length + 20);
+            if (!/order|limit|balance|credit/i.test(afterAmount)) {
+              offerMatch = directMatch;
+            }
+          }
+        }
+        if (offerMatch) { offers[instId] = offerMatch[1]; break; }
       }
     }
     return offers;
@@ -226,57 +239,52 @@
   function extractBadges(prompt, instrumentIds) {
     var lower = prompt.toLowerCase();
     var badges = {};
-    // Direct pattern matching
-    var patterns = [
-      { regex: /(\w[\w\s]{2,30}?)\s+(?:as|in|is|=)\s+(best offer|previously used|featured)/gi, instFirst: true },
-      { regex: /(best offer|previously used|featured)\s+(?:remain|on|for|=|is)\s+(\w[\w\s]{2,20})/gi, instFirst: false },
-      { regex: /(\w[\w\s]{2,20}?)\s+(?:with\s+)?(best offer|previously used|featured)/gi, instFirst: true }
-    ];
-    for (var dp = 0; dp < patterns.length; dp++) {
-      var pat = patterns[dp];
-      var match;
-      pat.regex.lastIndex = 0;
-      while ((match = pat.regex.exec(lower)) !== null) {
-        var instText = pat.instFirst ? match[1].trim() : match[2].trim();
-        var badgeText = pat.instFirst ? match[2].trim() : match[1].trim();
-        for (var inst = 0; inst < instrumentIds.length; inst++) {
-          var instKws = INSTRUMENT_KEYWORDS[instrumentIds[inst]];
-          for (var ik = 0; ik < instKws.length; ik++) {
-            if (instText.indexOf(instKws[ik]) !== -1) {
-              if (badgeText === 'best offer') badges[instrumentIds[inst]] = 'Best offer';
-              else if (badgeText === 'previously used') badges[instrumentIds[inst]] = 'Previously used';
-              else if (badgeText === 'featured') badges[instrumentIds[inst]] = 'Featured';
-              break;
-            }
+    var usedBadgeTypes = {};
+
+    // Split prompt into clauses by commas or "and"
+    var clauses = lower.split(/[,]|\band\b/);
+
+    for (var ci = 0; ci < clauses.length; ci++) {
+      var clause = clauses[ci].trim();
+      if (!clause) continue;
+
+      // Find which instrument this clause talks about
+      var clauseInst = null;
+      for (var ii = 0; ii < instrumentIds.length; ii++) {
+        if (badges[instrumentIds[ii]]) continue;
+        var iKws = INSTRUMENT_KEYWORDS[instrumentIds[ii]];
+        for (var ik = 0; ik < iKws.length; ik++) {
+          if (clause.indexOf(iKws[ik]) !== -1) {
+            clauseInst = instrumentIds[ii];
+            break;
           }
         }
+        if (clauseInst) break;
       }
-    }
-    // Proximity fallback
-    var badgeKeys = Object.keys(BADGE_KEYWORDS);
-    for (var b = 0; b < badgeKeys.length; b++) {
-      var bText = badgeKeys[b];
-      var alreadyUsed = false;
-      for (var chk in badges) { if (badges[chk] === bText || badges[chk] === bText.charAt(0).toUpperCase() + bText.slice(1)) { alreadyUsed = true; break; } }
-      if (alreadyUsed) continue;
-      var badgeKws = BADGE_KEYWORDS[bText];
-      for (var bk = 0; bk < badgeKws.length; bk++) {
-        var bIdx = lower.indexOf(badgeKws[bk]);
-        if (bIdx === -1) continue;
-        for (var i2 = 0; i2 < instrumentIds.length; i2++) {
-          if (badges[instrumentIds[i2]]) continue;
-          var iKws = INSTRUMENT_KEYWORDS[instrumentIds[i2]];
-          for (var ik2 = 0; ik2 < iKws.length; ik2++) {
-            var iIdx = lower.indexOf(iKws[ik2]);
-            if (iIdx !== -1 && Math.abs(iIdx - bIdx) < 60) {
-              badges[instrumentIds[i2]] = bText.charAt(0).toUpperCase() + bText.slice(1);
-              break;
-            }
-          }
-          if (badges[instrumentIds[i2]]) break;
+      if (!clauseInst) continue;
+
+      // Find which badge this clause assigns
+      // Priority: more specific badges first (previously used > best offer > featured)
+      // "Featured" is often used as section name, so it's lowest priority
+      var clauseBadge = null;
+      if (clause.indexOf('previously used') !== -1 && !usedBadgeTypes['Previously used']) {
+        clauseBadge = 'Previously used';
+      } else if (clause.indexOf('best offer') !== -1 && !usedBadgeTypes['Best offer']) {
+        clauseBadge = 'Best offer';
+      } else if (clause.indexOf('featured') !== -1 && !usedBadgeTypes['Featured']) {
+        // Only assign "Featured" if the clause doesn't also say "in featured" (section name)
+        // "in featured" = section placement, "featured" alone = badge
+        if (clause.indexOf('in featured') === -1 || clause.length < 30) {
+          clauseBadge = 'Featured';
         }
       }
+
+      if (clauseBadge) {
+        badges[clauseInst] = clauseBadge;
+        usedBadgeTypes[clauseBadge] = true;
+      }
     }
+
     return badges;
   }
 
@@ -338,8 +346,54 @@
     var cardsList = BASE_CARDS.slice();
     var moreWaysList = BASE_MORE_WAYS.slice();
 
+    // Override base badges with user-specified badges
+    for (var ob in badges) {
+      if (recommendedBadges[ob] !== undefined) {
+        // Instrument is already in RECOMMENDED, just update its badge
+        recommendedBadges[ob] = badges[ob];
+      }
+    }
+
+    // Check for explicit section placement from prompt context
+    // (e.g., "apay UPI in UPI box" means move apay_upi to UPI section)
+    var explicitUpi = [];
+    var explicitCards = [];
+    if (parsedData._promptLower) {
+      var pl = parsedData._promptLower;
+      if (pl.indexOf('upi') !== -1 && (pl.indexOf('upi box') !== -1 || pl.indexOf('upi section') !== -1 || pl.indexOf('in upi') !== -1)) {
+        // Check which UPI instruments are mentioned for the UPI box
+        for (var eu = 0; eu < mentionedIds.length; eu++) {
+          var eInst = reg.getInstrument(mentionedIds[eu]);
+          if (eInst && eInst.type === 'upi') explicitUpi.push(mentionedIds[eu]);
+        }
+      }
+      if (pl.indexOf('card box') !== -1 || pl.indexOf('cards section') !== -1 || pl.indexOf('in cards') !== -1) {
+        for (var ec = 0; ec < mentionedIds.length; ec++) {
+          var ecInst = reg.getInstrument(mentionedIds[ec]);
+          if (ecInst && ecInst.type === 'card') explicitCards.push(mentionedIds[ec]);
+        }
+      }
+    }
+
+    // If user explicitly placed apay_upi in UPI box, move it out of RECOMMENDED
+    // BUT only if it doesn't have an explicit badge (badge = stay in RECOMMENDED)
+    for (var ep = 0; ep < explicitUpi.length; ep++) {
+      var euId = explicitUpi[ep];
+      if (badges[euId]) continue; // has a badge, stays in RECOMMENDED
+      var recIdx = recommended.indexOf(euId);
+      if (recIdx !== -1) {
+        recommended.splice(recIdx, 1);
+        delete recommendedBadges[euId];
+      }
+      if (upiList.indexOf(euId) === -1) upiList.unshift(euId);
+    }
+
     // Apply badge overrides — move instruments to RECOMMENDED if badged
     for (var bid in badges) {
+      // Skip if explicitly placed in another section
+      if (explicitUpi.indexOf(bid) !== -1) continue;
+      if (explicitCards.indexOf(bid) !== -1) continue;
+
       recommendedBadges[bid] = badges[bid];
       if (recommended.indexOf(bid) === -1) {
         upiList = upiList.filter(function(x) { return x !== bid; });
@@ -393,6 +447,12 @@
           overrides.insufficientBalance = true;
           overrides.shortfall = formatIndian(parsedData.orderAmount - balance);
         }
+      }
+      // Handle APL credit limit from prompt
+      if (instId === 'apay_later' && parsedData._promptLower) {
+        var aplMatch = parsedData._promptLower.match(/(?:apl|pay later|amazon pay later)[\w\s]*?(?:\u20B9|rs\.?)([\d,]+)/i);
+        if (!aplMatch) aplMatch = parsedData._promptLower.match(/(?:\u20B9|rs\.?)([\d,]+)\s*(?:limit|credit)/i);
+        if (aplMatch) overrides.creditLimit = formatIndian(parseInt(aplMatch[1].replace(/,/g, ''), 10));
       }
       var tile = reg.buildTile(instId, overrides);
       tile._instId = instId;
@@ -564,7 +624,7 @@
     var customerName = extractCustomerName(prompt);
     var address = extractAddress(prompt);
 
-    var parsedData = { orderAmount: orderAmount, customerName: customerName, address: address };
+    var parsedData = { orderAmount: orderAmount, customerName: customerName, address: address, _promptLower: prompt.toLowerCase() };
     var sections = buildSections(instrumentIds, badges, offers, states, parsedData);
 
     var price = orderAmount || 504;

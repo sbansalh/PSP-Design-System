@@ -41,8 +41,8 @@
       type: 'card',
       name: 'HDFC credit card',
       icon: 'PSP Instument icons/HDFC Banks.png',
-      detailFormat: 'VISA \u2022\u2022\u2022\u20220422 | {holder}',
-      defaultDetail: 'VISA \u2022\u2022\u2022\u20220422 | Akshay',
+      detailFormat: 'VISA \u2022\u20220422 | {holder}',
+      defaultDetail: 'VISA \u2022\u20220422 | Akshay',
       badges: ['Previously used'],
       offerFormat: 'Save \u20B9{amount}.',
       defaultOffer: 'Save \u20B96.',
@@ -71,8 +71,8 @@
       type: 'card',
       name: 'ICICI credit card',
       icon: 'PSP Instument icons/ICICI Banks.png',
-      detailFormat: 'VISA \u2022\u2022\u2022\u20221234 | {holder}',
-      defaultDetail: 'VISA \u2022\u2022\u2022\u20221234 | Akshay',
+      detailFormat: 'VISA \u2022\u20221234 | {holder}',
+      defaultDetail: 'VISA \u2022\u20221234 | Akshay',
       badges: [],
       offerFormat: null,
       defaultOffer: '',
@@ -86,8 +86,8 @@
       type: 'card',
       name: 'SBI debit card',
       icon: 'PSP Instument icons/SBI Banks.png',
-      detailFormat: 'RUPAY \u2022\u2022\u2022\u20225678 | {holder}',
-      defaultDetail: 'RUPAY \u2022\u2022\u2022\u20225678 | Akshay',
+      detailFormat: 'RUPAY \u2022\u20225678 | {holder}',
+      defaultDetail: 'RUPAY \u2022\u20225678 | Akshay',
       badges: [],
       offerFormat: null,
       defaultOffer: '',
@@ -339,8 +339,9 @@
     };
 
     // Handle dynamic name (APB balance)
-    if (inst.id === 'apay_balance' && overrides.balance !== undefined) {
-      tile.name = 'Amazon Pay Balance: \u20B9' + overrides.balance;
+    if (inst.id === 'apay_balance') {
+      var bal = overrides.balance !== undefined ? overrides.balance : (inst.defaultBalance || 60);
+      tile.name = 'Amazon Pay Balance: \u20B9' + bal;
     }
 
     // Handle bank pill (UPI)
@@ -364,6 +365,18 @@
     // Handle detail with custom holder
     if (overrides.holder && inst.detailFormat) {
       tile.details = inst.detailFormat.replace('{holder}', overrides.holder);
+    }
+
+    // Handle APL credit limit
+    if (inst.id === 'apay_later' && overrides.creditLimit) {
+      tile.details = 'Available credit: \u20B9 ' + overrides.creditLimit;
+    } else if (inst.id === 'apay_later' && tile.details && tile.details.indexOf('{credit}') !== -1) {
+      tile.details = inst.defaultDetail;
+    }
+
+    // Handle COD fee (always use default)
+    if (inst.id === 'cod' && tile.details && tile.details.indexOf('{fee}') !== -1) {
+      tile.details = inst.defaultDetail;
     }
 
     return tile;

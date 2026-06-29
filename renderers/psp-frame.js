@@ -178,11 +178,16 @@
     // Build HTML
     var html = '';
     html += '<div data-psp-tile style="background:' + bg + ';border:' + border + ';border-radius:' + radius + ';padding:' + padding + ';opacity:' + opacity + ';cursor:pointer">';
-    html += '<div style="display:flex;align-items:flex-start;gap:10px">';
+    // Use flex-start alignment when tile has extra content below name (badge, details, CTA)
+    // Use center for simple tiles (just name)
+    var hasExtraContent = tile.badge || tile.details || tile.offer || tile.bankPill || tile.insufficientCta;
+    var alignItems = hasExtraContent ? 'flex-start' : 'center';
+    html += '<div style="display:flex;align-items:' + alignItems + ';gap:10px">';
 
     // Icon
     if (tile.icon) {
-      html += '<div style="width:' + TOKENS.iconWidth + ';height:' + TOKENS.iconHeight + ';border-radius:' + TOKENS.iconRadius + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;margin-top:2px">';
+      var iconMt = hasExtraContent ? 'margin-top:2px;' : '';
+      html += '<div style="width:' + TOKENS.iconWidth + ';height:' + TOKENS.iconHeight + ';border-radius:' + TOKENS.iconRadius + ';display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;' + iconMt + '">';
       html += '<img src="' + tile.icon + '" style="width:100%;height:100%;object-fit:contain" alt="">';
       html += '</div>';
     }
@@ -234,7 +239,8 @@
     html += '</div>'; // close content
 
     // Radio button
-    html += '<svg width="' + TOKENS.radioSize + '" height="' + TOKENS.radioSize + '" style="flex-shrink:0;margin-top:2px"><circle cx="10" cy="10" r="9" fill="none" stroke="' + radioStroke + '" stroke-width="' + TOKENS.radioStrokeWidth + '"/>' + radioInner + '</svg>';
+    var radioMt = hasExtraContent ? 'margin-top:2px;' : '';
+    html += '<svg width="' + TOKENS.radioSize + '" height="' + TOKENS.radioSize + '" style="flex-shrink:0;' + radioMt + '"><circle cx="10" cy="10" r="9" fill="none" stroke="' + radioStroke + '" stroke-width="' + TOKENS.radioStrokeWidth + '"/>' + radioInner + '</svg>';
 
     html += '</div>'; // close flex row
     html += '</div>'; // close tile container
