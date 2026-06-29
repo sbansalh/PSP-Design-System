@@ -1118,9 +1118,16 @@ html+='<div class="sec">';
 html+='<div class="section-header" style="border-left-color: #FF9900">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Create Your PSP</h1>';
-html+='<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup with exact design system components, colors, and states.</p>';
+html+='<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup. Powered by AI — understands PSP hierarchy, badges, instrument states, and section rules.</p>';
 html+='</div></div>';
 html+='<div style="padding:0 4px">';
+// API Key setup bar
+html+='<div id="psp-api-key-bar" style="margin-bottom:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;display:flex;align-items:center;gap:12px;font-size:13px">';
+html+='<span style="font-size:16px">🔑</span>';
+html+='<div style="flex:1"><strong>OpenRouter API Key</strong> — <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">Get free key →</a> (uses free models, no credit card needed)</div>';
+html+='<input id="psp-api-key-input" type="password" placeholder="sk-or-v1-..." style="width:220px;padding:6px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:12px;font-family:monospace">';
+html+='<button id="psp-api-key-save" style="background:#FF9900;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Save</button>';
+html+='</div>';
 html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start" id="psp-generator-layout">';
 // Left: input
 html+='<div>';
@@ -1138,6 +1145,7 @@ html+='<div id="psp-generator-examples" style="display:flex;flex-direction:colum
 html+='<div class="psp-example-chip" data-prompt="PSP for ₹499 order with CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💳 Standard checkout — 3 recommended + UPI</div>';
 html+='<div class="psp-example-chip" data-prompt="Create PSP for ₹15000 order. CBCC with best offer ₹200 cashback, HDFC credit expired, Amazon Pay Balance insufficient, Pay Later, EMI, Net Banking" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💰 High-value order — with disabled card + EMI</div>';
 html+='<div class="psp-example-chip" data-prompt="Simple PSP with only COD and Net Banking for ₹299 order" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">📦 Minimal — COD + Net Banking only</div>';
+html+='<div class="psp-example-chip" data-prompt="Show APay UPI in UPI box with multiple accounts, APL in recommended as Featured with ₹60,000 credit limit, CBCC best offer ₹50" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">🔀 Custom routing — UPI in UPI box + APL featured</div>';
 html+='</div>';
 html+='</div>';
 html+='</div>';
@@ -1545,30 +1553,46 @@ buildSections();
   var genOutput = document.getElementById('psp-generator-output');
   var genReset = document.getElementById('psp-generator-reset');
   var genExamples = document.getElementById('psp-generator-examples');
+  var apiKeyInput = document.getElementById('psp-api-key-input');
+  var apiKeySave = document.getElementById('psp-api-key-save');
+  var apiKeyBar = document.getElementById('psp-api-key-bar');
 
   if (!genBtn || !genInput || !genOutput) return;
+  var gen = window.PSP && window.PSP.features && window.PSP.features.pspGenerator;
+  if (!gen) return;
+
+  // API key UI
+  if (apiKeyInput && gen.hasApiKey()) {
+    apiKeyInput.value = '••••••••••••••••';
+    if (apiKeyBar) apiKeyBar.style.borderColor = '#16a34a';
+  }
+  if (apiKeySave) {
+    apiKeySave.addEventListener('click', function() {
+      var key = apiKeyInput.value.trim();
+      if (key && key.indexOf('••') === -1) {
+        gen.setApiKey(key);
+        apiKeyInput.value = '••••••••••••••••';
+        apiKeyBar.style.borderColor = '#16a34a';
+        apiKeyBar.style.background = '#f0fdf4';
+      }
+    });
+  }
 
   function generatePSP(skipLoading) {
     var prompt = genInput.value.trim();
-    if (!window.PSP || !window.PSP.features || !window.PSP.features.pspGenerator) return;
-    if (!window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
-
-    if (skipLoading) {
-      // Instant render (used for initial load so page doesn't flash loading)
-      var config = window.PSP.features.pspGenerator.parse(prompt);
-      var html = window.PSP.renderers.pspFrame.render(config);
+    if (skipLoading || !gen.hasApiKey()) {
+      // Instant render (default PSP, no LLM)
+      var cfg = gen.getDefaultConfig();
+      var html = window.PSP.renderers.pspFrame.render(cfg);
       genOutput.innerHTML = html;
       window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
     } else {
-      // AI-style generation with loading animation
-      window.PSP.features.pspGenerator.generate(prompt, genOutput);
+      gen.generate(prompt, genOutput);
     }
   }
 
-  // Generate button
   genBtn.addEventListener('click', function() { generatePSP(false); });
 
-  // Enter key in textarea (Ctrl+Enter or Cmd+Enter)
   genInput.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
@@ -1576,7 +1600,6 @@ buildSections();
     }
   });
 
-  // Reset button
   if (genReset) {
     genReset.addEventListener('click', function() {
       genInput.value = '';
@@ -1584,7 +1607,6 @@ buildSections();
     });
   }
 
-  // Example chips
   if (genExamples) {
     genExamples.addEventListener('click', function(e) {
       var chip = e.target.closest('.psp-example-chip');
@@ -1597,7 +1619,7 @@ buildSections();
     });
   }
 
-  // Generate default on load (instant, no loading animation)
+  // Render default on load (instant, no animation)
   generatePSP(true);
 })();
 
