@@ -66,10 +66,12 @@
     '- If user specifies cashback/offer amount, set offerAmount to that number.',
     '- orderAmount = exact amount from prompt. If not mentioned, use null.',
     '',
-    '## INSTRUMENTS:',
+    '## INSTRUMENTS (use correct ID for specific banks):',
     '- cbcc: Amazon Pay ICICI Credit Card (card)',
     '- hdfc_credit: HDFC Credit Card (card)',
     '- hdfc_debit: HDFC Debit Card (card)',
+    '- icici_credit: ICICI Credit Card (card)',
+    '- sbi_debit: SBI Debit Card (card)',
     '- apay_upi: Amazon Pay UPI (upi)',
     '- other_upi: Pay by any UPI App (upi)',
     '- apay_balance: Amazon Pay Balance (wallet)',
@@ -80,12 +82,17 @@
     '',
     '## STATES: normal, disabled (expired/blocked), insufficient (APB when balance < order)',
     '',
+    '## SPECIAL SCENARIOS:',
+    '- "new to amazon"/"new customer"/"first time user": RECOMMENDED has APay UPI with Featured badge. UPI section has other_upi. CARDS section is EMPTY (no instruments). APB balance is low (insufficient). Instrument detail for APay UPI = "Get up to ₹50 as cashback. Set up now"',
+    '- "new to UPI"/"UPI onboarding": APay UPI in recommended with Featured badge, detail = "Get up to ₹50 as cashback. Set up now"',
+    '- When user says "SBI card", use sbi_debit. "HDFC card" = hdfc_credit or hdfc_debit. "ICICI card" = icici_credit.',
+    '',
     '## EXAMPLE:',
     'User: "insufficient APB in featured, CBCC in previously used with ₹20 cashback, no best offer, APay UPI in UPI box, one saved card"',
     'Output: {"orderAmount":null,"customerName":"Akshay","address":"Bengaluru 560001, Karnataka","sections":[{"type":"recommended","instruments":[{"id":"apay_balance","badge":"Featured","offerAmount":null,"state":"insufficient","creditLimit":null},{"id":"cbcc","badge":"Previously used","offerAmount":20,"state":"normal","creditLimit":null}]},{"type":"upi","instruments":[{"id":"apay_upi","badge":null,"offerAmount":null,"state":"normal","creditLimit":null}]},{"type":"cards","instruments":[{"id":"hdfc_debit","badge":null,"offerAmount":null,"state":"normal","creditLimit":null}]},{"type":"more_ways","instruments":[{"id":"apay_later","badge":null,"offerAmount":null,"state":"normal","creditLimit":null},{"id":"cod","badge":null,"offerAmount":null,"state":"normal","creditLimit":null},{"id":"net_banking","badge":null,"offerAmount":null,"state":"normal","creditLimit":null}]}]}',
     '',
     '## OUTPUT FORMAT (valid JSON only, no other text):',
-    '{"orderAmount":number|null,"customerName":"Akshay","address":"Bengaluru 560001, Karnataka","sections":[{"type":"recommended|upi|cards|more_ways","instruments":[{"id":"instrument_id","badge":"Best offer|Previously used|Featured"|null,"offerAmount":number|null,"state":"normal|disabled|insufficient","creditLimit":number|null}]}]}'
+    '{"orderAmount":number|null,"customerName":"Akshay","address":"Bengaluru 560001, Karnataka","sections":[{"type":"recommended|upi|cards|more_ways","instruments":[{"id":"instrument_id","badge":"Best offer|Previously used|Featured"|null,"offerAmount":number|null,"state":"normal|disabled|insufficient","creditLimit":number|null,"detail":string|null}]}]}'
   ].join('\n');
 
   // ═══════════════════════════════════════════
@@ -270,6 +277,11 @@
         if (inst.id === 'apay_later' && inst.creditLimit) {
           overrides.creditLimit = formatIndian(inst.creditLimit);
         }
+        // Handle UPI onboarding text (new to UPI/Amazon scenarios)
+        if (inst.id === 'apay_upi' && inst.detail) {
+          overrides.details = inst.detail;
+          overrides.bankPill = null; // Hide bank pill for onboarding state
+        }
         var tile = reg.buildTile(inst.id, overrides);
         if (tile) { tiles.push(tile); allTiles.push(tile); }
       }
@@ -277,6 +289,9 @@
         var s = { title: titleMap[sec.type] || sec.type, tiles: tiles };
         if (addLinks[sec.type]) s.addLink = addLinks[sec.type];
         sections.push(s);
+      } else if (addLinks[sec.type]) {
+        // Empty section but has an "add" link (e.g., Cards for new customers)
+        sections.push({ title: titleMap[sec.type] || sec.type, tiles: [], addLink: addLinks[sec.type] });
       }
     }
 

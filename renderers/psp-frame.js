@@ -258,7 +258,8 @@
    * @returns {string} HTML string
    */
   function renderSection(section) {
-    if (!section.tiles || section.tiles.length === 0) return '';
+    if (!section.tiles) section.tiles = [];
+    if (section.tiles.length === 0 && !section.addLink) return '';
 
     var html = '';
     html += '<div style="padding:8px 16px 0">';
