@@ -1491,82 +1491,14 @@ buildSections();
 
 /* ── Wire "Create Your PSP" AI Generator ── */
 (function() {
-  var genBtn = document.getElementById('psp-generator-btn');
-  var genInput = document.getElementById('psp-generator-input');
+  // The generator UI is now in the FAB modal (below). Skip if old section elements exist.
   var genOutput = document.getElementById('psp-generator-output');
-  var genReset = document.getElementById('psp-generator-reset');
-  var genExamples = document.getElementById('psp-generator-examples');
-  var apiKeyInput = document.getElementById('psp-api-key-input');
-  var apiKeySave = document.getElementById('psp-api-key-save');
-  var apiKeyBar = document.getElementById('psp-api-key-bar');
-
-  if (!genBtn || !genInput || !genOutput) return;
+  if (!genOutput) return;
   var gen = window.PSP && window.PSP.features && window.PSP.features.pspGenerator;
-  if (!gen) return;
-
-  // API key UI
-  if (apiKeyInput && gen.hasApiKey()) {
-    apiKeyInput.value = '••••••••••••••••';
-    if (apiKeyBar) apiKeyBar.style.borderColor = '#16a34a';
-  }
-  if (apiKeySave) {
-    apiKeySave.addEventListener('click', function() {
-      var key = apiKeyInput.value.trim();
-      if (key && key.indexOf('••') === -1) {
-        gen.setApiKey(key);
-        apiKeyInput.value = '••••••••••••••••';
-        apiKeyBar.style.borderColor = '#16a34a';
-        apiKeyBar.style.background = '#f0fdf4';
-      }
-    });
-  }
-
-  function generatePSP(skipLoading) {
-    var prompt = genInput.value.trim();
-    if (skipLoading) {
-      // Initial load: render default silently
-      var cfg = gen.getDefaultConfig();
-      var html = window.PSP.renderers.pspFrame.render(cfg);
-      genOutput.innerHTML = html;
-      window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
-    } else if (!gen.hasApiKey()) {
-      // User clicked Generate but no API key — show warning
-      genOutput.innerHTML = '<div style="padding:24px;text-align:center;background:#fffbeb;border:1px solid #fbbf24;border-radius:12px;margin-top:12px"><div style="font-size:24px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#92400e;font-weight:600;line-height:1.6">Add your OpenRouter API key above to generate custom PSPs</div><div style="font-size:12px;color:#a16207;margin-top:8px">Get a free key at <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">openrouter.ai/keys</a> — no credit card needed</div></div>';
-    } else {
-      gen.generate(prompt, genOutput);
-    }
-  }
-
-  genBtn.addEventListener('click', function() { generatePSP(false); });
-
-  genInput.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-      e.preventDefault();
-      generatePSP(false);
-    }
-  });
-
-  if (genReset) {
-    genReset.addEventListener('click', function() {
-      genInput.value = '';
-      genOutput.innerHTML = '';
-    });
-  }
-
-  if (genExamples) {
-    genExamples.addEventListener('click', function(e) {
-      var chip = e.target.closest('.psp-example-chip');
-      if (!chip) return;
-      var prompt = chip.getAttribute('data-prompt');
-      if (prompt) {
-        genInput.value = prompt;
-        generatePSP(false);
-      }
-    });
-  }
-
-  // Render default on load (instant, no animation)
-  generatePSP(true);
+  if (!gen || !window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
+  var cfg = gen.getDefaultConfig();
+  genOutput.innerHTML = window.PSP.renderers.pspFrame.render(cfg);
+  window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
 })();
 
 /* ── Initialize Dark Mode (reads localStorage, applies theme, renders toggle) ── */
@@ -1582,94 +1514,115 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   FAB: "Create Your PSP" Floating Action Button + Modal
+   FAB: "Create Your PSP" — Gemini-inspired AI modal
    ══════════════════════════════════════════════════════════════ */
 (function() {
-  // Inject FAB styles
-  var fabStyle = document.createElement('style');
-  fabStyle.textContent = [
-    '.psp-fab{position:fixed;bottom:24px;right:24px;z-index:1000;background:#FF9900;color:#fff;border:none;border-radius:16px;padding:14px 24px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s}',
-    '.psp-fab:hover{transform:translateY(-2px);box-shadow:0 6px 12px 4px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.3)}',
-    '.psp-fab:active{transform:translateY(0);box-shadow:0 2px 4px rgba(0,0,0,.2)}',
-    '.psp-fab svg{width:20px;height:20px;fill:currentColor}',
-    '.psp-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;opacity:0;visibility:hidden;transition:opacity .3s}',
-    '.psp-modal-backdrop.open{opacity:1;visibility:visible}',
-    '.psp-modal-panel{position:fixed;bottom:0;left:0;right:0;height:90vh;background:#fff;border-radius:20px 20px 0 0;z-index:2001;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:32px 24px 40px;box-shadow:0 -8px 32px rgba(0,0,0,.2)}',
-    '.psp-modal-panel.open{transform:translateY(0)}',
-    '.psp-modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:none;background:#f1f3f4;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;color:#5f6368;transition:background .15s}',
-    '.psp-modal-close:hover{background:#e0e2e6}',
-    '@media(max-width:900px){.psp-fab{bottom:16px;right:16px;padding:12px 18px;font-size:14px}.psp-modal-panel{padding:24px 16px 32px}}'
-  ].join('\n');
-  document.head.appendChild(fabStyle);
+  var gen = window.PSP && window.PSP.features && window.PSP.features.pspGenerator;
+  if (!gen) return;
 
-  // Create FAB button
+  // Inject styles
+  var s = document.createElement('style');
+  s.textContent = '.psp-fab{position:fixed;bottom:24px;right:24px;z-index:1000;background:#FF9900;color:#fff;border:none;border-radius:16px;padding:14px 24px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s}.psp-fab:hover{transform:translateY(-2px);box-shadow:0 6px 12px 4px rgba(0,0,0,.18)}.psp-fab svg{width:20px;height:20px;fill:currentColor}.psp-modal-bg{position:fixed;inset:0;z-index:2000;opacity:0;visibility:hidden;transition:opacity .3s;background:radial-gradient(ellipse at 50% 40%,#e8f4fd 0%,#f0f7ff 30%,#fafbfc 70%)}.psp-modal-bg.open{opacity:1;visibility:visible}.psp-modal-x{position:fixed;top:20px;right:24px;z-index:2002;width:40px;height:40px;border:none;background:rgba(0,0,0,.06);border-radius:50%;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;color:#5f6368;transition:background .15s}.psp-modal-x.open{display:flex}.psp-modal-x:hover{background:rgba(0,0,0,.1)}.psp-modal-body{position:fixed;inset:0;z-index:2001;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;overflow-y:auto}.psp-modal-body.open{display:flex}.psp-gen-title{font-size:28px;font-weight:300;color:#1a1c1e;margin-bottom:32px;text-align:center;letter-spacing:-0.5px}.psp-gen-input-wrap{width:100%;max-width:680px;position:relative;margin-bottom:24px}.psp-gen-input{width:100%;padding:16px 24px;padding-right:120px;border:1px solid #d5d9d9;border-radius:28px;font-size:15px;font-family:inherit;line-height:1.5;outline:none;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:border-color .2s,box-shadow .2s;resize:none;min-height:56px;max-height:120px}.psp-gen-input:focus{border-color:#FF9900;box-shadow:0 4px 16px rgba(255,153,0,.12)}.psp-gen-submit{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#FF9900;color:#fff;border:none;border-radius:24px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}.psp-gen-submit:hover{background:#e68a00}.psp-gen-chips{display:flex;flex-wrap:wrap;gap:8px;max-width:680px;justify-content:center;margin-bottom:32px}.psp-gen-chip{padding:8px 16px;background:rgba(255,255,255,.8);border:1px solid #e3e5e8;border-radius:20px;font-size:13px;color:#1a1c1e;cursor:pointer;transition:all .15s;backdrop-filter:blur(4px)}.psp-gen-chip:hover{background:#fff;border-color:#FF9900;box-shadow:0 2px 8px rgba(255,153,0,.1)}.psp-gen-output{width:100%;max-width:400px;margin-top:16px}.psp-gen-key-bar{display:flex;align-items:center;gap:10px;max-width:680px;width:100%;padding:10px 16px;background:rgba(255,255,255,.7);border:1px solid #e3e5e8;border-radius:12px;margin-bottom:20px;font-size:12px;color:#5f6368;backdrop-filter:blur(4px)}.psp-gen-key-bar input{flex:1;max-width:200px;padding:5px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:11px;font-family:monospace}.psp-gen-key-bar button{background:#FF9900;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}@media(max-width:600px){.psp-gen-title{font-size:22px}.psp-gen-input{padding:14px 20px;padding-right:100px;font-size:14px}.psp-gen-submit{padding:8px 14px;font-size:13px}.psp-fab{bottom:16px;right:16px;padding:12px 18px;font-size:14px}}';
+  document.head.appendChild(s);
+
+  // Create FAB
   var fab = document.createElement('button');
   fab.className = 'psp-fab';
-  fab.setAttribute('aria-label', 'Create PSP');
-  fab.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg><span>Create PSP</span>';
+  fab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg><span>Create PSP</span>';
   document.body.appendChild(fab);
 
-  // Create modal backdrop
-  var backdrop = document.createElement('div');
-  backdrop.className = 'psp-modal-backdrop';
-  document.body.appendChild(backdrop);
+  // Create modal background (Gemini-style gradient)
+  var modalBg = document.createElement('div');
+  modalBg.className = 'psp-modal-bg';
+  document.body.appendChild(modalBg);
 
-  // Create modal panel
-  var panel = document.createElement('div');
-  panel.className = 'psp-modal-panel';
-  panel.innerHTML = '<button class="psp-modal-close" aria-label="Close">&times;</button>' +
-    '<div style="clear:both"></div>' +
-    '<div class="section-header" style="border-left-color:#FF9900;margin-bottom:24px">' +
-    '<div class="section-header__content">' +
-    '<h1 class="section-header__title">Create Your PSP</h1>' +
-    '<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup. Powered by AI — understands PSP hierarchy, badges, instrument states, and section rules.</p>' +
-    '</div></div>' +
-    '<div style="padding:0 4px">' +
-    '<div id="psp-api-key-bar" style="margin-bottom:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;display:flex;align-items:center;gap:12px;font-size:13px;flex-wrap:wrap">' +
-    '<span style="font-size:16px">🔑</span>' +
-    '<div style="flex:1;min-width:200px"><strong>OpenRouter API Key</strong> — <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">Get free key →</a> (uses free models, no credit card needed)</div>' +
-    '<input id="psp-api-key-input" type="password" placeholder="sk-or-v1-..." style="width:220px;padding:6px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:12px;font-family:monospace">' +
-    '<button id="psp-api-key-save" style="background:#FF9900;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Save</button>' +
-    '</div>' +
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start" id="psp-generator-layout">' +
-    '<div>' +
-    '<div style="margin-bottom:16px">' +
-    '<label style="font-size:12px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Describe your PSP</label>' +
-    '<textarea id="psp-generator-input" style="width:100%;min-height:120px;padding:12px 16px;border:1px solid #d5d9d9;border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.15s" placeholder="Example: Create a PSP for a ₹2,500 order. Customer has Amazon Pay ICICI with best offer ₹50 cashback, HDFC credit card previously used, UPI linked. Show Pay Later and COD too."></textarea>' +
-    '</div>' +
-    '<div style="display:flex;gap:10px;margin-bottom:20px">' +
-    '<button id="psp-generator-btn" style="background:#FF9900;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:inherit">Generate PSP →</button>' +
-    '<button id="psp-generator-reset" style="background:#fff;color:#5f6368;border:1px solid #d5d9d9;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit">Reset</button>' +
-    '</div>' +
-    '<div style="font-size:12px;color:#5f6368;line-height:1.6">' +
-    '<strong style="display:block;margin-bottom:6px;color:#1a1c1e">Quick examples:</strong>' +
-    '<div id="psp-generator-examples" style="display:flex;flex-direction:column;gap:6px">' +
-    '<div class="psp-example-chip" data-prompt="PSP for ₹499 order with CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💳 Standard checkout — 3 recommended + UPI</div>' +
-    '<div class="psp-example-chip" data-prompt="Create PSP for ₹15000 order. CBCC with best offer ₹200 cashback, HDFC credit expired, Amazon Pay Balance insufficient, Pay Later, EMI, Net Banking" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💰 High-value order — with disabled card + EMI</div>' +
-    '<div class="psp-example-chip" data-prompt="Simple PSP with only COD and Net Banking for ₹299 order" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">📦 Minimal — COD + Net Banking only</div>' +
-    '<div class="psp-example-chip" data-prompt="Show APay UPI in UPI box with multiple accounts, APL in recommended as Featured with ₹60,000 credit limit, CBCC best offer ₹50" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">🔀 Custom routing — UPI in UPI box + APL featured</div>' +
-    '</div></div></div>' +
-    '<div style="display:flex;justify-content:center;align-items:flex-start">' +
-    '<div id="psp-generator-output" style="width:100%;max-width:380px"></div>' +
-    '</div>' +
-    '</div></div>';
-  document.body.appendChild(panel);
+  // Close button
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'psp-modal-x';
+  closeBtn.innerHTML = '&times;';
+  document.body.appendChild(closeBtn);
 
+  // Modal body
+  var modalBody = document.createElement('div');
+  modalBody.className = 'psp-modal-body';
+  modalBody.innerHTML = '<div class="psp-gen-title">What PSP do you want to create?</div>' +
+    '<div class="psp-gen-key-bar" id="psp-fab-keybar"><span>🔑</span><span>API Key</span><input id="psp-fab-key" type="password" placeholder="sk-or-v1-..."><button id="psp-fab-key-save">Save</button><a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1;font-size:11px;white-space:nowrap">Get free key →</a></div>' +
+    '<div class="psp-gen-input-wrap"><textarea class="psp-gen-input" id="psp-fab-input" rows="1" placeholder="Describe your checkout scenario..."></textarea><button class="psp-gen-submit" id="psp-fab-btn">Generate →</button></div>' +
+    '<div class="psp-gen-chips">' +
+    '<div class="psp-gen-chip" data-p="PSP for ₹499 order with CBCC best offer ₹10, HDFC previously used, APay UPI featured">💳 Standard checkout</div>' +
+    '<div class="psp-gen-chip" data-p="₹15000 order. CBCC best offer ₹200, HDFC expired, APB insufficient, Pay Later, EMI">💰 High-value + disabled</div>' +
+    '<div class="psp-gen-chip" data-p="Simple PSP with only COD and Net Banking for ₹299 order">📦 Minimal COD</div>' +
+    '<div class="psp-gen-chip" data-p="APay UPI in UPI box, APL in recommended as Featured with ₹60,000 limit, CBCC best offer ₹50">🔀 Custom routing</div>' +
+    '</div>' +
+    '<div class="psp-gen-output" id="psp-fab-output"></div>';
+  document.body.appendChild(modalBody);
+
+  // Wire open/close
   function openModal() {
-    backdrop.classList.add('open');
-    panel.classList.add('open');
+    modalBg.classList.add('open');
+    closeBtn.classList.add('open');
+    modalBody.classList.add('open');
     document.body.style.overflow = 'hidden';
+    // Show saved key state
+    var keyInput = document.getElementById('psp-fab-key');
+    var keyBar = document.getElementById('psp-fab-keybar');
+    if (gen.hasApiKey() && keyInput) {
+      keyInput.value = '••••••••••••';
+      keyBar.style.borderColor = '#16a34a';
+      keyBar.style.background = 'rgba(240,253,244,.7)';
+    }
   }
   function closeModal() {
-    backdrop.classList.remove('open');
-    panel.classList.remove('open');
+    modalBg.classList.remove('open');
+    closeBtn.classList.remove('open');
+    modalBody.classList.remove('open');
     document.body.style.overflow = '';
   }
 
   fab.addEventListener('click', openModal);
-  backdrop.addEventListener('click', closeModal);
-  panel.querySelector('.psp-modal-close').addEventListener('click', closeModal);
+  modalBg.addEventListener('click', closeModal);
+  closeBtn.addEventListener('click', closeModal);
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && panel.classList.contains('open')) closeModal();
+    if (e.key === 'Escape' && modalBody.classList.contains('open')) closeModal();
+  });
+
+  // Wire API key save
+  document.getElementById('psp-fab-key-save').addEventListener('click', function() {
+    var input = document.getElementById('psp-fab-key');
+    var bar = document.getElementById('psp-fab-keybar');
+    var key = input.value.trim();
+    if (key && key.indexOf('••') === -1) {
+      gen.setApiKey(key);
+      input.value = '••••••••••••';
+      bar.style.borderColor = '#16a34a';
+      bar.style.background = 'rgba(240,253,244,.7)';
+    }
+  });
+
+  // Wire generate
+  function doGenerate() {
+    var input = document.getElementById('psp-fab-input');
+    var output = document.getElementById('psp-fab-output');
+    var prompt = input.value.trim();
+    if (!prompt) return;
+    if (!gen.hasApiKey()) {
+      output.innerHTML = '<div style="padding:20px;text-align:center;background:rgba(255,251,235,.9);border:1px solid #fbbf24;border-radius:12px"><div style="font-size:20px;margin-bottom:8px">⚠️</div><div style="font-size:13px;color:#92400e;font-weight:500">Add your OpenRouter API key above first</div></div>';
+      return;
+    }
+    gen.generate(prompt, output);
+  }
+
+  document.getElementById('psp-fab-btn').addEventListener('click', doGenerate);
+  document.getElementById('psp-fab-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doGenerate(); }
+  });
+
+  // Wire chips
+  modalBody.querySelector('.psp-gen-chips').addEventListener('click', function(e) {
+    var chip = e.target.closest('.psp-gen-chip');
+    if (!chip) return;
+    document.getElementById('psp-fab-input').value = chip.getAttribute('data-p');
+    doGenerate();
   });
 })();
+

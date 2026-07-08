@@ -38,7 +38,7 @@
   var config = {
     apiKey: null, // Set via setApiKey() or UI input
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'google/gemma-3-27b-it:free',
+    model: 'meta-llama/llama-3.1-8b-instruct:free',
     timeout: 15000
   };
 
