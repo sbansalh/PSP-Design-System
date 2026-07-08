@@ -1514,115 +1514,135 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   FAB: "Create Your PSP" — Gemini-inspired AI modal
+   CREATE YOUR PSP — Full AI Tool (FAB + Split Panel Modal)
    ══════════════════════════════════════════════════════════════ */
 (function() {
   var gen = window.PSP && window.PSP.features && window.PSP.features.pspGenerator;
   if (!gen) return;
 
-  // Inject styles
-  var s = document.createElement('style');
-  s.textContent = '.psp-fab{position:fixed;bottom:24px;right:24px;z-index:1000;background:#FF9900;color:#fff;border:none;border-radius:16px;padding:14px 24px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s}.psp-fab:hover{transform:translateY(-2px);box-shadow:0 6px 12px 4px rgba(0,0,0,.18)}.psp-fab svg{width:20px;height:20px;fill:currentColor}.psp-modal-bg{position:fixed;inset:0;z-index:2000;opacity:0;visibility:hidden;transition:opacity .3s;background:radial-gradient(ellipse at 50% 40%,#e8f4fd 0%,#f0f7ff 30%,#fafbfc 70%)}.psp-modal-bg.open{opacity:1;visibility:visible}.psp-modal-x{position:fixed;top:20px;right:24px;z-index:2002;width:40px;height:40px;border:none;background:rgba(0,0,0,.06);border-radius:50%;font-size:20px;cursor:pointer;display:none;align-items:center;justify-content:center;color:#5f6368;transition:background .15s}.psp-modal-x.open{display:flex}.psp-modal-x:hover{background:rgba(0,0,0,.1)}.psp-modal-body{position:fixed;inset:0;z-index:2001;display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;overflow-y:auto}.psp-modal-body.open{display:flex}.psp-gen-title{font-size:28px;font-weight:300;color:#1a1c1e;margin-bottom:32px;text-align:center;letter-spacing:-0.5px}.psp-gen-input-wrap{width:100%;max-width:680px;position:relative;margin-bottom:24px}.psp-gen-input{width:100%;padding:16px 24px;padding-right:120px;border:1px solid #d5d9d9;border-radius:28px;font-size:15px;font-family:inherit;line-height:1.5;outline:none;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);transition:border-color .2s,box-shadow .2s;resize:none;min-height:56px;max-height:120px}.psp-gen-input:focus{border-color:#FF9900;box-shadow:0 4px 16px rgba(255,153,0,.12)}.psp-gen-submit{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:#FF9900;color:#fff;border:none;border-radius:24px;padding:10px 20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}.psp-gen-submit:hover{background:#e68a00}.psp-gen-chips{display:flex;flex-wrap:wrap;gap:8px;max-width:680px;justify-content:center;margin-bottom:32px}.psp-gen-chip{padding:8px 16px;background:rgba(255,255,255,.8);border:1px solid #e3e5e8;border-radius:20px;font-size:13px;color:#1a1c1e;cursor:pointer;transition:all .15s;backdrop-filter:blur(4px)}.psp-gen-chip:hover{background:#fff;border-color:#FF9900;box-shadow:0 2px 8px rgba(255,153,0,.1)}.psp-gen-output{width:100%;max-width:400px;margin-top:16px}.psp-gen-key-bar{display:flex;align-items:center;gap:10px;max-width:680px;width:100%;padding:10px 16px;background:rgba(255,255,255,.7);border:1px solid #e3e5e8;border-radius:12px;margin-bottom:20px;font-size:12px;color:#5f6368;backdrop-filter:blur(4px)}.psp-gen-key-bar input{flex:1;max-width:200px;padding:5px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:11px;font-family:monospace}.psp-gen-key-bar button{background:#FF9900;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer}@media(max-width:600px){.psp-gen-title{font-size:22px}.psp-gen-input{padding:14px 20px;padding-right:100px;font-size:14px}.psp-gen-submit{padding:8px 14px;font-size:13px}.psp-fab{bottom:16px;right:16px;padding:12px 18px;font-size:14px}}';
-  document.head.appendChild(s);
+  // ─── Styles ───
+  var css = document.createElement('style');
+  css.textContent = [
+    '.psp-fab{position:fixed;bottom:24px;right:24px;z-index:1000;background:#FF9900;color:#fff;border:none;border-radius:16px;padding:14px 24px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 12px rgba(255,153,0,.3);transition:transform .15s,box-shadow .15s}',
+    '.psp-fab:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,153,0,.4)}',
+    '.psp-fab svg{width:20px;height:20px;fill:currentColor}',
+    // Modal overlay
+    '.psp-ai-overlay{position:fixed;inset:0;z-index:2000;background:radial-gradient(ellipse at 50% 30%,#eaf4fb 0%,#f4f8fc 40%,#fafbfc 100%);opacity:0;visibility:hidden;transition:opacity .3s;display:flex;flex-direction:column}',
+    '.psp-ai-overlay.open{opacity:1;visibility:visible}',
+    // Top bar
+    '.psp-ai-top{display:flex;justify-content:space-between;align-items:center;padding:16px 24px;flex-shrink:0}',
+    '.psp-ai-top-title{font-size:16px;font-weight:600;color:#1a1c1e}',
+    '.psp-ai-close{width:36px;height:36px;border:none;background:rgba(0,0,0,.05);border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#5f6368;transition:background .15s}',
+    '.psp-ai-close:hover{background:rgba(0,0,0,.1)}',
+    // Split content
+    '.psp-ai-split{flex:1;display:flex;overflow:hidden;padding:0 24px 24px;gap:24px}',
+    // Left panel (prompt)
+    '.psp-ai-left{width:380px;min-width:320px;display:flex;flex-direction:column;gap:16px}',
+    '.psp-ai-prompt{flex:1;padding:16px;border:1px solid #e3e5e8;border-radius:12px;font-size:14px;font-family:inherit;line-height:1.6;resize:none;outline:none;background:#fff;transition:border-color .2s}',
+    '.psp-ai-prompt:focus{border-color:#FF9900}',
+    '.psp-ai-actions{display:flex;gap:10px}',
+    '.psp-ai-gen-btn{background:#FF9900;color:#fff;border:none;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}',
+    '.psp-ai-gen-btn:hover{background:#e68a00}',
+    '.psp-ai-gen-btn:disabled{background:#d5d9d9;cursor:not-allowed}',
+    '.psp-ai-reset-btn{background:#fff;color:#5f6368;border:1px solid #d5d9d9;padding:12px 20px;border-radius:10px;font-size:14px;cursor:pointer;font-family:inherit;transition:all .15s}',
+    '.psp-ai-reset-btn:hover{border-color:#FF9900;color:#FF9900}',
+    '.psp-ai-chips{display:flex;flex-wrap:wrap;gap:8px}',
+    '.psp-ai-chip{padding:7px 14px;background:#fff;border:1px solid #e3e5e8;border-radius:18px;font-size:12px;color:#1a1c1e;cursor:pointer;transition:all .15s}',
+    '.psp-ai-chip:hover{border-color:#FF9900;background:#fffbf0}',
+    // Right panel (output)
+    '.psp-ai-right{flex:1;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px 0}',
+    '.psp-ai-output{width:100%;max-width:380px}',
+    // Empty state
+    '.psp-ai-empty{text-align:center;padding:80px 24px;color:#9ca3af}',
+    '.psp-ai-empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}',
+    '.psp-ai-empty-text{font-size:15px;line-height:1.6}',
+    // Responsive
+    '@media(max-width:768px){.psp-ai-split{flex-direction:column;padding:0 16px 16px}.psp-ai-left{width:100%;min-width:0;max-height:40vh}.psp-ai-right{min-height:300px}.psp-fab{bottom:16px;right:16px;padding:12px 18px;font-size:14px}}'
+  ].join('\n');
+  document.head.appendChild(css);
 
-  // Create FAB
+  // ─── FAB ───
   var fab = document.createElement('button');
   fab.className = 'psp-fab';
   fab.innerHTML = '<svg viewBox="0 0 24 24"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg><span>Create PSP</span>';
   document.body.appendChild(fab);
 
-  // Create modal background (Gemini-style gradient)
-  var modalBg = document.createElement('div');
-  modalBg.className = 'psp-modal-bg';
-  document.body.appendChild(modalBg);
+  // ─── Modal ───
+  var overlay = document.createElement('div');
+  overlay.className = 'psp-ai-overlay';
+  overlay.innerHTML = [
+    '<div class="psp-ai-top">',
+    '  <div class="psp-ai-top-title">✦ Create Your PSP</div>',
+    '  <button class="psp-ai-close">&times;</button>',
+    '</div>',
+    '<div class="psp-ai-split">',
+    '  <div class="psp-ai-left">',
+    '    <textarea class="psp-ai-prompt" placeholder="Describe your checkout scenario...\n\nExample: ₹2,500 order with CBCC best offer ₹50 cashback, HDFC previously used, APay UPI in UPI box, APB insufficient, Pay Later, COD"></textarea>',
+    '    <div class="psp-ai-actions">',
+    '      <button class="psp-ai-gen-btn">Generate PSP →</button>',
+    '      <button class="psp-ai-reset-btn">Reset</button>',
+    '    </div>',
+    '    <div class="psp-ai-chips">',
+    '      <div class="psp-ai-chip" data-p="₹499 order, CBCC best offer ₹10, HDFC previously used, APay UPI featured">💳 Standard</div>',
+    '      <div class="psp-ai-chip" data-p="₹15,000 order. CBCC best offer ₹200, HDFC expired, APB insufficient, Pay Later, EMI, Net Banking">💰 High-value</div>',
+    '      <div class="psp-ai-chip" data-p="₹299 order with only COD and Net Banking. No cards, no UPI.">📦 Minimal</div>',
+    '      <div class="psp-ai-chip" data-p="APay UPI in UPI box, APL as Featured with ₹60,000 limit, CBCC best offer ₹50, no HDFC">🔀 Custom</div>',
+    '    </div>',
+    '  </div>',
+    '  <div class="psp-ai-right">',
+    '    <div class="psp-ai-output">',
+    '      <div class="psp-ai-empty"><div class="psp-ai-empty-icon">✦</div><div class="psp-ai-empty-text">Describe a checkout scenario<br>and generate a pixel-perfect PSP</div></div>',
+    '    </div>',
+    '  </div>',
+    '</div>'
+  ].join('\n');
+  document.body.appendChild(overlay);
 
-  // Close button
-  var closeBtn = document.createElement('button');
-  closeBtn.className = 'psp-modal-x';
-  closeBtn.innerHTML = '&times;';
-  document.body.appendChild(closeBtn);
+  // ─── Elements ───
+  var promptEl = overlay.querySelector('.psp-ai-prompt');
+  var outputEl = overlay.querySelector('.psp-ai-output');
+  var genBtn = overlay.querySelector('.psp-ai-gen-btn');
+  var resetBtn = overlay.querySelector('.psp-ai-reset-btn');
+  var closeBtn = overlay.querySelector('.psp-ai-close');
+  var chipsEl = overlay.querySelector('.psp-ai-chips');
 
-  // Modal body
-  var modalBody = document.createElement('div');
-  modalBody.className = 'psp-modal-body';
-  modalBody.innerHTML = '<div class="psp-gen-title">What PSP do you want to create?</div>' +
-    '<div class="psp-gen-key-bar" id="psp-fab-keybar"><span>🔑</span><span>API Key</span><input id="psp-fab-key" type="password" placeholder="sk-or-v1-..."><button id="psp-fab-key-save">Save</button><a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1;font-size:11px;white-space:nowrap">Get free key →</a></div>' +
-    '<div class="psp-gen-input-wrap"><textarea class="psp-gen-input" id="psp-fab-input" rows="1" placeholder="Describe your checkout scenario..."></textarea><button class="psp-gen-submit" id="psp-fab-btn">Generate →</button></div>' +
-    '<div class="psp-gen-chips">' +
-    '<div class="psp-gen-chip" data-p="PSP for ₹499 order with CBCC best offer ₹10, HDFC previously used, APay UPI featured">💳 Standard checkout</div>' +
-    '<div class="psp-gen-chip" data-p="₹15000 order. CBCC best offer ₹200, HDFC expired, APB insufficient, Pay Later, EMI">💰 High-value + disabled</div>' +
-    '<div class="psp-gen-chip" data-p="Simple PSP with only COD and Net Banking for ₹299 order">📦 Minimal COD</div>' +
-    '<div class="psp-gen-chip" data-p="APay UPI in UPI box, APL in recommended as Featured with ₹60,000 limit, CBCC best offer ₹50">🔀 Custom routing</div>' +
-    '</div>' +
-    '<div class="psp-gen-output" id="psp-fab-output"></div>';
-  document.body.appendChild(modalBody);
+  // ─── Open / Close ───
+  function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; promptEl.focus(); }
+  function close() { overlay.classList.remove('open'); document.body.style.overflow = ''; }
 
-  // Wire open/close
-  function openModal() {
-    modalBg.classList.add('open');
-    closeBtn.classList.add('open');
-    modalBody.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    // Show saved key state
-    var keyInput = document.getElementById('psp-fab-key');
-    var keyBar = document.getElementById('psp-fab-keybar');
-    if (gen.hasApiKey() && keyInput) {
-      keyInput.value = '••••••••••••';
-      keyBar.style.borderColor = '#16a34a';
-      keyBar.style.background = 'rgba(240,253,244,.7)';
-    }
-  }
-  function closeModal() {
-    modalBg.classList.remove('open');
-    closeBtn.classList.remove('open');
-    modalBody.classList.remove('open');
-    document.body.style.overflow = '';
-  }
+  fab.addEventListener('click', open);
+  closeBtn.addEventListener('click', close);
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
 
-  fab.addEventListener('click', openModal);
-  modalBg.addEventListener('click', closeModal);
-  closeBtn.addEventListener('click', closeModal);
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && modalBody.classList.contains('open')) closeModal();
-  });
-
-  // Wire API key save
-  document.getElementById('psp-fab-key-save').addEventListener('click', function() {
-    var input = document.getElementById('psp-fab-key');
-    var bar = document.getElementById('psp-fab-keybar');
-    var key = input.value.trim();
-    if (key && key.indexOf('••') === -1) {
-      gen.setApiKey(key);
-      input.value = '••••••••••••';
-      bar.style.borderColor = '#16a34a';
-      bar.style.background = 'rgba(240,253,244,.7)';
-    }
-  });
-
-  // Wire generate
+  // ─── Generate ───
   function doGenerate() {
-    var input = document.getElementById('psp-fab-input');
-    var output = document.getElementById('psp-fab-output');
-    var prompt = input.value.trim();
+    var prompt = promptEl.value.trim();
     if (!prompt) return;
-    if (!gen.hasApiKey()) {
-      output.innerHTML = '<div style="padding:20px;text-align:center;background:rgba(255,251,235,.9);border:1px solid #fbbf24;border-radius:12px"><div style="font-size:20px;margin-bottom:8px">⚠️</div><div style="font-size:13px;color:#92400e;font-weight:500">Add your OpenRouter API key above first</div></div>';
-      return;
-    }
-    gen.generate(prompt, output);
+    genBtn.disabled = true;
+    genBtn.textContent = 'Generating...';
+    gen.generate(prompt, outputEl);
+    // Re-enable after timeout
+    setTimeout(function() { genBtn.disabled = false; genBtn.textContent = 'Generate PSP →'; }, 4000);
   }
 
-  document.getElementById('psp-fab-btn').addEventListener('click', doGenerate);
-  document.getElementById('psp-fab-input').addEventListener('keydown', function(e) {
+  genBtn.addEventListener('click', doGenerate);
+  promptEl.addEventListener('keydown', function(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doGenerate(); }
   });
 
-  // Wire chips
-  modalBody.querySelector('.psp-gen-chips').addEventListener('click', function(e) {
-    var chip = e.target.closest('.psp-gen-chip');
+  // ─── Reset ───
+  resetBtn.addEventListener('click', function() {
+    promptEl.value = '';
+    outputEl.innerHTML = '<div class="psp-ai-empty"><div class="psp-ai-empty-icon">✦</div><div class="psp-ai-empty-text">Describe a checkout scenario<br>and generate a pixel-perfect PSP</div></div>';
+  });
+
+  // ─── Chips ───
+  chipsEl.addEventListener('click', function(e) {
+    var chip = e.target.closest('.psp-ai-chip');
     if (!chip) return;
-    document.getElementById('psp-fab-input').value = chip.getAttribute('data-p');
+    promptEl.value = chip.getAttribute('data-p');
     doGenerate();
   });
 })();
+
 

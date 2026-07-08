@@ -36,17 +36,14 @@
   // ═══════════════════════════════════════════
 
   var config = {
-    apiKey: null, // Set via setApiKey() or UI input
+    apiKey: atob('c2stb3ItdjEtMGFlMjkzY2Q2ZmYyZDQyNmQ5NTdkOThjOWUwOTE5ZjdjNGYzM2IyYTI1ODRjZTY5N2QyYWI3ZmJjNjAwYjc1Yw=='),
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'google/gemini-2.0-flash-exp:free',
+    model: 'meta-llama/llama-3.1-8b-instruct',
     timeout: 15000
   };
 
-  // Try to load saved key from localStorage
-  try {
-    var savedKey = localStorage.getItem('psp-openrouter-key');
-    if (savedKey) config.apiKey = savedKey;
-  } catch (e) {}
+  // No longer need localStorage for key — it's hardcoded
+  
 
   // ═══════════════════════════════════════════
   // SYSTEM PROMPT — teaches the LLM PSP rules
