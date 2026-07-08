@@ -38,7 +38,7 @@
   var config = {
     apiKey: null, // Set via setApiKey() or UI input
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'meta-llama/llama-3.1-8b-instruct:free',
+    model: 'google/gemini-2.0-flash-exp:free',
     timeout: 15000
   };
 
@@ -176,23 +176,37 @@
           { role: 'user', content: prompt }
         ],
         temperature: 0.1,
-        max_tokens: 1500
+        max_tokens: 2000
       })
     })
     .then(function(res) {
-      if (!res.ok) throw new Error('API ' + res.status);
+      if (!res.ok) {
+        return res.text().then(function(t) { throw new Error('API ' + res.status + ': ' + t.substring(0, 200)); });
+      }
       return res.json();
     })
     .then(function(data) {
       var text = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
-      if (!text) return null;
+      if (!text) {
+        console.warn('[PSP Generator] Empty response from LLM:', JSON.stringify(data).substring(0, 300));
+        return null;
+      }
       // Strip markdown fences if present
       text = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
-      try { return JSON.parse(text); } catch (e) { return null; }
+      // Try to extract JSON from the response (LLM might add text before/after)
+      var jsonStart = text.indexOf('{');
+      var jsonEnd = text.lastIndexOf('}');
+      if (jsonStart >= 0 && jsonEnd > jsonStart) {
+        text = text.substring(jsonStart, jsonEnd + 1);
+      }
+      try { return JSON.parse(text); } catch (e) {
+        console.warn('[PSP Generator] Failed to parse LLM JSON:', text.substring(0, 500));
+        return { _error: 'parse_failed', _raw: text.substring(0, 300) };
+      }
     })
     .catch(function(err) {
       console.warn('[PSP Generator] LLM error:', err.message);
-      return null;
+      return { _error: err.message };
     });
   }
 
@@ -337,7 +351,13 @@
       var llmJson = results[0];
       var cfg = null;
 
-      if (llmJson) cfg = jsonToConfig(llmJson);
+      // Check for errors
+      if (llmJson && llmJson._error) {
+        outputEl.innerHTML = '<div style="padding:20px;background:#fff5f5;border:1px solid #fca5a5;border-radius:12px;max-width:360px"><div style="font-size:14px;font-weight:600;color:#991b1b;margin-bottom:8px">⚠️ Generation failed</div><div style="font-size:12px;color:#7f1d1d;line-height:1.6">' + (llmJson._error === 'parse_failed' ? 'LLM returned invalid JSON. Raw response:<br><code style="font-size:11px;word-break:break-all">' + (llmJson._raw || '') + '</code>' : llmJson._error) + '</div><div style="font-size:11px;color:#9ca3af;margin-top:12px">Model: ' + config.model + '</div></div>';
+        return;
+      }
+
+      if (llmJson && llmJson.sections) cfg = jsonToConfig(llmJson);
       if (!cfg || !cfg.sections || !cfg.sections.length) cfg = getDefaultConfig();
 
       outputEl.innerHTML = renderer.render(cfg);
