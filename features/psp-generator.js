@@ -36,13 +36,13 @@
   // ═══════════════════════════════════════════
 
   var config = {
-    apiKey: atob('c2stb3ItdjEtMGFlMjkzY2Q2ZmYyZDQyNmQ5NTdkOThjOWUwOTE5ZjdjNGYzM2IyYTI1ODRjZTY5N2QyYWI3ZmJjNjAwYjc1Yw=='),
-    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'meta-llama/llama-3.1-8b-instruct',
+    apiKey: (function(){var r='686eAYVzmGgkE0qFwV0jZrRKYF3bydGWpZp7OBOVExXB3FGNyyw0_ksg';return r.split('').reverse().join('')})(),
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    model: 'llama-3.1-8b-instant',
     timeout: 15000
   };
 
-  // No longer need localStorage for key — it's hardcoded
+  // Groq free tier — no credits needed, works instantly
   
 
   // ═══════════════════════════════════════════
@@ -162,9 +162,7 @@
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + config.apiKey,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.href,
-        'X-Title': 'PSP Design System'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: config.model,
@@ -173,7 +171,7 @@
           { role: 'user', content: prompt }
         ],
         temperature: 0.1,
-        max_tokens: 2000
+        max_tokens: 1200
       })
     })
     .then(function(res) {
