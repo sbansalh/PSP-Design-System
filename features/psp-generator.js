@@ -172,6 +172,62 @@
   }
 
   // ═══════════════════════════════════════════
+  // VALIDATION LAYER — enforces PSP rules on LLM output
+  // Fixes: duplicates, wrong section routing, badge conflicts
+  // ═══════════════════════════════════════════
+
+  function validateLLMOutput(json) {
+    if (!json || !json.sections) return json;
+
+    var seen = {}; // Track which instruments have been placed
+    var badgesUsed = {}; // Track which badge types are used
+    var validSections = [];
+
+    // Process sections in priority order: recommended first
+    var sectionOrder = ['recommended', 'upi', 'cards', 'more_ways'];
+    var sectionMap = {};
+    for (var i = 0; i < json.sections.length; i++) {
+      sectionMap[json.sections[i].type] = json.sections[i];
+    }
+
+    for (var si = 0; si < sectionOrder.length; si++) {
+      var secType = sectionOrder[si];
+      var sec = sectionMap[secType];
+      if (!sec || !sec.instruments) { sec = { type: secType, instruments: [] }; }
+
+      var validInstruments = [];
+      for (var ii = 0; ii < sec.instruments.length; ii++) {
+        var inst = sec.instruments[ii];
+        if (!inst.id) continue;
+
+        // Rule: no duplicates
+        if (seen[inst.id]) continue;
+
+        // Rule: each badge type used at most once
+        if (inst.badge) {
+          if (badgesUsed[inst.badge]) {
+            inst.badge = null; // Remove duplicate badge
+          } else {
+            badgesUsed[inst.badge] = true;
+          }
+        }
+
+        seen[inst.id] = true;
+        validInstruments.push(inst);
+      }
+
+      if (validInstruments.length > 0) {
+        // Rule: RECOMMENDED max 3
+        if (secType === 'recommended') validInstruments = validInstruments.slice(0, 3);
+        validSections.push({ type: secType, instruments: validInstruments });
+      }
+    }
+
+    json.sections = validSections;
+    return json;
+  }
+
+  // ═══════════════════════════════════════════
   // JSON → RENDER CONFIG (converts LLM output to psp-frame config)
   // ═══════════════════════════════════════════
 
@@ -318,7 +374,10 @@
         return;
       }
 
-      if (llmJson && llmJson.sections) cfg = jsonToConfig(llmJson);
+      if (llmJson && llmJson.sections) {
+        llmJson = validateLLMOutput(llmJson);
+        cfg = jsonToConfig(llmJson);
+      }
       if (!cfg || !cfg.sections || !cfg.sections.length) cfg = getDefaultConfig();
 
       outputEl.innerHTML = renderer.render(cfg);
