@@ -114,7 +114,9 @@
     '- Always include all 4 sections unless user explicitly removes one',
     '- Modify only what the user specifies. Keep everything else from the default.',
     '- If user says "in UPI box" for an instrument, put it in the upi section',
-    '- Badges only appear on instruments in the recommended section'
+    '- Badges only appear on instruments in the recommended section',
+    '- The orderAmount in output should be the exact amount mentioned in the user\'s prompt. If user says \'₹2,500 order\', orderAmount should be 2500. Calculate the CTA price as orderAmount.',
+    '- If user mentions cashback/discount amounts, subtract them from orderAmount only for the savings display, NOT the total price.'
   ].join('\n');
 
   // ═══════════════════════════════════════════

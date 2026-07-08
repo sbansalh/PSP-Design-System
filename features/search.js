@@ -29,12 +29,9 @@
     { name: 'Accessibility', tabIndex: 7 },
     { name: 'Decision Framework', tabIndex: 8 },
     { name: 'Service & Pay Baseline', tabIndex: 9 },
-    { name: 'Create Your PSP', tabIndex: 10 },
-    { name: 'Motion Tokens', tabIndex: 11 },
-    { name: 'Playground', tabIndex: 12 },
-    { name: 'Changelog', tabIndex: 13 },
-    { name: 'Breakpoints', tabIndex: 14 },
-    { name: 'Code Examples', tabIndex: 15 }
+    { name: 'Playground', tabIndex: 10 },
+    { name: 'Changelog', tabIndex: 11 },
+    { name: 'Code Examples', tabIndex: 12 }
   ];
 
   /**
@@ -193,7 +190,7 @@
       var result = {
         title: entry.tokenName,
         section: 'Changelog',
-        tabIndex: 13,
+        tabIndex: 11,
         snippet: entry.type + ' in v' + entry.version + ': ' + (entry.description || entry.newValue),
         type: 'token'
       };
@@ -216,8 +213,8 @@
       { terms: ['animation', 'motion', 'transition', 'easing'], section: 'Foundations', tabIndex: 1, title: 'Motion Tokens', snippet: 'Animation specifications with easing curves and durations' },
       { terms: ['accessibility', 'aria', 'screen', 'reader', 'a11y', 'wcag'], section: 'Accessibility', tabIndex: 7, title: 'Accessibility', snippet: 'ARIA roles, keyboard navigation, and contrast requirements' },
       { terms: ['playground', 'interactive', 'preview', 'live'], section: 'Components', tabIndex: 2, title: 'Component Playground', snippet: 'Interactive component property editor with live preview' },
-      { terms: ['handoff', 'developer', 'code', 'implementation'], section: 'Code Examples', tabIndex: 15, title: 'Code Examples', snippet: 'Code examples and implementation guidelines' },
-      { terms: ['changelog', 'version', 'history', 'update'], section: 'Changelog', tabIndex: 13, title: 'Changelog', snippet: 'Design token additions, modifications, and deprecations' }
+      { terms: ['handoff', 'developer', 'code', 'implementation'], section: 'Code Examples', tabIndex: 12, title: 'Code Examples', snippet: 'Code examples and implementation guidelines' },
+      { terms: ['changelog', 'version', 'history', 'update'], section: 'Changelog', tabIndex: 11, title: 'Changelog', snippet: 'Design token additions, modifications, and deprecations' }
     ];
 
     keywords.forEach(function(kw) {

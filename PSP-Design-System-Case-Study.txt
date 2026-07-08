@@ -1,0 +1,501 @@
+═══════════════════════════════════════════════════════════════════════════════
+PSP DESIGN SYSTEM — CASE STUDY
+Building Amazon India's First Unified Payment Selection Page Design System
+═══════════════════════════════════════════════════════════════════════════════
+
+Author: Saurabh Bansal
+Role: Product Designer, Amazon Pay (Paycheckout)
+Timeline: April 2026 – July 2026 (3+ months, ongoing)
+Live: https://sbansalh.github.io/PSP-Design-System/
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+1. HOOK — THE PROBLEM WORTH SOLVING
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+The Payment Selection Page (PSP) is the single most critical screen in
+Amazon India's checkout — every rupee of GMV flows through it. Yet there
+was no single source of truth for how it should look, behave, or be built.
+
+The reality:
+• 90+ touchpoints rendering PSP across Amazon Shopping and Paycheckout
+• 2 separate design libraries (RIO/Stores Design Library + Tuxedo Mobile)
+• 2 engineering cohorts building the same screen with different interpretations
+• Designers redrawing instrument tiles from scratch for every project
+• Engineers guessing at spacing, radio button sizing, and selection behavior
+• No documented rules for preselection logic, badge priority, or section order
+• Inconsistencies: 4 dots vs. 2 dots in card numbers, different badge colors,
+  different radio button sizes, inconsistent border-radius on selection
+
+The cost: every inconsistency erodes user trust at the moment of payment.
+When a customer hesitates for even 2 seconds because something "looks off,"
+conversion drops. At Amazon scale, that's measurable revenue.
+
+(LP: Customer Obsession — starting from what breaks the customer experience,
+not from what's convenient for the design team)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+2. CONTEXT — THE LANDSCAPE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Amazon India checkout has two rendering contexts for the same PSP:
+
+┌─────────────────────────┬───────────────────────────────────┐
+│ Paycheckout Context     │ Stores Checkout Context           │
+├─────────────────────────┼───────────────────────────────────┤
+│ WebView inside app      │ Native Stores checkout            │
+│ Tuxedo Mobile library   │ RIO Foundations library           │
+│ Tuxedo handles buttons, │ Child: Stores Design Library      │
+│ inputs, typography      │ RIO handles buttons, inputs, type │
+│ Single engineering team  │ Multiple Stores teams             │
+└─────────────────────────┴───────────────────────────────────┘
+
+Both contexts render the SAME PSP instrument tiles — same icons, badges,
+radio buttons, section hierarchy. But:
+• Designers had Figma files with no documented spec for tile states
+• Engineers had working code but no pixel-level reference
+• Product managers had requirements but no visual decision framework
+• New team members needed weeks to understand preselection logic
+• Nobody documented WHY certain decisions existed
+
+The gap was between the two libraries: a "PSP layer" that sits on top of
+both Tuxedo and RIO, defining payment-specific behavior that neither
+parent library covers.
+
+(LP: Dive Deep — mapping the full system landscape before attempting fixes)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+3. APPROACH — HOW I TACKLED IT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Principle: if the documentation IS the product, it stays maintained.
+Not a static PDF. Not a Figma-only spec. A living website.
+
+Constraints I set:
+• Static site (GitHub Pages — zero backend, zero infrastructure)
+• No build tools (vanilla HTML/CSS/JS — open index.html, it works)
+• Usable by designers, engineers, AND product managers
+• Shows real pixels and interactions, not descriptions of them
+• Documents decisions (WHY), not just outputs (WHAT)
+
+I used Kiro AI as a development partner throughout this project. My role:
+design decisions, information architecture, PSP domain expertise, quality
+judgment. Kiro's role: rapid implementation, code generation, testing
+execution. This wasn't about replacing thinking — it was about compressing
+a quarter of work into weeks while maintaining high standards.
+
+THE BUILD TIMELINE:
+
+Phase 1 (April 2026): Foundation
+• Initial v1.0 with PSP wireframe, design tokens, mental model
+• Responsive layout, instrument icons, Baseline CX reference
+• 9-section information architecture
+
+Phase 2 (Early May): Visual Overhaul
+• Cloudscape-inspired UI redesign (cards, tables, sidebar)
+• Hero sections with gradient backgrounds for each page
+• Navigation redesign with grouped sections and search
+• Card header graphics, typography refinement
+
+Phase 3 (May): Spec-Driven Enhancement (46 tasks)
+• Formal spec written: 15 requirements covering completeness
+• Core infrastructure: modular namespace (window.PSP.*), data layer
+• 7 data files, 5 renderers, 3 interactive features
+• Property-based tests (18 properties across 4 test files)
+• Amazon RIO styling: orange hero, dark navy sidebar, pill buttons
+
+Phase 4 (Late May): Post-Spec Polish
+• M3 navigation redesign (cleaner, more elegant)
+• Section headers with gradient accents, Inter font
+• Dark mode WCAG audit → disabled (failed AA contrast)
+• Badge variants, Figma links, component updates
+
+Phase 5 (June): Interactive Features
+• Interactive Mental Model (click-to-select with real states)
+• Component Playground with instrument presets
+• Position-aware border-radius system
+• Baseline CX Figma embeds (full flow diagrams)
+
+Phase 6 (June–July): "Create Your PSP" AI Feature
+• Phase 1: Shared PSP frame renderer (psp-frame.js)
+• Phase 2: Instrument registry (12 instruments, single source of truth)
+• Phase 3: Prompt parser + config generator
+• Phase 4: UI with textarea, examples, live preview
+• Phase 5: Loading animation (shimmer → dots evolution)
+• Phase 6: Rule-based parser debugging cycles
+• Phase 7: Fundamental rethink → LLM integration via OpenRouter
+
+(LP: Bias for Action — shipped v1 in days, then iterated relentlessly)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+4. KEY DESIGN DECISIONS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+DECISION 1: Semi-Modernized PSP — Radio Buttons, Not Full-Tile Tap
+──────────────────────────────────────────────────────────────────
+Context: Modern payment UIs (GPay, PhonePe) use full-tile tap selection.
+Should we follow?
+
+Decision: No. Radio button selection with modern visual styling.
+
+Why:
+• PSP tiles contain clickable sub-elements: "Details" offer link,
+  bank pill selector (change UPI bank), "Add Now" CTA for insufficient
+  balance. Full-tile tap creates ambiguity.
+• Radio provides unambiguous 44×44px selection target
+• Indian users are deeply familiar with radio-based forms (bank forms,
+  government portals, e-commerce)
+• We get modern aesthetics (blue border, subtle bg highlight) WITH
+  traditional interaction clarity
+
+The selected state: bg #EDF8FF, border 2px solid #2162A1, badge turns
+blue (#0A7CD1), name goes bold (700), radio fills with blue dot.
+
+(LP: Customer Obsession — familiarity builds trust at payment moment)
+
+
+DECISION 2: Position-Aware Border Radius
+─────────────────────────────────────────
+Context: When a tile is selected inside a card group, what border-radius
+should the selection highlight have?
+
+Problem discovered: giving all selected tiles border-radius:12px created
+visual artifacts — the selection looked "floating" inside the group rather
+than being part of it.
+
+Solution: Position-aware radius lookup:
+• Top tile: 12px 12px 0 0 (matches group top corners)
+• Middle tile: 0 (flush with group edges)
+• Bottom tile: 0 0 12px 12px (matches group bottom corners)
+• Only tile: 12px (full radius, matches entire group)
+
+Implementation: data-attribute based tile indexing (data-tile="0",
+data-tile="1") with parent group analysis at init time. NOT CSS nth-child
+because tiles can be dynamically added/removed.
+
+(LP: Insist on the Highest Standards — pixel-level correctness matters
+when building a design system that others will reference)
+
+
+DECISION 3: Badge Priority System
+──────────────────────────────────
+RECOMMENDED section max: 3 instruments. But which 3? And in what order?
+
+Badge priority defines both sorting AND preselection:
+1. Best offer — highest savings (strongest conversion signal)
+2. Previously used — last successful payment in 30 days (trust)
+3. Featured — system-promoted (weakest signal)
+
+The first tile is ALWAYS auto-selected on page load.
+Why Best Offer first, not Previously Used?
+• Savings is a quantifiable value proposition (₹50 saved)
+• Previously used is implicit trust (no visible benefit)
+• A/B testing showed Best Offer preselection has higher continue-rate
+
+(LP: Are Right, A Lot — data-driven prioritization over gut feeling)
+
+
+DECISION 4: Type-Based Section Routing (Absolute Rule)
+──────────────────────────────────────────────────────
+• UPI-type → UPI section. ALWAYS. Even without a badge.
+• Card-type → CARDS section. ALWAYS.
+• Badge determines if instrument ALSO appears in RECOMMENDED.
+• Everything else → MORE WAYS TO PAY.
+
+This seems obvious but was being violated in production: some flows put
+Amazon Pay UPI in "More Ways to Pay" when it didn't have a badge. We
+documented this as an absolute rule — type determines native section,
+badge determines promotion to RECOMMENDED.
+
+(LP: Have Backbone; Disagree and Commit — establishing clear rules even
+when existing implementations contradict them)
+
+
+DECISION 5: LLM Over Regex for AI Generator (The Pivot)
+───────────────────────────────────────────────────────
+This was the most important technical decision of the project.
+
+What we tried first: A 600-line rule-based "AI" parser using keyword
+extraction, proximity matching, comma-splitting, and regex patterns.
+
+What happened: It broke on every novel prompt. Over 3 weeks we rewrote
+the badge parser 4 times, the offer extractor 3 times, and the section
+routing twice. Each fix created new edge cases:
+• "Featured" duplicating across multiple instruments
+• ₹60,000 credit limit being parsed as order amount
+• "APL in Featured" misinterpreted (section vs. badge)
+• UPI instruments not routing to UPI section
+
+Root cause diagnosis: NLP with regex is structurally incapable of handling
+ambiguous natural language from diverse users. No amount of tuning fixes
+a category error.
+
+The decision: Delete 550 lines of regex code. Replace with a 50-line API
+call to OpenRouter (free tier LLM). A comprehensive system prompt teaches
+the LLM all PSP rules — badges, section routing, instrument states,
+preselection logic.
+
+Result: Works perfectly on every prompt we've tested. Zero code changes
+needed for new prompt patterns. The LLM understands intent the way a
+human does.
+
+(LP: Invent and Simplify — sometimes the simplest solution is removing
+code, not adding it. Also: Learn and Be Curious — recognizing when to
+adopt a fundamentally different approach)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+5. THE SYSTEM — WHAT WAS BUILT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+A complete, production-ready design system website:
+
+ARCHITECTURE (all vanilla JS, no build tools):
+├── index.html              → Single-page app shell
+├── app.js                  → 1600+ lines: sections, Mental Model, wiring
+├── psp-namespace.js        → Global namespace initializer (window.PSP)
+├── data/
+│   ├── instrument-registry.js  → 12 instruments (THE source of truth)
+│   ├── components.js           → 7 documented components
+│   ├── themes.js               → Light theme tokens
+│   ├── motion-tokens.js        → 10 animation tokens
+│   ├── guidance.js             → Usage do/don't per component
+│   ├── breakpoints.js          → 4 responsive breakpoints
+│   ├── changelog.js            → 26 versioned token changes
+│   └── code-examples.js        → 6 components × 4 platforms
+├── renderers/
+│   ├── psp-frame.js            → Shared pixel-perfect PSP renderer
+│   ├── playground.js           → Live component editor
+│   ├── states.js               → Interactive state documentation
+│   ├── motion-preview.js       → Animated token previews
+│   ├── anatomy.js              → SVG callout diagrams
+│   ├── guidance.js             → Do/Don't renderer
+│   ├── edge-cases.js           → Error recovery docs
+│   ├── breakpoints.js          → Responsive previews
+│   ├── changelog.js            → Versioned token history
+│   ├── code-examples.js        → Multi-platform code
+│   ├── figma-preview.js        → Figma iframe embeds
+│   └── accessibility.js        → WCAG compliance docs
+├── features/
+│   ├── psp-generator.js        → LLM-powered AI PSP creator
+│   ├── search.js               → Cmd+K search with inverted index
+│   ├── clipboard.js            → Copy utility with toast
+│   └── dark-mode.js            → Theme toggle (disabled for a11y)
+└── tests/
+    └── 8 test files (property-based + integration)
+
+KEY SECTIONS (16 total):
+0. Getting Started — hero, tenets, use cases, audience, scope
+1. Foundations — color system, type scale (M3 15-role), spacing, elevation
+2. Components — tile anatomy, badge variants, section headers
+3. Mental Model — interactive pixel-perfect PSP (click-to-select)
+4. States & Behavior — transaction-ready, selected, disabled, insufficient
+5. Preselection & Grouping — decision tree, badge rules, max-3
+6. Service & Pay Baseline — Figma embeds (full checkout flows)
+7. Spec Limits — character limits, error thresholds, accessibility
+8. Create Your PSP — AI generator (LLM-powered, any prompt)
+9. Motion Tokens — animation specs with live previews
+10. Playground — live component property editor with presets
+11. Changelog — versioned token additions/modifications/deprecations
+12. Breakpoints — responsive layout documentation
+13. Code Examples — HTML/CSS, React Native, Android XML, iOS SwiftUI
+
+INSTRUMENT REGISTRY (12 instruments, each with):
+id, type, name, icon, detailFormat, defaultDetail, badges, offerFormat,
+defaultOffer, detailsLink, groupCategory, preselectionPriority,
+bankPill (UPI), insufficientCta (APB), defaultBalance
+
+(LP: Ownership — built the complete ecosystem, not just the visible UI)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+6. CHALLENGES & HOW I SOLVED THEM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+CHALLENGE 1: Mental Model Interactivity (3 rewrites)
+────────────────────────────────────────────────────
+The Mental Model PSP needed click-to-select with exact state transitions.
+But the static HTML had no consistent structure — tiles were written inline
+with varied patterns.
+
+Attempt 1: querySelector by style properties → fragile, broke on minor CSS changes
+Attempt 2: nth-child targeting → broke when tiles were reordered
+Attempt 3: data-attribute system (data-tile, data-name, data-badge) + init-time
+           structural analysis → stable, works regardless of HTML changes
+
+The data-attribute approach required analyzing tile patterns at page load:
+Pattern A (RECOMMENDED): padding:12px wrapper → child flex div → SVG
+Pattern B (other sections): padding:12px + display:flex combined → SVG
+
+Both patterns detected and tagged automatically.
+
+
+CHALLENGE 2: Radio Button SVG Manipulation
+─────────────────────────────────────────
+Problem: Radio buttons are SVG circles. Selection requires:
+• Changing outer circle stroke from #D5D9D9 to #2162A1
+• CREATING an inner filled circle (r=5, fill=#2162A1)
+• On deselection: REMOVING the inner circle, resetting stroke
+
+This requires DOM manipulation of SVG elements (createElementNS, not
+createElement). Multiple bugs from:
+• Using wrong namespace (HTML vs. SVG)
+• Not cleaning up inner circles on deselect (accumulating fills)
+• Circle count check (querySelectorAll('circle')[1]) breaking when
+  inner circle didn't exist
+
+Fix: Explicit create/remove cycle with namespace-aware SVG creation.
+
+
+CHALLENGE 3: Flex Alignment + Insufficient Balance CTA
+─────────────────────────────────────────────────────
+Problem: Amazon Pay Balance tile has "Add ₹X to proceed | Add Now ›"
+below the name. Using align-items:center on the flex row pushed the
+radio button and icon down, misaligning them with the instrument name.
+
+First fix: Changed to align-items:flex-start globally → broke simple
+tiles (just name, no details) where icon/radio should be centered.
+
+Final fix: Conditional alignment — detect whether tile has extra content
+(badge, details, offer, bankPill, insufficientCta). If yes: flex-start
+with margin-top:2px on icon and radio. If no: center.
+
+
+CHALLENGE 4: Dot Count Standardization
+─────────────────────────────────────
+Audit found: card details had "••••0424" (4 dots) in some places and
+"••0424" (2 dots) in others. Inconsistent across:
+• instrument-registry.js (data definitions)
+• app.js Mental Model static HTML
+• Component preview examples
+• UPI bank pill text
+• Code example snippets
+
+Fix: Global find-replace to 2 dots (••) with verification grep confirming
+zero 4-dot instances remain. Five separate locations fixed.
+
+
+CHALLENGE 5: Indian Number System
+────────────────────────────────
+Problem: Amounts like "59940" displaying as "59,940" (Western grouping)
+when Indian users expect "59,940" (same in this case) but for larger
+numbers: "1,00,000" not "100,000".
+
+Fix: formatIndian() utility — splits into last-3 (thousands) and applies
+2-digit grouping to remainder. Applied consistently in CTA price, savings
+bar, and insufficient balance shortfall.
+
+
+CHALLENGE 6: Dark Mode Failed WCAG AA
+─────────────────────────────────────
+Implemented full dark mode with theme toggle and localStorage persistence.
+Post-implementation audit revealed multiple contrast failures:
+• Secondary text (#565959 on dark bg) failed 4.5:1 minimum
+• Badge backgrounds didn't meet 3:1 for UI elements
+• Savings bar green lost readability on dark surface
+
+Decision: Disabled dark mode entirely (init function is a no-op) rather
+than ship an inaccessible version. Will re-enable when a proper dark
+palette is designed and verified. The toggle code remains for when ready.
+
+(LP: Insist on the Highest Standards — inaccessible is worse than absent)
+
+
+CHALLENGE 7: The Regex Parser Was Fundamentally Wrong (3 weeks of fixes)
+───────────────────────────────────────────────────────────────────────
+Documented extensively in Decision 5 above. The key learning: when you're
+on your 4th rewrite of the same component and it still breaks on new
+inputs, the problem isn't the implementation — it's the approach.
+
+Weeks spent: badge parser rewrite (×4), offer extraction fix (×3),
+section routing fix (×2), order amount extraction fix (×2).
+
+The permanent fix took 1 hour: delete the parser, write a system prompt,
+wire an API call. 550 lines removed, 50 added.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+7. OUTCOME & IMPACT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WHAT EXISTS NOW THAT DIDN'T BEFORE:
+• A single URL any designer, engineer, or PM can reference
+• Interactive Mental Model with click-to-select (exact behavior, not screenshots)
+• AI-powered PSP generator for scenario exploration (LLM understands any prompt)
+• Instrument registry: 12 instruments with complete specifications
+• Design tokens in JSON (copy-ready for implementation)
+• Character limits table (prevents overflow before it reaches QA)
+• Preselection decision tree (removes badge/priority ambiguity)
+• Multi-platform code examples (HTML, React Native, Android, iOS)
+• Responsive breakpoint documentation
+• Edge case and error recovery patterns
+
+WHO USES IT:
+• Designers — correct states, spacing, badge styling at a glance
+• Engineers — JSON tokens, code examples, character constraints
+• Product managers — preselection logic, section hierarchy
+• New team members — self-serve onboarding (replaces tribal knowledge)
+• Cross-team alignment — single reference when debating implementations
+
+WHAT'S EASIER NOW:
+• "How should selected state look?" → Click Mental Model tile
+• "What badge goes on CBCC?" → Instrument registry lookup
+• "Show me PSP with expired card + insufficient balance" → AI generator
+• "Max chars for offer text?" → Spec Limits table
+• "What border-radius for middle tile?" → Position documentation
+• "Is COD available for this flow?" → Section routing rules
+
+SCALE OF DELIVERY:
+• 26 commits across 3+ months
+• 1600+ lines of app.js orchestration
+• 12 renderer modules
+• 7 data source files
+• 18 property-based test properties
+• Single-page site, zero dependencies, instant load
+
+(LP: Deliver Results — shipping a real artifact, not a slide deck)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+8. WHAT I'D DO DIFFERENTLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Start with LLM integration from day one for the AI generator. The 3 weeks
+   spent iterating on regex parsing was a sunk cost that should have been
+   avoided. The signal was clear after the second rewrite — if the problem
+   is "understand human intent," use a system designed for that, not regexes.
+
+2. Document both rendering contexts (Paycheckout + Stores) from the start.
+   I built for the semi-modernized context first, planning to add Stores
+   later. But the two contexts share 90% of PSP behavior — capturing both
+   early would have forced cleaner architectural separation between the
+   "PSP layer" and the "chrome layer."
+
+3. Set up automated visual regression tests earlier. Several bugs (dot
+   count, radio alignment, badge colors) were caught by manual inspection
+   after shipping. A snapshot comparison system would have caught these
+   before they went live.
+
+(LP: Learn and Be Curious — every project teaches where to start next time)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+LEADERSHIP PRINCIPLES DEMONSTRATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+• Customer Obsession — Every decision optimized for trust at payment moment
+• Ownership — Built end-to-end system (data → rendering → testing → AI)
+• Invent and Simplify — Replaced 550 lines of regex with 50 lines of LLM
+• Are Right, A Lot — Data-driven badge priority; recognized when approach was wrong
+• Learn and Be Curious — Adopted AI tooling (Kiro + OpenRouter) to multiply output
+• Insist on the Highest Standards — Disabled dark mode rather than ship broken a11y
+• Bias for Action — Shipped v1 in days; iterated across 26 commits
+• Dive Deep — Mapped both rendering contexts and 90+ touchpoints before building
+• Have Backbone; Disagree and Commit — Established absolute routing rules even when
+  existing implementations contradicted them
+• Deliver Results — Tangible, deployed artifact solving a daily problem for the team
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

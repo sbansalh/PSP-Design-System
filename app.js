@@ -275,6 +275,7 @@ html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Components</h1>';
 html+='<p class="section-header__desc">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
 html+='</div></div>';
+html+='<div style="padding:0 4px 24px"><p style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:12px">📐 PSP Instrument Components — All states, positions, and variants (from Figma)</p><div style="margin-bottom:24px;border-radius:12px;overflow:hidden;border:1px solid #e3e5e8"><iframe style="border:none;width:100%;height:600px" src="https://embed.figma.com/design/RzaeDqqV62dnvNBpbYOkxE/IES-Stores-Design-Library?node-id=179736-5997&embed-host=share" allowfullscreen></iframe></div></div>';
 html+='<div class="note note-blue"><strong>⚡ Semi-Modernized PSP:</strong> Radio buttons are used for selection. Only the radio button is clickable, not the entire tile. Selected tiles show blue border + filled radio button.</div>';
 html+='<div class="warn">\u26A0\uFE0F <b>BUTTONS:</b> Do not document buttons here. They come from master libraries (Tuxedo Mobile / RIO).</div>';
 html+='<div class="note note-blue">Line 2 format changes based on instrument type: Cards show network + last 4 + name, UPI shows bank + last 4, Wallets show balance.</div>';
@@ -1112,62 +1113,12 @@ html+='</div></div></div>';
 html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
-   10. CREATE YOUR PSP (AI Generator)
+   10. CREATE YOUR PSP (AI Generator) — Now rendered as FAB modal, not as a tab section
    ══════════════════════════════════════════════════════════════ */
-html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color: #FF9900">';
-html+='<div class="section-header__content">';
-html+='<h1 class="section-header__title">Create Your PSP</h1>';
-html+='<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup. Powered by AI — understands PSP hierarchy, badges, instrument states, and section rules.</p>';
-html+='</div></div>';
-html+='<div style="padding:0 4px">';
-// API Key setup bar
-html+='<div id="psp-api-key-bar" style="margin-bottom:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;display:flex;align-items:center;gap:12px;font-size:13px">';
-html+='<span style="font-size:16px">🔑</span>';
-html+='<div style="flex:1"><strong>OpenRouter API Key</strong> — <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">Get free key →</a> (uses free models, no credit card needed)</div>';
-html+='<input id="psp-api-key-input" type="password" placeholder="sk-or-v1-..." style="width:220px;padding:6px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:12px;font-family:monospace">';
-html+='<button id="psp-api-key-save" style="background:#FF9900;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Save</button>';
-html+='</div>';
-html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start" id="psp-generator-layout">';
-// Left: input
-html+='<div>';
-html+='<div style="margin-bottom:16px">';
-html+='<label style="font-size:12px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Describe your PSP</label>';
-html+='<textarea id="psp-generator-input" style="width:100%;min-height:120px;padding:12px 16px;border:1px solid #d5d9d9;border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.15s" placeholder="Example: Create a PSP for a ₹2,500 order. Customer has Amazon Pay ICICI with best offer ₹50 cashback, HDFC credit card previously used, UPI linked. Show Pay Later and COD too."></textarea>';
-html+='</div>';
-html+='<div style="display:flex;gap:10px;margin-bottom:20px">';
-html+='<button id="psp-generator-btn" style="background:#FF9900;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:inherit">Generate PSP →</button>';
-html+='<button id="psp-generator-reset" style="background:#fff;color:#5f6368;border:1px solid #d5d9d9;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit">Reset</button>';
-html+='</div>';
-html+='<div style="font-size:12px;color:#5f6368;line-height:1.6">';
-html+='<strong style="display:block;margin-bottom:6px;color:#1a1c1e">Quick examples:</strong>';
-html+='<div id="psp-generator-examples" style="display:flex;flex-direction:column;gap:6px">';
-html+='<div class="psp-example-chip" data-prompt="PSP for ₹499 order with CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💳 Standard checkout — 3 recommended + UPI</div>';
-html+='<div class="psp-example-chip" data-prompt="Create PSP for ₹15000 order. CBCC with best offer ₹200 cashback, HDFC credit expired, Amazon Pay Balance insufficient, Pay Later, EMI, Net Banking" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💰 High-value order — with disabled card + EMI</div>';
-html+='<div class="psp-example-chip" data-prompt="Simple PSP with only COD and Net Banking for ₹299 order" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">📦 Minimal — COD + Net Banking only</div>';
-html+='<div class="psp-example-chip" data-prompt="Show APay UPI in UPI box with multiple accounts, APL in recommended as Featured with ₹60,000 credit limit, CBCC best offer ₹50" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">🔀 Custom routing — UPI in UPI box + APL featured</div>';
-html+='</div>';
-html+='</div>';
-html+='</div>';
-// Right: output (phone frame)
-html+='<div style="display:flex;justify-content:center;align-items:flex-start">';
-html+='<div id="psp-generator-output" style="width:100%;max-width:380px"></div>';
-html+='</div>';
-html+='</div>';
-html+='</div>';
-html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
-   11. MOTION TOKENS
+   11. MOTION TOKENS (hidden — removed from nav)
    ══════════════════════════════════════════════════════════════ */
-html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#2563eb">';
-html+='<div class="section-header__content">';
-html+='<h1 class="section-header__title">Motion Tokens</h1>';
-html+='<p class="section-header__desc">Standardized motion tokens for consistent animations across all PSP components. Click any token to copy its CSS transition shorthand.</p>';
-html+='</div></div>';
-html+='<div id="psp-motion-preview-container"></div>';
-html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
    13. PLAYGROUND
@@ -1194,16 +1145,8 @@ html+='<div id="psp-changelog-container"></div>';
 html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
-   15. BREAKPOINTS
+   15. BREAKPOINTS (hidden — removed from nav)
    ══════════════════════════════════════════════════════════════ */
-html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#c026d3">';
-html+='<div class="section-header__content">';
-html+='<h1 class="section-header__title">Breakpoints</h1>';
-html+='<p class="section-header__desc">Responsive breakpoint documentation showing how PSP components adapt across mobile, tablet, desktop, and large desktop viewports.</p>';
-html+='</div></div>';
-html+='<div id="psp-breakpoints-container"></div>';
-html+='</div>';
 
 /* ══════════════════════════════════════════════════════════════
    16. CODE EXAMPLES
@@ -1580,12 +1523,15 @@ buildSections();
 
   function generatePSP(skipLoading) {
     var prompt = genInput.value.trim();
-    if (skipLoading || !gen.hasApiKey()) {
-      // Instant render (default PSP, no LLM)
+    if (skipLoading) {
+      // Initial load: render default silently
       var cfg = gen.getDefaultConfig();
       var html = window.PSP.renderers.pspFrame.render(cfg);
       genOutput.innerHTML = html;
       window.PSP.renderers.pspFrame.attachInteractivity(genOutput);
+    } else if (!gen.hasApiKey()) {
+      // User clicked Generate but no API key — show warning
+      genOutput.innerHTML = '<div style="padding:24px;text-align:center;background:#fffbeb;border:1px solid #fbbf24;border-radius:12px;margin-top:12px"><div style="font-size:24px;margin-bottom:12px">⚠️</div><div style="font-size:14px;color:#92400e;font-weight:600;line-height:1.6">Add your OpenRouter API key above to generate custom PSPs</div><div style="font-size:12px;color:#a16207;margin-top:8px">Get a free key at <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">openrouter.ai/keys</a> — no credit card needed</div></div>';
     } else {
       gen.generate(prompt, genOutput);
     }
@@ -1634,3 +1580,96 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
   // Build search index AFTER all sections have rendered
   window.PSP.features.search.buildIndex();
 }
+
+/* ══════════════════════════════════════════════════════════════
+   FAB: "Create Your PSP" Floating Action Button + Modal
+   ══════════════════════════════════════════════════════════════ */
+(function() {
+  // Inject FAB styles
+  var fabStyle = document.createElement('style');
+  fabStyle.textContent = [
+    '.psp-fab{position:fixed;bottom:24px;right:24px;z-index:1000;background:#FF9900;color:#fff;border:none;border-radius:16px;padding:14px 24px;font-size:15px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:10px;box-shadow:0 4px 8px 3px rgba(0,0,0,.15),0 1px 3px rgba(0,0,0,.3);transition:transform .15s,box-shadow .15s}',
+    '.psp-fab:hover{transform:translateY(-2px);box-shadow:0 6px 12px 4px rgba(0,0,0,.18),0 2px 4px rgba(0,0,0,.3)}',
+    '.psp-fab:active{transform:translateY(0);box-shadow:0 2px 4px rgba(0,0,0,.2)}',
+    '.psp-fab svg{width:20px;height:20px;fill:currentColor}',
+    '.psp-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;opacity:0;visibility:hidden;transition:opacity .3s}',
+    '.psp-modal-backdrop.open{opacity:1;visibility:visible}',
+    '.psp-modal-panel{position:fixed;bottom:0;left:0;right:0;height:90vh;background:#fff;border-radius:20px 20px 0 0;z-index:2001;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);overflow-y:auto;padding:32px 24px 40px;box-shadow:0 -8px 32px rgba(0,0,0,.2)}',
+    '.psp-modal-panel.open{transform:translateY(0)}',
+    '.psp-modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:none;background:#f1f3f4;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:10;color:#5f6368;transition:background .15s}',
+    '.psp-modal-close:hover{background:#e0e2e6}',
+    '@media(max-width:900px){.psp-fab{bottom:16px;right:16px;padding:12px 18px;font-size:14px}.psp-modal-panel{padding:24px 16px 32px}}'
+  ].join('\n');
+  document.head.appendChild(fabStyle);
+
+  // Create FAB button
+  var fab = document.createElement('button');
+  fab.className = 'psp-fab';
+  fab.setAttribute('aria-label', 'Create PSP');
+  fab.innerHTML = '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2z"/></svg><span>Create PSP</span>';
+  document.body.appendChild(fab);
+
+  // Create modal backdrop
+  var backdrop = document.createElement('div');
+  backdrop.className = 'psp-modal-backdrop';
+  document.body.appendChild(backdrop);
+
+  // Create modal panel
+  var panel = document.createElement('div');
+  panel.className = 'psp-modal-panel';
+  panel.innerHTML = '<button class="psp-modal-close" aria-label="Close">&times;</button>' +
+    '<div style="clear:both"></div>' +
+    '<div class="section-header" style="border-left-color:#FF9900;margin-bottom:24px">' +
+    '<div class="section-header__content">' +
+    '<h1 class="section-header__title">Create Your PSP</h1>' +
+    '<p class="section-header__desc">Describe your checkout scenario in plain English and get a pixel-perfect PSP mockup. Powered by AI — understands PSP hierarchy, badges, instrument states, and section rules.</p>' +
+    '</div></div>' +
+    '<div style="padding:0 4px">' +
+    '<div id="psp-api-key-bar" style="margin-bottom:16px;padding:12px 16px;background:#fffbeb;border:1px solid #fbbf24;border-radius:8px;display:flex;align-items:center;gap:12px;font-size:13px;flex-wrap:wrap">' +
+    '<span style="font-size:16px">🔑</span>' +
+    '<div style="flex:1;min-width:200px"><strong>OpenRouter API Key</strong> — <a href="https://openrouter.ai/keys" target="_blank" style="color:#2162A1">Get free key →</a> (uses free models, no credit card needed)</div>' +
+    '<input id="psp-api-key-input" type="password" placeholder="sk-or-v1-..." style="width:220px;padding:6px 10px;border:1px solid #d5d9d9;border-radius:6px;font-size:12px;font-family:monospace">' +
+    '<button id="psp-api-key-save" style="background:#FF9900;color:#fff;border:none;padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer">Save</button>' +
+    '</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start" id="psp-generator-layout">' +
+    '<div>' +
+    '<div style="margin-bottom:16px">' +
+    '<label style="font-size:12px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:8px">Describe your PSP</label>' +
+    '<textarea id="psp-generator-input" style="width:100%;min-height:120px;padding:12px 16px;border:1px solid #d5d9d9;border-radius:8px;font-size:14px;font-family:inherit;line-height:1.6;resize:vertical;outline:none;transition:border-color 0.15s" placeholder="Example: Create a PSP for a ₹2,500 order. Customer has Amazon Pay ICICI with best offer ₹50 cashback, HDFC credit card previously used, UPI linked. Show Pay Later and COD too."></textarea>' +
+    '</div>' +
+    '<div style="display:flex;gap:10px;margin-bottom:20px">' +
+    '<button id="psp-generator-btn" style="background:#FF9900;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:background 0.15s;font-family:inherit">Generate PSP →</button>' +
+    '<button id="psp-generator-reset" style="background:#fff;color:#5f6368;border:1px solid #d5d9d9;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all 0.15s;font-family:inherit">Reset</button>' +
+    '</div>' +
+    '<div style="font-size:12px;color:#5f6368;line-height:1.6">' +
+    '<strong style="display:block;margin-bottom:6px;color:#1a1c1e">Quick examples:</strong>' +
+    '<div id="psp-generator-examples" style="display:flex;flex-direction:column;gap:6px">' +
+    '<div class="psp-example-chip" data-prompt="PSP for ₹499 order with CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💳 Standard checkout — 3 recommended + UPI</div>' +
+    '<div class="psp-example-chip" data-prompt="Create PSP for ₹15000 order. CBCC with best offer ₹200 cashback, HDFC credit expired, Amazon Pay Balance insufficient, Pay Later, EMI, Net Banking" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">💰 High-value order — with disabled card + EMI</div>' +
+    '<div class="psp-example-chip" data-prompt="Simple PSP with only COD and Net Banking for ₹299 order" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">📦 Minimal — COD + Net Banking only</div>' +
+    '<div class="psp-example-chip" data-prompt="Show APay UPI in UPI box with multiple accounts, APL in recommended as Featured with ₹60,000 credit limit, CBCC best offer ₹50" style="cursor:pointer;padding:8px 12px;background:#f7f8f9;border:1px solid #e3e5e8;border-radius:6px;font-size:12px;color:#1a1c1e;transition:all 0.15s">🔀 Custom routing — UPI in UPI box + APL featured</div>' +
+    '</div></div></div>' +
+    '<div style="display:flex;justify-content:center;align-items:flex-start">' +
+    '<div id="psp-generator-output" style="width:100%;max-width:380px"></div>' +
+    '</div>' +
+    '</div></div>';
+  document.body.appendChild(panel);
+
+  function openModal() {
+    backdrop.classList.add('open');
+    panel.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeModal() {
+    backdrop.classList.remove('open');
+    panel.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  fab.addEventListener('click', openModal);
+  backdrop.addEventListener('click', closeModal);
+  panel.querySelector('.psp-modal-close').addEventListener('click', closeModal);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && panel.classList.contains('open')) closeModal();
+  });
+})();
