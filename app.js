@@ -28,7 +28,6 @@ html+='<div class="stat-card"><div class="stat-num">17</div><div class="stat-lab
 html+='<div class="stat-card"><div class="stat-num">13</div><div class="stat-label">Char Limits</div></div>';
 html+='<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Page States</div></div>';
 html+='</div>';
-html+='<div class="note note-blue" style="margin:24px 0"><strong>⚡ Semi-Modernized PSP:</strong> This design system documents the current semi-modernized PSP implementation. Key feature: <strong>Radio button selection</strong> (not full tile tap). Selected tiles show blue border + filled radio button. This balances familiarity (radio buttons) with modern visual design.</div>';
 html+='<div class="grid-2">';
 html+='<div class="card card--outlined"><div style="height:120px;background:linear-gradient(135deg,#e3f5e1 0%,#b8e6b0 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="32" rx="4" stroke="#037f0c" stroke-width="2" fill="none"/><path d="M20 28h24M20 34h16" stroke="#037f0c" stroke-width="2" stroke-linecap="round"/><circle cx="44" cy="20" r="8" fill="#037f0c" opacity=".15"/><path d="M41 20l2 2 4-4" stroke="#037f0c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-title">When to use</div><div style="padding:0 24px 24px">';
 html+='<div class="do"><strong>\u2713 Paycheckout Context</strong><ul><li>PSP is rendered inside Paycheckout webview</li><li>Use components from <a href="https://www.figma.com/design/TNEXlmIcQPMlbEMb9i7KOE/Tuxedo-Mobile?node-id=0-1&t=8qzFCbKUF1qF9Ck5-1" target="_blank" style="color:#0972d3;text-decoration:none;font-weight:600">Tuxedo Mobile ↗</a> library</li><li>Tuxedo handles buttons, inputs, typography</li></ul></div>';
@@ -45,7 +44,7 @@ html+='</div>';
 
 html+='<div class="card card--filled"><div style="height:120px;background:linear-gradient(135deg,#fff3e0 0%,#ffe0b2 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="14" y="12" width="36" height="40" rx="3" stroke="#e65100" stroke-width="2" fill="none"/><path d="M22 22h20M22 28h14M22 34h18M22 40h10" stroke="#e65100" stroke-width="2" stroke-linecap="round" opacity=".6"/><rect x="38" y="36" width="12" height="12" rx="2" fill="#e65100" opacity=".12"/><path d="M42 40l2 2 3-3" stroke="#e65100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-title">What this system covers</div><div style="padding:0 24px 24px">';
 html+='<ul style="font-size:13px;padding-left:18px;line-height:2.2;color:#1a1c1e"><li>Instrument tile anatomy &amp; states</li><li>Section grouping &amp; hierarchy</li><li>Recommended section logic</li><li>Bottom sticky CTA bar</li><li>Character constraints for all text</li><li>Selection &amp; preselection behaviour</li><li>Offer badge &amp; savings display</li></ul>';
-html+='<div class="warn" style="margin-top:14px">\u26A0\uFE0F <b>BUTTONS:</b> Do not document buttons here. They come from master libraries:<br>&bull; Paycheckout context \u2192 <b>Tuxedo Mobile</b> library<br>&bull; Stores checkout context \u2192 <b>RIO</b> (Stores Design Library)</div></div></div>';
+html+='</div></div>';
 
 
 /* PSP Tenets */
@@ -142,19 +141,19 @@ html+='</div></div>';
 html+='<div class="card card--elevated"><div class="card-title">Material Design 3 Type Scale</div>';
 html+='<div class="note note-blue"><strong>📐 Type Scale System:</strong> We use Material Design 3\'s complete type scale with 15 roles. Each role has defined size, weight, line-height, and letter-spacing for perfect consistency.</div>';
 html+='<div class="tbl-wrap"><table class="tbl"><tr><th>Role</th><th>Size</th><th>Weight</th><th>Line Height</th><th>Tracking</th><th>Use Case</th></tr>';
-html+='<tr><td><strong>Display Large</strong></td><td>57px</td><td>400</td><td>64px</td><td>-0.25px</td><td>Hero headlines</td></tr>';
-html+='<tr><td><strong>Display Medium</strong></td><td>45px</td><td>400</td><td>52px</td><td>0</td><td>Hero titles</td></tr>';
+html+='<tr><td><strong>Display Large</strong></td><td>56px</td><td>400</td><td>64px</td><td>-0.25px</td><td>Hero headlines</td></tr>';
+html+='<tr><td><strong>Display Medium</strong></td><td>44px</td><td>400</td><td>52px</td><td>0</td><td>Hero titles</td></tr>';
 html+='<tr><td><strong>Display Small</strong></td><td>36px</td><td>400</td><td>44px</td><td>0</td><td>Large headings</td></tr>';
 html+='<tr><td><strong>Headline Large</strong></td><td>32px</td><td>400</td><td>40px</td><td>0</td><td>Page titles</td></tr>';
 html+='<tr><td><strong>Headline Medium</strong></td><td>28px</td><td>400</td><td>36px</td><td>0</td><td>Section headers</td></tr>';
 html+='<tr><td><strong>Headline Small</strong></td><td>24px</td><td>400</td><td>32px</td><td>0</td><td>Subsection headers</td></tr>';
 html+='<tr><td><strong>Title Large</strong></td><td>22px</td><td>400</td><td>28px</td><td>0</td><td>Card titles, prominent text</td></tr>';
-html+='<tr><td><strong>Title Medium</strong></td><td>16px</td><td>500</td><td>24px</td><td>0.15px</td><td>Card subtitles</td></tr>';
-html+='<tr><td><strong>Title Small</strong></td><td>14px</td><td>500</td><td>20px</td><td>0.1px</td><td>List item titles</td></tr>';
+html+='<tr><td><strong>Title Medium</strong></td><td>16px</td><td>500</td><td>24px</td><td>0</td><td>Card subtitles</td></tr>';
+html+='<tr><td><strong>Title Small</strong></td><td>14px</td><td>500</td><td>20px</td><td>0</td><td>List item titles</td></tr>';
 html+='<tr><td><strong>Body Large</strong></td><td>16px</td><td>400</td><td>24px</td><td>0.5px</td><td>Primary body text</td></tr>';
 html+='<tr><td><strong>Body Medium</strong></td><td>14px</td><td>400</td><td>20px</td><td>0.25px</td><td>Secondary body text</td></tr>';
-html+='<tr><td><strong>Body Small</strong></td><td>12px</td><td>400</td><td>16px</td><td>0.4px</td><td>Captions, helper text</td></tr>';
-html+='<tr><td><strong>Label Large</strong></td><td>14px</td><td>500</td><td>20px</td><td>0.1px</td><td>Buttons, tabs</td></tr>';
+html+='<tr><td><strong>Body Small</strong></td><td>12px</td><td>400</td><td>16px</td><td>0</td><td>Captions, helper text</td></tr>';
+html+='<tr><td><strong>Label Large</strong></td><td>14px</td><td>500</td><td>20px</td><td>0</td><td>Buttons, tabs</td></tr>';
 html+='<tr><td><strong>Label Medium</strong></td><td>12px</td><td>500</td><td>16px</td><td>0.5px</td><td>Badges, chips</td></tr>';
 html+='<tr><td><strong>Label Small</strong></td><td>11px</td><td>500</td><td>16px</td><td>0.5px</td><td>Overline text</td></tr>';
 html+='</table></div>';
@@ -259,7 +258,7 @@ html+='<tr><td>Section Header</td><td>Label Small</td><td>11px / 500</td><td>REC
 html+='<tr><td>Badge Text</td><td>Label Small</td><td>11px / 500</td><td>Best offer, Featured</td></tr>';
 html+='<tr><td>Price</td><td>Title Large</td><td>22px / 400</td><td>Order total price</td></tr>';
 html+='<tr><td>CTA Button</td><td>Label Large</td><td>14px / 500</td><td>Continue, Pay Now</td></tr>';
-html+='<tr><td>Hero Title</td><td>Display Medium</td><td>45px / 400</td><td>Page hero sections</td></tr>';
+html+='<tr><td>Hero Title</td><td>Display Medium</td><td>44px / 400</td><td>Page hero sections</td></tr>';
 html+='</table></div>';
 html+='<div class="note">Font family: Amazon Ember. Falls back to -apple-system, BlinkMacSystemFont, Helvetica Neue, Arial, sans-serif.</div>';
 html+='</div>';
@@ -276,9 +275,6 @@ html+='<h1 class="section-header__title">Components</h1>';
 html+='<p class="section-header__desc">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
 html+='</div></div>';
 html+='<div style="padding:0 4px 24px"><p style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:12px">📐 PSP Instrument Components — All states, positions, and variants (from Figma)</p><div style="margin-bottom:24px;border-radius:12px;overflow:hidden;border:1px solid #e3e5e8"><iframe style="border:none;width:100%;height:600px" src="https://embed.figma.com/design/RzaeDqqV62dnvNBpbYOkxE/IES-Stores-Design-Library?node-id=179736-5997&embed-host=share" allowfullscreen></iframe></div></div>';
-html+='<div class="note note-blue"><strong>⚡ Semi-Modernized PSP:</strong> Radio buttons are used for selection. Only the radio button is clickable, not the entire tile. Selected tiles show blue border + filled radio button.</div>';
-html+='<div class="warn">\u26A0\uFE0F <b>BUTTONS:</b> Do not document buttons here. They come from master libraries (Tuxedo Mobile / RIO).</div>';
-html+='<div class="note note-blue">Line 2 format changes based on instrument type: Cards show network + last 4 + name, UPI shows bank + last 4, Wallets show balance.</div>';
 html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
 html+='<div class="card" style="margin-bottom:0"><div class="card-title" style="font-size:14px;padding:16px 16px 8px">State 1 \u2014 Transaction Ready</div><span class="state-label state-active" style="margin-left:16px">Active</span>';
 html+='<div class="preview" style="min-height:120px;padding:16px;margin:12px 16px"><div style="width:100%;max-width:340px"><div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;background:#FFF;box-shadow:0 0 3.6px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:16px;color:#0F1111">Instrument Name</div><div style="font-size:13px;color:#565959">NETWORK &#8226;&#8226;XXXX | Name</div><div style="font-size:13px;color:#0B7B3C;margin-top:2px">Save &#8377;XX as cashback. <span style="color:#2162A1">Details</span></div></div></div></div></div>';
