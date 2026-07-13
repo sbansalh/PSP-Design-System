@@ -109,7 +109,10 @@
     ctaRadius: '92px',
     ctaWidth: '170px',
     ctaHeight: '47px',
-    priceSize: '22px'
+    priceSize: '22px',
+
+    // Letter spacing
+    tileLetterSpacing: '0'
   };
 
   // ═══════════════════════════════════════════════════════════════
@@ -197,20 +200,20 @@
 
     // Badge
     if (tile.badge) {
-      html += '<div style="margin-bottom:4px"><span data-psp-badge style="background:' + badgeBg + ';color:' + badgeColor + ';font-size:' + TOKENS.badgeFontSize + ';padding:' + TOKENS.badgePadding + ';border-radius:' + TOKENS.badgeRadius + ';display:inline-block">' + tile.badge + '</span></div>';
+      html += '<div style="margin-bottom:4px"><span data-psp-badge style="background:' + badgeBg + ';color:' + badgeColor + ';font-size:' + TOKENS.badgeFontSize + ';padding:' + TOKENS.badgePadding + ';border-radius:' + TOKENS.badgeRadius + ';display:inline-block;letter-spacing:0">' + tile.badge + '</span></div>';
     }
 
     // Name
-    html += '<div data-psp-name style="font-size:' + TOKENS.nameFontSize + ';font-weight:' + nameWeight + ';color:' + TOKENS.nameColor + '">' + tile.name + '</div>';
+    html += '<div data-psp-name style="font-size:' + TOKENS.nameFontSize + ';font-weight:' + nameWeight + ';color:' + TOKENS.nameColor + ';letter-spacing:0">' + tile.name + '</div>';
 
     // Details
     if (tile.details) {
-      html += '<div style="font-size:' + TOKENS.detailFontSize + ';color:' + TOKENS.detailColor + ';margin-top:2px">' + tile.details + '</div>';
+      html += '<div style="font-size:' + TOKENS.detailFontSize + ';color:' + TOKENS.detailColor + ';margin-top:2px;letter-spacing:0">' + tile.details + '</div>';
     }
 
     // Offer
     if (tile.offer) {
-      html += '<div style="font-size:' + TOKENS.offerFontSize + ';color:' + TOKENS.offerColor + ';margin-top:2px">' + tile.offer;
+      html += '<div style="font-size:' + TOKENS.offerFontSize + ';color:' + TOKENS.offerColor + ';margin-top:2px;letter-spacing:0">' + tile.offer;
       if (tile.detailsLink) {
         html += ' <span style="color:' + TOKENS.linkColor + '">' + tile.detailsLink + '</span>';
       }
@@ -231,7 +234,7 @@
     // Insufficient balance CTA
     if (tile.insufficientCta) {
       html += '<div style="display:flex;align-items:center;gap:8px;margin-top:6px">';
-      html += '<span style="font-size:11.5px;color:#565959;white-space:nowrap">' + tile.insufficientCta.text + '</span>';
+      html += '<span style="font-size:11.5px;color:#565959;white-space:nowrap;letter-spacing:0">' + tile.insufficientCta.text + '</span>';
       html += '<div style="background:#FFF;border:1px solid #888C8C;border-radius:61px;padding:1px 10px;font-size:11.5px;color:#0F1111;white-space:nowrap;flex-shrink:0;line-height:22px">' + tile.insufficientCta.button + '</div>';
       html += '</div>';
     }
