@@ -106,9 +106,13 @@ DOCUMENTATION: Playground, Changelog, Code Examples
 
 ## Known Issues / Pending Work
 1. **Website UI overhaul** — Apply Figma redesign aesthetic (cleaner sidebar, remove gradient headers, more whitespace, reorganize sections)
-2. **UPI in N2A/N2UPI** — When user is new to Amazon or hasn't registered UPI yet, APay UPI sits in RECOMMENDED with Featured tag, preselected, with onboarding savings message "Get up to ₹50 as cashback. Set up now". No bank pill shown.
-3. **Top tile bottom corners** — When top tile is selected and there are tiles below, bottom corners = 0 on BOTH edges (already in code but verify across all touchpoints)
-4. **Dark mode** — Disabled (failed WCAG AA contrast). Init is no-op.
+2. **Section headers** — Should look like the reference: clean white card with left blue border accent, bold title (Inter 700), grey description below. No gradient background. Subtle right-side fade to light blue.
+3. **Navigation** — Per screenshot: "Patterns" should be UNDER DESIGN group (Foundations, Components, Patterns, States & Behavior). Not in a separate PATTERNS group at bottom.
+4. **State cards (4 cards)** — Current layout is broken: spacing wrong, tags floating, margins off. Needs redesign: clean border cards, state label top-left as a pill badge, instrument preview centered inside card, proper padding (24px), consistent sizing.
+5. **Playground field order** — Instrument dropdown should come FIRST, then Name, Details, Badge, Offer, etc.
+6. **N2A PSP rendering** — The savings/onboarding message must have: ₹50 in GREEN (#0B7B3C), "Set up now" in BLUE (#2162A1) as a link. No bank pill. User hasn't registered UPI yet. CARDS section empty.
+7. **LLM is NOT being trained** — It's instruction-following only. System prompt improvements = better output. No data goes back to Groq/Meta.
+8. **Dark mode** — Disabled (failed WCAG AA contrast). Init is no-op.
 
 ## User Corrections (explicit instructions from Saurabh)
 - Each instrument must be IDENTICAL across different states in all views
@@ -122,3 +126,9 @@ DOCUMENTATION: Playground, Changelog, Code Examples
 - The AI feature should just WORK — no API key setup for users
 - Prompts can be anything — the LLM + validation layer handles correctness
 - When the LLM fails, show the error (don't silently fall back to default)
+- **CRITICAL: When making a change, check ALL touchpoints across the entire website. Don't just change one place and leave the rest inconsistent. If you change a value in the renderer, the documentation table must also update. If you change a PSP rule, it must reflect in the system prompt AND the design tokens AND any inline docs.**
+- N2A/N2UPI: "Get up to ₹50 as cashback. Set up now" → ₹50 in green (#0B7B3C), "Set up now" in blue (#2162A1). No bank pill. User hasn't registered UPI. CARDS empty.
+- Section headers: white card, left blue (#0972d3) border accent, bold title, grey desc. No gradient.
+- State cards: clean border, pill badge top-left, proper 24px padding, consistent sizing
+- Playground: Instrument dropdown FIRST in the properties panel
+- Navigation order under DESIGN: Foundations, Components, Patterns, States & Behavior
