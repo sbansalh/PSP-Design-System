@@ -346,7 +346,7 @@
 
     // Handle bank pill (UPI)
     if (inst.bankPill) {
-      tile.bankPill = overrides.bankPill || inst.bankPill;
+      tile.bankPill = overrides.bankPill !== undefined ? overrides.bankPill : inst.bankPill;
     }
 
     // Handle insufficient balance CTA

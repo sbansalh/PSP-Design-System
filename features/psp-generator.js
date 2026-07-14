@@ -83,8 +83,9 @@
     '## STATES: normal, disabled (expired/blocked), insufficient (APB when balance < order)',
     '',
     '## SPECIAL SCENARIOS:',
-    '- "new to amazon"/"new customer"/"first time user": RECOMMENDED has APay UPI with Featured badge. UPI section has other_upi. CARDS section is EMPTY (no instruments). APB balance is low (insufficient). Instrument detail for APay UPI = "Get up to ₹50 as cashback. Set up now"',
-    '- "new to UPI"/"UPI onboarding": APay UPI in recommended with Featured badge, detail = "Get up to ₹50 as cashback. Set up now"',
+    '- "new to amazon"/"new customer"/"first time user": RECOMMENDED has ONLY APay UPI with Featured badge (nothing else in recommended). UPI section has other_upi. CARDS section is EMPTY (no instruments, just add link). APB goes in MORE WAYS with insufficient state. Instrument detail for APay UPI = "Get up to ₹50 as cashback. Set up now"',
+    '- "new to UPI"/"UPI onboarding": APay UPI in recommended with Featured badge, detail = "Get up to ₹50 as cashback. Set up now". APB goes in MORE WAYS, never in RECOMMENDED.',
+    '- IMPORTANT: apay_balance (APB) must ALWAYS be in more_ways section, NEVER in recommended. Only cards (cbcc, hdfc_credit, hdfc_debit, icici_credit, sbi_debit) and apay_upi can go in recommended.',
     '- When user says "SBI card", use sbi_debit. "HDFC card" = hdfc_credit or hdfc_debit. "ICICI card" = icici_credit.',
     '',
     '## EXAMPLE:',
@@ -215,6 +216,17 @@
 
         // Rule: no duplicates
         if (seen[inst.id]) continue;
+
+        // Rule: APB, Pay Later, COD, EMI, Net Banking can NEVER be in recommended
+        if (secType === 'recommended' && ['apay_balance', 'apay_later', 'cod', 'emi', 'net_banking'].indexOf(inst.id) !== -1) {
+          // Move to more_ways instead
+          if (!sectionMap['more_ways']) sectionMap['more_ways'] = { type: 'more_ways', instruments: [] };
+          sectionMap['more_ways'].instruments.push(inst);
+          continue;
+        }
+
+        // Rule: UPI instruments only in recommended or upi sections
+        if (secType !== 'recommended' && secType !== 'upi' && (inst.id === 'apay_upi' || inst.id === 'other_upi')) continue;
 
         // Rule: each badge type used at most once
         if (inst.badge) {
@@ -370,6 +382,43 @@
     if (!outputEl) return;
     if (!window.PSP || !window.PSP.renderers || !window.PSP.renderers.pspFrame) return;
     var renderer = window.PSP.renderers.pspFrame;
+
+    // Detect thunderbolt mode from prompt text
+    var promptLower = prompt.toLowerCase();
+    if (promptLower.indexOf('thunderbolt') !== -1 || promptLower.indexOf('spc') !== -1 || promptLower.indexOf('single page checkout') !== -1) {
+      // Use LLM to customize thunderbolt if there's more context, otherwise use default
+      if (config.apiKey && prompt.length > 15) {
+        showLoading(outputEl);
+        var tbPrompt = prompt + '\n\nIMPORTANT: Return JSON with mode:"thunderbolt", plus a single "instrument" object with id, badge, offerAmount, and the orderAmount/savings fields.';
+        var minTimer = new Promise(function(r) { setTimeout(r, 2000); });
+        Promise.all([callLLM(tbPrompt), minTimer]).then(function(results) {
+          var llmJson = results[0];
+          var tbConfig = renderer.getDefaultThunderboltConfig();
+          if (llmJson && !llmJson._error) {
+            // Try to extract custom values from LLM response
+            var reg = getRegistry();
+            if (llmJson.instrument && llmJson.instrument.id && reg) {
+              var instData = reg.getInstrument(llmJson.instrument.id);
+              if (instData) {
+                tbConfig.instrument.icon = instData.icon;
+                tbConfig.instrument.name = instData.name;
+                tbConfig.instrument.details = instData.defaultDetail;
+              }
+              if (llmJson.instrument.badge) tbConfig.instrument.badge = llmJson.instrument.badge;
+            }
+            if (llmJson.orderAmount) tbConfig.price = formatIndian(llmJson.orderAmount);
+            if (llmJson.savings) tbConfig.savings = formatIndian(llmJson.savings);
+          }
+          outputEl.innerHTML = renderer.renderThunderbolt(tbConfig);
+          renderer.attachThunderboltInteractivity(outputEl);
+        });
+      } else {
+        var tbConfig = renderer.getDefaultThunderboltConfig();
+        outputEl.innerHTML = renderer.renderThunderbolt(tbConfig);
+        renderer.attachThunderboltInteractivity(outputEl);
+      }
+      return;
+    }
 
     // No API key → render default with a note
     if (!config.apiKey) {

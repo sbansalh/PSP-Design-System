@@ -7,16 +7,16 @@ var html='';
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec active">';
 
-/* Hero Section */
-html+='<div class="hero">';
-html+='<svg class="hero-logo" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" width="120"><text x="0" y="72" font-family="Amazon Ember, Arial, sans-serif" font-size="62" font-weight="400" fill="#ffffff" letter-spacing="-1">amazon</text><text x="265" y="72" font-family="Amazon Ember, Arial, sans-serif" font-size="62" font-weight="300" fill="#ffffff" letter-spacing="-1">pay</text><path d="M50 88c30 12 75 18 120 18 50 0 95-10 130-28 4-2 7 2 3 5-38 22-85 34-133 34-55 0-105-15-140-38-4-3-1-7 3-5z" fill="#FF9900" transform="translate(-15,2) scale(0.85)"/></svg>';
-html+='<div class="hero-content">';
-html+='<div class="hero-badge" style="margin-top:32px">📦 v2.0.0 · Production Ready</div>';
-html+='<h1 class="hero-title">PSP Design System</h1>';
-html+='<p class="hero-desc">Build consistent payment experiences across 90+ Amazon touchpoints. Complete component library, design tokens, and usage guidelines for Paycheckout and Stores checkout flows.</p>';
-html+='<div class="hero-actions">';
-html+='<button class="btn btn-primary" onclick="switchTab(2)">Browse Components →</button>';
-html+='<a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" target="_blank" class="btn btn-secondary">Open in Figma ↗</a>';
+/* Hero Section — Clean contained card */
+html+='<div class="hero" style="background:#fff;border:1px solid #e8eaed;border-radius:16px;padding:48px 40px;margin-bottom:32px;box-shadow:0 1px 3px rgba(0,0,0,0.04);position:relative;overflow:hidden">';
+html+='<div style="position:absolute;top:0;right:0;width:300px;height:100%;background:linear-gradient(135deg,transparent 40%,rgba(255,153,0,0.03) 100%);pointer-events:none"></div>';
+html+='<div class="hero-content" style="position:relative;z-index:1">';
+html+='<div class="hero-badge" style="display:inline-block;background:#f0fdf4;color:#16a34a;font-size:12px;font-weight:600;padding:6px 14px;border-radius:20px;margin-bottom:20px;border:1px solid #bbf7d0">v2.0.0 · Production Ready</div>';
+html+='<h1 class="hero-title" style="font-size:36px;font-weight:700;color:#1a1c1e;margin-bottom:12px;letter-spacing:-0.5px;line-height:1.2">PSP Design System</h1>';
+html+='<p class="hero-desc" style="font-size:16px;color:#5f6368;margin-bottom:28px;max-width:600px;line-height:1.7">Build consistent payment experiences across 90+ Amazon touchpoints. Complete component library, design tokens, and usage guidelines for Paycheckout and Stores checkout flows.</p>';
+html+='<div class="hero-actions" style="display:flex;gap:12px;flex-wrap:wrap">';
+html+='<button class="btn btn-primary" onclick="switchTab(2)" style="background:#0972d3;color:#fff;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;border:none;cursor:pointer">Browse Components \u2192</button>';
+html+='<a href="https://www.figma.com/design/N6ojbzlM3tRsXj5X4cJkkX/Service-and-Pay?node-id=1-28778" target="_blank" class="btn btn-secondary" style="background:#fff;color:#0972d3;padding:12px 24px;border-radius:8px;font-weight:600;font-size:14px;border:1px solid #0972d3;text-decoration:none;cursor:pointer">Open in Figma \u2197</a>';
 html+='</div></div></div>';
 
 /* Stats */
@@ -29,12 +29,12 @@ html+='<div class="stat-card"><div class="stat-num">13</div><div class="stat-lab
 html+='<div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Page States</div></div>';
 html+='</div>';
 html+='<div class="grid-2">';
-html+='<div class="card card--outlined"><div style="height:120px;background:linear-gradient(135deg,#e3f5e1 0%,#b8e6b0 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="12" y="16" width="40" height="32" rx="4" stroke="#037f0c" stroke-width="2" fill="none"/><path d="M20 28h24M20 34h16" stroke="#037f0c" stroke-width="2" stroke-linecap="round"/><circle cx="44" cy="20" r="8" fill="#037f0c" opacity=".15"/><path d="M41 20l2 2 4-4" stroke="#037f0c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-title">When to use</div><div style="padding:0 24px 24px">';
+html+='<div class="card card--outlined"><div class="card-title">When to use</div><div style="padding:0 24px 24px">';
 html+='<div class="do"><strong>\u2713 Paycheckout Context</strong><ul><li>PSP is rendered inside Paycheckout webview</li><li>Use components from <a href="https://www.figma.com/design/TNEXlmIcQPMlbEMb9i7KOE/Tuxedo-Mobile?node-id=0-1&t=8qzFCbKUF1qF9Ck5-1" target="_blank" style="color:#0972d3;text-decoration:none;font-weight:600">Tuxedo Mobile ↗</a> library</li><li>Tuxedo handles buttons, inputs, typography</li></ul></div>';
 html+='<div style="height:12px"></div>';
 html+='<div class="do"><strong>\u2713 Stores Checkout Context</strong><ul><li>PSP is rendered inside Stores checkout</li><li>Use components from <a href="https://www.figma.com/design/KQAZPbiOnoBYWkYn0B8Qnk/Rio-Foundations-Library_PCT?node-id=6-2&t=U35Pf6bj6fe9VxFu-1" target="_blank" style="color:#0972d3;text-decoration:none;font-weight:600">RIO Foundations ↗</a></li><li>Child library: <a href="https://www.figma.com/design/0OoLLPw03qD4C8FNFtbP5n/Stores-Design-Library?m=auto&node-id=0-1&t=1iTlA2sIpuUdHilM-1" target="_blank" style="color:#0972d3;text-decoration:none;font-weight:600">Stores Design Library ↗</a></li><li>RIO handles buttons, inputs, typography</li></ul></div></div></div>';
 
-html+='<div class="card card--outlined"><div style="height:120px;background:linear-gradient(135deg,#e9f3ff 0%,#b8d4f0 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><circle cx="24" cy="28" r="10" stroke="#0972d3" stroke-width="2" fill="none"/><circle cx="24" cy="25" r="3" fill="#0972d3" opacity=".3"/><path d="M17 35c0-4 3-7 7-7s7 3 7 7" stroke="#0972d3" stroke-width="2" fill="none"/><circle cx="40" cy="24" r="8" stroke="#0972d3" stroke-width="2" fill="none"/><circle cx="40" cy="22" r="2.5" fill="#0972d3" opacity=".3"/><path d="M34 30c0-3 2.5-6 6-6s6 3 6 6" stroke="#0972d3" stroke-width="2" fill="none"/><rect x="14" y="42" width="36" height="2" rx="1" fill="#0972d3" opacity=".15"/></svg></div><div class="card-title">Who this is for</div><div style="padding:0 24px 24px">';
+html+='<div class="card card--outlined"><div class="card-title">Who this is for</div><div style="padding:0 24px 24px">';
 html+='<div style="font-size:13px;line-height:2.2;color:#1a1c1e">';
 html+='<div><span class="flow-num" style="background:#2162A1">D</span> <b>Designers</b> \u2014 Component specs, spacing tokens, visual states</div>';
 html+='<div><span class="flow-num" style="background:#037f0c">E</span> <b>Engineers</b> \u2014 Design tokens, JSON handoff, character limits</div>';
@@ -42,13 +42,13 @@ html+='<div><span class="flow-num" style="background:#0972d3">P</span> <b>Produc
 html+='</div></div></div>';
 html+='</div>';
 
-html+='<div class="card card--filled"><div style="height:120px;background:linear-gradient(135deg,#fff3e0 0%,#ffe0b2 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="64" height="64" viewBox="0 0 64 64" fill="none"><rect x="14" y="12" width="36" height="40" rx="3" stroke="#e65100" stroke-width="2" fill="none"/><path d="M22 22h20M22 28h14M22 34h18M22 40h10" stroke="#e65100" stroke-width="2" stroke-linecap="round" opacity=".6"/><rect x="38" y="36" width="12" height="12" rx="2" fill="#e65100" opacity=".12"/><path d="M42 40l2 2 3-3" stroke="#e65100" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="card-title">What this system covers</div><div style="padding:0 24px 24px">';
+html+='<div class="card card--outlined"><div class="card-title">What this system covers</div><div style="padding:0 24px 24px">';
 html+='<ul style="font-size:13px;padding-left:18px;line-height:2.2;color:#1a1c1e"><li>Instrument tile anatomy &amp; states</li><li>Section grouping &amp; hierarchy</li><li>Recommended section logic</li><li>Bottom sticky CTA bar</li><li>Character constraints for all text</li><li>Selection &amp; preselection behaviour</li><li>Offer badge &amp; savings display</li></ul>';
 html+='</div></div>';
 
 
 /* PSP Tenets */
-html+='<div class="card card--elevated"><div style="height:100px;background:linear-gradient(135deg,#e8eaf6 0%,#c5cae9 100%);display:flex;align-items:center;justify-content:center;border-bottom:1px solid #e9ebed"><svg width="56" height="56" viewBox="0 0 56 56" fill="none"><path d="M28 8l4 8 9 1-7 6 2 9-8-4-8 4 2-9-7-6 9-1z" stroke="#1a237e" stroke-width="2" fill="none"/><circle cx="28" cy="38" r="8" stroke="#1a237e" stroke-width="2" fill="none"/><path d="M24 38h8M28 34v8" stroke="#1a237e" stroke-width="1.5" stroke-linecap="round"/></svg></div>';
+html+='<div class="card card--outlined">';
 html+='<div class="card-title">PSP Tenets</div><div style="padding:0 24px 24px">';
 html+='<p style="font-size:13px;color:#565959;margin-bottom:16px">Six guiding principles that govern every design decision in the payment experience.</p>';
 html+='<div style="display:grid;gap:12px">';
@@ -131,7 +131,7 @@ html+='</div>';
    1. FOUNDATIONS
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#16a34a">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Foundations</h1>';
 html+='<p class="section-header__desc">Core design tokens that define the visual language of the PSP — colors, typography, spacing, and more. These tokens ensure consistency across all payment touchpoints.</p>';
@@ -190,63 +190,6 @@ html+='</div></div>';
 html+='<div class="spec" onclick="copySpec(this)">CSS: var(--space-1), var(--space-2), var(--space-4), var(--space-6), var(--space-8), etc.</div>';
 html+='</div>';
 
-/* Elevation System */
-html+='<div class="card card--filled"><div class="card-title">Elevation System (Material Design 3)</div>';
-html+='<div class="note note-blue"><strong>📦 5 Elevation Levels:</strong> Material Design 3 defines 5 levels of elevation using layered shadows for depth perception.</div>';
-html+='<div style="padding:0 28px 24px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:20px;margin-top:16px">';
-html+='<div style="background:#fff;padding:24px 16px;border-radius:12px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.3),0 1px 3px 1px rgba(0,0,0,0.15);text-align:center"><div style="font-size:20px;font-weight:700;color:#0972d3;margin-bottom:4px">1</div><div style="font-size:11px;color:#44474e">Cards</div></div>';
-html+='<div style="background:#fff;padding:24px 16px;border-radius:12px;box-shadow:0 1px 2px 0 rgba(0,0,0,0.3),0 2px 6px 2px rgba(0,0,0,0.15);text-align:center"><div style="font-size:20px;font-weight:700;color:#0972d3;margin-bottom:4px">2</div><div style="font-size:11px;color:#44474e">Hover</div></div>';
-html+='<div style="background:#fff;padding:24px 16px;border-radius:12px;box-shadow:0 4px 8px 3px rgba(0,0,0,0.15),0 1px 3px rgba(0,0,0,0.3);text-align:center"><div style="font-size:20px;font-weight:700;color:#0972d3;margin-bottom:4px">3</div><div style="font-size:11px;color:#44474e">Buttons</div></div>';
-html+='<div style="background:#fff;padding:24px 16px;border-radius:12px;box-shadow:0 6px 10px 4px rgba(0,0,0,0.15),0 2px 3px rgba(0,0,0,0.3);text-align:center"><div style="font-size:20px;font-weight:700;color:#0972d3;margin-bottom:4px">4</div><div style="font-size:11px;color:#44474e">Navigation</div></div>';
-html+='<div style="background:#fff;padding:24px 16px;border-radius:12px;box-shadow:0 8px 12px 6px rgba(0,0,0,0.15),0 4px 4px rgba(0,0,0,0.3);text-align:center"><div style="font-size:20px;font-weight:700;color:#0972d3;margin-bottom:4px">5</div><div style="font-size:11px;color:#44474e">Modals</div></div>';
-html+='</div></div>';
-html+='<div class="spec" onclick="copySpec(this)">CSS: var(--elevation-1), var(--elevation-2), var(--elevation-3), var(--elevation-4), var(--elevation-5)</div>';
-html+='</div>';
-
-/* Border Radius Scale */
-html+='<div class="card card--outlined"><div class="card-title">Border Radius Scale</div>';
-html+='<div style="padding:0 28px 24px"><div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:0;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">0px</div><div style="font-size:10px;color:#001d36;opacity:0.6">None</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:4px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">4px</div><div style="font-size:10px;color:#001d36;opacity:0.6">XS</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">8px</div><div style="font-size:10px;color:#001d36;opacity:0.6">SM</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">12px</div><div style="font-size:10px;color:#001d36;opacity:0.6">MD</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:16px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">16px</div><div style="font-size:10px;color:#001d36;opacity:0.6">LG</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:24px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">24px</div><div style="font-size:10px;color:#001d36;opacity:0.6">XL</div></div>';
-html+='<div style="width:80px;height:80px;background:#d1e4ff;border-radius:9999px;display:flex;align-items:center;justify-content:center;flex-direction:column"><div style="font-size:16px;font-weight:700;color:#001d36">Full</div><div style="font-size:10px;color:#001d36;opacity:0.6">Pill</div></div>';
-html+='</div></div>';
-html+='<div class="spec" onclick="copySpec(this)">CSS: var(--radius-none), var(--radius-xs), var(--radius-sm), var(--radius-md), var(--radius-lg), var(--radius-xl), var(--radius-full)</div>';
-html+='</div>';
-
-/* Card Variants Comparison */
-html+='<div class="card card--elevated"><div class="card-title">Card Variants</div>';
-html+='<div class="note note-blue"><strong>🃏 Three Variants:</strong> Material Design 3 defines three card styles for visual hierarchy. Click any card to copy its CSS token values.</div>';
-html+='<div style="padding:0 28px 24px"><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px;margin-top:16px">';
-
-/* Elevated variant */
-html+='<div class="psp-card-variant-example" style="cursor:pointer" data-copy="box-shadow: var(--elevation-2); border: none; border-radius: var(--radius-md);"><div class="card--elevated" style="padding:24px;border-radius:12px;background:#fff;text-align:center">';
-html+='<div style="font-size:32px;margin-bottom:12px">☁️</div>';
-html+='<div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:8px">Elevated</div>';
-html+='<div style="font-size:12px;color:#44474e;line-height:1.6">box-shadow: var(--elevation-2), no border</div>';
-html+='</div></div>';
-
-/* Filled variant */
-html+='<div class="psp-card-variant-example" style="cursor:pointer" data-copy="background: var(--color-surface-variant); border: none; box-shadow: none; border-radius: var(--radius-md);"><div class="card--filled" style="padding:24px;border-radius:12px;text-align:center">';
-html+='<div style="font-size:32px;margin-bottom:12px">🎨</div>';
-html+='<div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:8px">Filled</div>';
-html+='<div style="font-size:12px;color:#44474e;line-height:1.6">background: var(--color-surface-variant), no border/shadow</div>';
-html+='</div></div>';
-
-/* Outlined variant */
-html+='<div class="psp-card-variant-example" style="cursor:pointer" data-copy="border: 1px solid var(--color-outline-variant); box-shadow: none; border-radius: var(--radius-md);"><div class="card--outlined" style="padding:24px;border-radius:12px;background:#fff;text-align:center">';
-html+='<div style="font-size:32px;margin-bottom:12px">🔲</div>';
-html+='<div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:8px">Outlined</div>';
-html+='<div style="font-size:12px;color:#44474e;line-height:1.6">border: 1px solid var(--color-outline-variant), no shadow</div>';
-html+='</div></div>';
-
-html+='</div></div>';
-html+='<div class="spec" onclick="copySpec(this)">CSS: .card--elevated, .card--filled, .card--outlined</div>';
-html+='</div>';
-
 /* PSP-Specific Typography Application */
 html+='<div class="card card--outlined"><div class="card-title">PSP Typography Application</div>';
 html+='<div class="note note-blue"><strong>📱 PSP Components:</strong> Here\'s how the type scale maps to PSP elements. All specs use the type scale above.</div>';
@@ -269,26 +212,26 @@ html+='</div>';
    2. COMPONENTS (kept from Instrument Components)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#0972d3">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Components</h1>';
 html+='<p class="section-header__desc">Component specifications for PSP elements. Primary component: Instrument tiles used for all payment methods with radio button selection.</p>';
 html+='</div></div>';
 html+='<div style="padding:0 4px 24px"><p style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:12px">📐 PSP Instrument Components — All states, positions, and variants (from Figma)</p><div style="margin-bottom:24px;border-radius:12px;overflow:hidden;border:1px solid #e3e5e8"><iframe style="border:none;width:100%;height:600px" src="https://embed.figma.com/design/RzaeDqqV62dnvNBpbYOkxE/IES-Stores-Design-Library?node-id=179736-5997&embed-host=share" allowfullscreen></iframe></div></div>';
-html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
-html+='<div class="card" style="margin-bottom:0"><div class="card-title" style="font-size:14px;padding:16px 16px 8px">State 1 \u2014 Transaction Ready</div><span class="state-label state-active" style="margin-left:16px">Active</span>';
-html+='<div class="preview" style="min-height:120px;padding:16px;margin:12px 16px"><div style="width:100%;max-width:340px"><div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;background:#FFF;box-shadow:0 0 3.6px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:16px;color:#0F1111">Instrument Name</div><div style="font-size:13px;color:#565959">NETWORK &#8226;&#8226;XXXX | Name</div><div style="font-size:13px;color:#0B7B3C;margin-top:2px">Save &#8377;XX as cashback. <span style="color:#2162A1">Details</span></div></div></div></div></div>';
+html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">';
+html+='<div style="border:1px solid #e8eaed;border-radius:12px;padding:24px;background:#fff"><div style="margin-bottom:16px"><span style="display:inline-block;background:#f0fdf4;color:#16a34a;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #bbf7d0">Active</span></div><div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:16px">State 1 \u2014 Transaction Ready</div>';
+html+='<div style="display:flex;justify-content:center;padding:16px;background:#fafafa;border-radius:8px"><div style="width:100%;max-width:300px"><div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;background:#FFF;box-shadow:0 0 3px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:14px;color:#0F1111">Instrument Name</div><div style="font-size:12px;color:#565959">NETWORK &#8226;&#8226;XXXX | Name</div><div style="font-size:12px;color:#0B7B3C;margin-top:2px">Save &#8377;XX as cashback. <span style="color:#2162A1">Details</span></div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div></div></div>';
 html+='</div>';
-html+='<div class="card" style="margin-bottom:0"><div class="card-title" style="font-size:14px;padding:16px 16px 8px">State 2 \u2014 Selected</div><span class="state-label state-selected" style="margin-left:16px">Selected</span>';
-html+='<div class="preview" style="min-height:120px;padding:16px;margin:12px 16px"><div style="width:100%;max-width:340px"><div style="background:#EDF8FF;border:1px solid #2162A1;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:54px;height:36px;border-radius:5px;background:#FFF;box-shadow:0 0 3.6px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:16px;color:#0F1111">Instrument Name</div><div style="font-size:13px;color:#565959">NETWORK &#8226;&#8226;XXXX | Name</div><div style="font-size:13px;color:#0B7B3C;margin-top:2px">Save &#8377;XX as cashback. <span style="color:#2162A1">Details</span></div></div></div></div></div>';
+html+='<div style="border:1px solid #e8eaed;border-radius:12px;padding:24px;background:#fff"><div style="margin-bottom:16px"><span style="display:inline-block;background:#eff6ff;color:#2563eb;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #93c5fd">Selected</span></div><div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:16px">State 2 \u2014 Selected</div>';
+html+='<div style="display:flex;justify-content:center;padding:16px;background:#fafafa;border-radius:8px"><div style="width:100%;max-width:300px"><div style="background:#EDF8FF;border:2px solid #2162A1;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px"><div style="width:48px;height:32px;border-radius:4px;background:#FFF;box-shadow:0 0 3px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:14px;font-weight:700;color:#0F1111">Instrument Name</div><div style="font-size:12px;color:#565959">NETWORK &#8226;&#8226;XXXX | Name</div><div style="font-size:12px;color:#0B7B3C;margin-top:2px">Save &#8377;XX as cashback. <span style="color:#2162A1">Details</span></div></div><svg width="20" height="20" style="flex-shrink:0"><circle cx="10" cy="10" r="9" fill="none" stroke="#2162A1" stroke-width="2"/><circle cx="10" cy="10" r="5" fill="#2162A1"/></svg></div></div></div>';
 html+='</div>';
-html+='<div class="card" style="margin-bottom:0"><div class="card-title" style="font-size:14px;padding:16px 16px 8px">State 3 \u2014 Non-Transaction Ready</div><span class="state-label state-disabled" style="margin-left:16px">Disabled</span>';
-html+='<div class="preview" style="min-height:120px;padding:16px;margin:12px 16px"><div style="width:100%;max-width:340px"><div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;opacity:0.7"><div style="width:54px;height:36px;border-radius:5px;background:#FFF;box-shadow:0 0 3.6px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:16px;color:#0F1111">Instrument Name</div><div style="font-size:13px;color:#CC0C39">Card expired \u2014 <span style="color:#2162A1">Why?</span></div></div></div></div></div>';
+html+='<div style="border:1px solid #e8eaed;border-radius:12px;padding:24px;background:#fff"><div style="margin-bottom:16px"><span style="display:inline-block;background:#f8f9fa;color:#6b7280;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #d1d5db">Disabled</span></div><div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:16px">State 3 \u2014 Non-Transaction Ready</div>';
+html+='<div style="display:flex;justify-content:center;padding:16px;background:#fafafa;border-radius:8px"><div style="width:100%;max-width:300px"><div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;opacity:0.7"><div style="width:48px;height:32px;border-radius:4px;background:#FFF;box-shadow:0 0 3px rgba(0,0,0,0.08);border:0.5px solid #E7E7E7;display:flex;align-items:center;justify-content:center;font-size:9px;color:#888C8C;flex-shrink:0">ICON</div><div style="flex:1"><div style="font-size:14px;color:#0F1111">Instrument Name</div><div style="font-size:12px;color:#CC0C39">Card expired \u2014 <span style="color:#2162A1">Why?</span></div></div><svg width="20" height="20" style="flex-shrink:0;opacity:0.4"><circle cx="10" cy="10" r="9" fill="none" stroke="#D5D9D9" stroke-width="2"/></svg></div></div></div>';
 html+='</div>';
 html+='</div>';
 /* State 4 — Bottom Sticky Sleeve */
-html+='<div class="card"><div class="card-title">State 4 \u2014 Bottom Sticky Sleeve</div><span class="state-label state-service">Bottom Sticky Sleeve</span>';
-html+='<div class="preview"><div style="width:100%;max-width:340px">';
+html+='<div style="border:1px solid #e8eaed;border-radius:12px;padding:24px;background:#fff;margin-top:20px"><div style="margin-bottom:16px"><span style="display:inline-block;background:#fffbeb;color:#92400e;font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #fcd34d">Service</span></div><div style="font-size:14px;font-weight:600;color:#1a1c1e;margin-bottom:16px">State 4 \u2014 Bottom Sticky Sleeve</div>';
+html+='<div style="display:flex;justify-content:center;padding:16px;background:#fafafa;border-radius:8px"><div style="width:100%;max-width:340px">';
 html+='<div style="background:#fff;border:0.55px solid #D5D9D9;border-radius:12px;padding:16px;position:relative">';
 html+='<div style="display:inline-block;background:#0A7CD1;border-radius:13px;padding:2px 10px;font-size:11px;font-weight:600;color:#ffffff;margin-bottom:12px">Featured</div>';
 html+='<div style="display:flex;align-items:center;gap:12px">';
@@ -405,7 +348,7 @@ html+='</div>';
    3. PATTERNS (merged Layout Patterns + Bottom Sticky CTA)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#7c3aed">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Patterns</h1>';
 html+='<p class="section-header__desc">Section grouping, spacing, visual hierarchy rules, and the bottom sticky CTA bar for the PSP page layout.</p>';
@@ -558,7 +501,7 @@ html+='</div>';
    4. STATES & BEHAVIOR (States Reference + Preselection + Grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#dc2626">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">States & Behavior</h1>';
 html+='<p class="section-header__desc">All interactive states for instrument tiles, page-level elements, preselection logic, and grouping rules.</p>';
@@ -608,7 +551,7 @@ html+='</div>';
    5. CONTENT GUIDELINES (renamed from Character Constraints)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#d97706">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Content Guidelines</h1>';
 html+='<p class="section-header__desc">Maximum character limits for all text elements in the PSP. Exceeding these limits will cause truncation with ellipsis.</p>';
@@ -636,7 +579,7 @@ html+='</div>';
    6. MENTAL MODEL & HIERARCHY (wireframe only, no preselection/grouping)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#0891b2">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Mental Model & Hierarchy</h1>';
 html+='<p class="section-header__desc">The PSP follows a specific hierarchy to optimise conversion and user experience. The wireframe below maps every numbered zone to its purpose and spec.</p>';
@@ -698,7 +641,7 @@ html+='</div>';
    7. ACCESSIBILITY (NEW)
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#059669">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Accessibility</h1>';
 html+='<p class="section-header__desc">ARIA labels, keyboard navigation, screen reader support, and focus management guidelines to ensure PSP is accessible to all users, including those with disabilities.</p>';
@@ -900,7 +843,7 @@ html+='</div>';
    8. DECISION FRAMEWORK
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#6d28d9">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Decision Framework</h1>';
 html+='<p class="section-header__desc">Intelligence layer that governs payment method prioritization, preselection logic, and personalization rules. This framework ensures consistent user experience across 90+ touchpoints.</p>';
@@ -1041,7 +984,7 @@ html+='</div>';
    9. BASELINE CX
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#0972d3">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Baseline CX</h1>';
 html+='<p class="section-header__desc">Current baseline customer experience for Service and Pay. Click the cover below to open the full Figma design file.</p>';
@@ -1120,7 +1063,7 @@ html+='</div>';
    13. PLAYGROUND
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#0891b2">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Component Playground</h1>';
 html+='<p class="section-header__desc">Experiment with component properties in real-time. Modify text, toggle states, and generate code snippets for your configuration.</p>';
@@ -1132,7 +1075,7 @@ html+='</div>';
    14. CHANGELOG
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#65a30d">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Changelog</h1>';
 html+='<p class="section-header__desc">Track all design token additions, modifications, and deprecations across versions.</p>';
@@ -1148,7 +1091,7 @@ html+='</div>';
    16. CODE EXAMPLES
    ══════════════════════════════════════════════════════════════ */
 html+='<div class="sec">';
-html+='<div class="section-header" style="border-left-color:#0d9488">';
+html+='<div class="section-header">';
 html+='<div class="section-header__content">';
 html+='<h1 class="section-header__title">Code Examples</h1>';
 html+='<p class="section-header__desc">Implementation examples across HTML/CSS, React Native, Android XML, and iOS SwiftUI with syntax highlighting and copy support.</p>';
@@ -1548,6 +1491,9 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
     // Right panel (output)
     '.psp-ai-right{flex:1;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:16px 0}',
     '.psp-ai-output{width:100%;max-width:380px}',
+    '.psp-ai-download-actions{display:flex;gap:8px;justify-content:center}',
+    '.psp-ai-download-btn,.psp-ai-copy-json-btn{padding:8px 16px;border:1px solid #e3e5e8;border-radius:8px;background:#fff;font-size:12px;font-weight:600;color:#1a1c1e;cursor:pointer;font-family:inherit;transition:all .15s}',
+    '.psp-ai-download-btn:hover,.psp-ai-copy-json-btn:hover{border-color:#FF9900;background:#fffbf0;color:#c2410c}',
     // Empty state
     '.psp-ai-empty{text-align:center;padding:80px 24px;color:#9ca3af}',
     '.psp-ai-empty-icon{font-size:48px;margin-bottom:16px;opacity:.5}',
@@ -1581,14 +1527,15 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
     '    <div class="psp-ai-chips">',
     '      <div class="psp-ai-chip" data-p="₹499 order, CBCC best offer ₹10 cashback, HDFC previously used, APay UPI featured, APB, Pay Later, COD, EMI, Net Banking">💳 Standard</div>',
     '      <div class="psp-ai-chip" data-p="New to Amazon customer, ₹193 order. APay UPI in recommended with Featured badge and onboarding message. No saved cards. APB insufficient with ₹43 balance. Pay Later, COD, EMI, Net Banking in more ways.">🆕 N2A</div>',
-    '      <div class="psp-ai-chip" data-p="New to UPI customer, ₹500 order. APay UPI in recommended with Featured badge, detail: Get up to ₹50 as cashback. Set up now. CBCC best offer ₹15 cashback. One saved HDFC card. APB, Pay Later, COD in more ways.">📱 N2UPI</div>',
-    '      <div class="psp-ai-chip" data-p="₹15,000 order. CBCC best offer ₹200 cashback, HDFC credit expired/disabled, APB insufficient, APay UPI featured, Pay Later, EMI, Net Banking">💰 High-value</div>',
+    '      <div class="psp-ai-chip" data-p="thunderbolt" data-mode="thunderbolt">⚡ Thunderbolt</div>',
+    '      <div class="psp-ai-chip" data-p="fast-checkout" data-mode="flow">🛒 Fast Checkout</div>',
     '    </div>',
     '  </div>',
     '  <div class="psp-ai-right">',
     '    <div class="psp-ai-output">',
     '      <div class="psp-ai-empty"><div class="psp-ai-empty-icon">✦</div><div class="psp-ai-empty-text">Describe a checkout scenario<br>and generate a pixel-perfect PSP</div></div>',
     '    </div>',
+    '    <div class="psp-ai-download-actions" style="display:none;margin-top:12px;text-align:center"><button class="psp-ai-download-btn" title="Download as PNG">📥 Download PNG</button><button class="psp-ai-copy-json-btn" title="Copy config JSON for Figma plugin">📋 Copy JSON</button></div>',
     '  </div>',
     '</div>'
   ].join('\n');
@@ -1601,6 +1548,13 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
   var resetBtn = overlay.querySelector('.psp-ai-reset-btn');
   var closeBtn = overlay.querySelector('.psp-ai-close');
   var chipsEl = overlay.querySelector('.psp-ai-chips');
+  var actionsEl = overlay.querySelector('.psp-ai-download-actions');
+  var downloadBtn = overlay.querySelector('.psp-ai-download-btn');
+  var copyJsonBtn = overlay.querySelector('.psp-ai-copy-json-btn');
+
+  // ─── Show/hide action buttons when output has content ───
+  function showActions() { if (actionsEl) actionsEl.style.display = 'flex'; }
+  function hideActions() { if (actionsEl) actionsEl.style.display = 'none'; }
 
   // ─── Open / Close ───
   function open() { overlay.classList.add('open'); document.body.style.overflow = 'hidden'; promptEl.focus(); }
@@ -1610,6 +1564,61 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
   closeBtn.addEventListener('click', close);
   document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.classList.contains('open')) close(); });
 
+  // ─── Download PNG ───
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', function() {
+      var target = outputEl.querySelector('.psp-generated-frame') || outputEl.querySelector('.psp-thunderbolt-frame') || outputEl.firstElementChild;
+      if (!target) return;
+      downloadBtn.textContent = '⏳ Capturing...';
+      // Use html2canvas from CDN (lazy-loaded)
+      var doCapture = function() {
+        html2canvas(target, { scale: 2, backgroundColor: '#F7FAFA', useCORS: true, logging: false }).then(function(canvas) {
+          var link = document.createElement('a');
+          link.download = 'psp-design-' + Date.now() + '.png';
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          downloadBtn.textContent = '📥 Download PNG';
+        }).catch(function(err) {
+          console.error('[PSP Download]', err);
+          downloadBtn.textContent = '❌ Failed';
+          setTimeout(function() { downloadBtn.textContent = '📥 Download PNG'; }, 2000);
+        });
+      };
+      if (window.html2canvas) {
+        doCapture();
+      } else {
+        var script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        script.onload = doCapture;
+        script.onerror = function() { downloadBtn.textContent = '❌ Load failed'; setTimeout(function() { downloadBtn.textContent = '📥 Download PNG'; }, 2000); };
+        document.head.appendChild(script);
+      }
+    });
+  }
+
+  // ─── Copy JSON (for future Figma plugin / MCP) ───
+  if (copyJsonBtn) {
+    copyJsonBtn.addEventListener('click', function() {
+      // Extract the last generated config from the prompt
+      var prompt = promptEl.value.trim();
+      var jsonPayload = JSON.stringify({
+        _type: 'psp-design-system-config',
+        _version: '2.0.0',
+        _generatedAt: new Date().toISOString(),
+        prompt: prompt,
+        // Include the rendered HTML for reference
+        _note: 'Use this JSON with the PSP Figma Plugin or MCP server to recreate this design in Figma'
+      }, null, 2);
+      navigator.clipboard.writeText(jsonPayload).then(function() {
+        copyJsonBtn.textContent = '✓ Copied!';
+        setTimeout(function() { copyJsonBtn.textContent = '📋 Copy JSON'; }, 1500);
+      }).catch(function() {
+        copyJsonBtn.textContent = '❌ Failed';
+        setTimeout(function() { copyJsonBtn.textContent = '📋 Copy JSON'; }, 1500);
+      });
+    });
+  }
+
   // ─── Generate ───
   function doGenerate() {
     var prompt = promptEl.value.trim();
@@ -1617,8 +1626,8 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
     genBtn.disabled = true;
     genBtn.textContent = 'Generating...';
     gen.generate(prompt, outputEl);
-    // Re-enable after timeout
-    setTimeout(function() { genBtn.disabled = false; genBtn.textContent = 'Generate PSP →'; }, 4000);
+    // Re-enable after timeout and show action buttons
+    setTimeout(function() { genBtn.disabled = false; genBtn.textContent = 'Generate PSP →'; showActions(); }, 4000);
   }
 
   genBtn.addEventListener('click', doGenerate);
@@ -1630,12 +1639,40 @@ if (window.PSP && window.PSP.features && window.PSP.features.search) {
   resetBtn.addEventListener('click', function() {
     promptEl.value = '';
     outputEl.innerHTML = '<div class="psp-ai-empty"><div class="psp-ai-empty-icon">✦</div><div class="psp-ai-empty-text">Describe a checkout scenario<br>and generate a pixel-perfect PSP</div></div>';
+    hideActions();
   });
 
   // ─── Chips ───
   chipsEl.addEventListener('click', function(e) {
     var chip = e.target.closest('.psp-ai-chip');
     if (!chip) return;
+    var mode = chip.getAttribute('data-mode');
+    if (mode === 'thunderbolt') {
+      // Thunderbolt: render compact SPC view
+      promptEl.value = '⚡ Thunderbolt SPC';
+      genBtn.disabled = true;
+      genBtn.textContent = 'Generating...';
+      if (window.PSP && window.PSP.renderers && window.PSP.renderers.pspFrame && window.PSP.renderers.pspFrame.renderThunderbolt) {
+        var tbConfig = window.PSP.renderers.pspFrame.getDefaultThunderboltConfig();
+        outputEl.innerHTML = window.PSP.renderers.pspFrame.renderThunderbolt(tbConfig);
+        window.PSP.renderers.pspFrame.attachThunderboltInteractivity(outputEl);
+      }
+      setTimeout(function() { genBtn.disabled = false; genBtn.textContent = 'Generate PSP →'; showActions(); }, 500);
+      return;
+    }
+    if (mode === 'flow') {
+      // Fast Checkout Flow: render step-by-step journey
+      promptEl.value = '🛒 Fast Checkout Flow';
+      genBtn.disabled = true;
+      genBtn.textContent = 'Generating...';
+      if (window.PSP && window.PSP.renderers && window.PSP.renderers.checkoutFlow) {
+        window.PSP.renderers.checkoutFlow.render(outputEl);
+      } else {
+        outputEl.innerHTML = '<div style="padding:40px;text-align:center;color:#565959"><div style="font-size:32px;margin-bottom:16px">🛒</div><div style="font-size:14px;font-weight:600;margin-bottom:8px">Fast Checkout Flow</div><div style="font-size:13px">Coming soon — provide PNGs for Home, DP, Cart screens</div></div>';
+      }
+      setTimeout(function() { genBtn.disabled = false; genBtn.textContent = 'Generate PSP →'; showActions(); }, 500);
+      return;
+    }
     promptEl.value = chip.getAttribute('data-p');
     doGenerate();
   });

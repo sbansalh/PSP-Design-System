@@ -28,7 +28,7 @@ app.js              → 1600+ lines: all sections + post-render wiring + FAB mod
 - **Architecture**: User prompt → LLM → validateLLMOutput() → jsonToConfig() → psp-frame.render()
 - **Validation layer**: Removes duplicates, enforces one-badge-per-type, caps RECOMMENDED at 3
 - **UI**: FAB button (bottom-right) → full-screen modal with split panel (prompt left, PSP right)
-- **Presets**: Standard, N2A (New to Amazon), N2UPI (New to UPI), High-value
+- **Presets**: Standard, N2A (New to Amazon), Thunderbolt (SPC), Fast Checkout (flow)
 
 ## PSP Design Rules (ABSOLUTE)
 1. **Sections order**: RECOMMENDED (max 3) → UPI → CREDIT & DEBIT CARDS → MORE WAYS TO PAY

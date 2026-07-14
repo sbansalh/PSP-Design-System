@@ -208,7 +208,15 @@
 
     // Details
     if (tile.details) {
-      html += '<div style="font-size:' + TOKENS.detailFontSize + ';color:' + TOKENS.detailColor + ';margin-top:2px;letter-spacing:0">' + tile.details + '</div>';
+      // Handle N2A/N2UPI onboarding text: savings message in green, "Set up now" in blue
+      var detailsHtml = tile.details;
+      if (tile.details.indexOf('Set up now') !== -1) {
+        // Split at "Set up now" — everything before is green savings text, "Set up now" is blue link
+        var parts = tile.details.split('Set up now');
+        detailsHtml = '<span style="color:#0B7B3C">' + parts[0].trim() + '</span> <span style="color:#2162A1;font-weight:500">Set up now</span>';
+        if (parts[1]) detailsHtml += parts[1];
+      }
+      html += '<div style="font-size:' + TOKENS.detailFontSize + ';color:' + TOKENS.detailColor + ';margin-top:2px;letter-spacing:0">' + detailsHtml + '</div>';
     }
 
     // Offer
@@ -506,6 +514,138 @@
   }
 
   // ═══════════════════════════════════════════════════════════════
+  // THUNDERBOLT (Consolidated SPC) RENDERER
+  // ═══════════════════════════════════════════════════════════════
+
+  /**
+   * Get default Thunderbolt config (CBCC with best offer).
+   * @returns {object}
+   */
+  function getDefaultThunderboltConfig() {
+    return {
+      instrument: {
+        icon: 'PSP Instument icons/Amazon Pay ICICI credit card.png',
+        name: 'Amazon Pay ICICI credit card',
+        details: '<span style="color:#1A1F71;font-weight:700;font-size:10px;letter-spacing:1px">VISA</span> \u2022\u2022\u2022\u20220422 | Akshay',
+        badge: 'Best offer'
+      },
+      price: '50,204',
+      savings: '3,225',
+      buttonText: 'Pay now',
+      feeNote: 'includes fees'
+    };
+  }
+
+  /**
+   * Render a Thunderbolt (consolidated SPC) view.
+   * Shows single best instrument + price + CTA.
+   * @param {object} config - { instrument: {icon, name, details, badge}, price, savings, buttonText, feeNote }
+   * @returns {string} HTML string
+   */
+  function renderThunderbolt(config) {
+    if (!config) config = getDefaultThunderboltConfig();
+    var inst = config.instrument || {};
+
+    var html = '';
+    html += '<div class="psp-thunderbolt-frame" style="width:100%;max-width:' + TOKENS.frameMaxWidth + ';border-radius:20px;background:#FFF;border:0.5px solid #989898;overflow:hidden;box-shadow:' + TOKENS.frameShadow + '">';
+
+    // Instrument tile
+    html += '<div style="padding:16px 16px 12px">';
+    // Badge
+    if (inst.badge) {
+      html += '<div style="margin-bottom:8px"><span style="background:#E3F5E1;color:#0B7B3C;font-size:12px;font-weight:600;padding:4px 10px;border-radius:13px;display:inline-block">' + inst.badge + '</span></div>';
+    }
+    html += '<div style="display:flex;align-items:center;gap:12px">';
+    // Icon
+    if (inst.icon) {
+      html += '<div style="width:48px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;border:0.5px solid #E7E7E7"><img src="' + inst.icon + '" style="width:100%;height:100%;object-fit:contain" alt=""></div>';
+    }
+    // Name + details
+    html += '<div style="flex:1;min-width:0">';
+    html += '<div style="font-size:16px;font-weight:700;color:#0F1111;letter-spacing:0">' + (inst.name || '') + '</div>';
+    if (inst.details) {
+      html += '<div style="font-size:13px;color:#565959;margin-top:2px;letter-spacing:0">' + inst.details + '</div>';
+    }
+    html += '</div>';
+    // Chevron (expand to full PSP)
+    html += '<span data-tb-expand style="font-size:22px;color:#565959;flex-shrink:0;cursor:pointer;padding:4px 8px">&rsaquo;</span>';
+    html += '</div>';
+    html += '</div>';
+
+    // Divider
+    html += '<div style="height:1px;background:#E9EBED;margin:0 16px"></div>';
+
+    // Price + CTA row
+    html += '<div style="padding:14px 16px;display:flex;justify-content:space-between;align-items:center">';
+    // Price
+    html += '<div>';
+    html += '<div style="display:flex;align-items:baseline;gap:2px"><span style="font-size:14px;font-weight:700;color:#0F1111">\u20B9</span><span style="font-size:26px;font-weight:700;color:#0F1111;letter-spacing:-0.5px">' + (config.price || '0') + '</span><span style="font-size:16px;color:#565959;margin-left:6px;cursor:pointer">^</span></div>';
+    if (config.feeNote) {
+      html += '<div style="font-size:13px;color:#565959;margin-top:2px">' + config.feeNote + '</div>';
+    }
+    html += '</div>';
+    // CTA button
+    html += '<div style="background:#FFD814;border-radius:80px;padding:14px 32px;cursor:pointer"><span style="font-size:16px;font-weight:500;color:#0F1111">' + (config.buttonText || 'Pay now') + '</span></div>';
+    html += '</div>';
+
+    // Savings bar (if savings exist)
+    if (config.savings) {
+      html += '<div style="background:#E8FFF8;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid #E9EBED">';
+      html += '<span style="font-size:13px;color:#0B7B3C;font-weight:700">\u20B9' + config.savings + ' saved</span>';
+      html += '<span style="font-size:13px;color:#2162A1;cursor:pointer">See offers \u203A</span>';
+      html += '</div>';
+    }
+
+    html += '</div>'; // close frame
+    return html;
+  }
+
+  /**
+   * Attach interactivity to a rendered Thunderbolt frame.
+   * Chevron click expands to full PSP.
+   * @param {HTMLElement} containerEl
+   */
+  function attachThunderboltInteractivity(containerEl) {
+    if (!containerEl) return;
+    var chevron = containerEl.querySelector('[data-tb-expand]');
+    if (!chevron) return;
+
+    chevron.addEventListener('click', function() {
+      // Expand to full PSP with default config
+      var reg = window.PSP && window.PSP.data && window.PSP.data.instrumentRegistry;
+      if (!reg) return;
+
+      var recTiles = [
+        reg.buildTile('cbcc', { holder: 'Akshay', badge: 'Best offer', offerAmount: '2625' }),
+        reg.buildTile('hdfc_credit', { holder: 'Akshay', badge: 'Previously used', offerAmount: '6' }),
+        reg.buildTile('apay_upi', { holder: 'Akshay', badge: 'Featured' })
+      ].filter(Boolean);
+      recTiles[0].selected = true;
+
+      var fullConfig = {
+        address: { name: 'Deliver to Akshay', detail: 'Bengaluru 560001, Karnataka', showChange: true },
+        sections: [
+          { title: 'RECOMMENDED', tiles: recTiles },
+          { title: 'UPI', tiles: [reg.buildTile('other_upi', { badge: '' })].filter(Boolean), addLink: '+ Add account to Amazon Pay UPI' },
+          { title: 'CREDIT & DEBIT CARDS', tiles: [reg.buildTile('hdfc_debit', { holder: 'Akshay', badge: '' })].filter(Boolean), addLink: '+ Add new credit or debit card' },
+          { title: 'MORE WAYS TO PAY', tiles: [
+            reg.buildTile('apay_balance', { badge: '' }),
+            reg.buildTile('apay_later', { badge: '' }),
+            reg.buildTile('cod', { badge: '' }),
+            reg.buildTile('emi', { badge: '' }),
+            reg.buildTile('net_banking', { badge: '' })
+          ].filter(Boolean) }
+        ],
+        giftCard: { text: 'Add Gift Card or Promo Code' },
+        cta: { savings: '\u20B92,625 saved', offersLink: 'See offers \u203A', price: '50,204', feeNote: 'Includes fees', buttonText: 'Pay now' }
+      };
+
+      containerEl.innerHTML = render(fullConfig);
+      attachInteractivity(containerEl);
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════
   // EXPOSE API
   // ═══════════════════════════════════════════════════════════════
 
@@ -515,6 +655,9 @@
     renderSection: renderSection,
     renderCtaBar: renderCtaBar,
     attachInteractivity: attachInteractivity,
+    renderThunderbolt: renderThunderbolt,
+    getDefaultThunderboltConfig: getDefaultThunderboltConfig,
+    attachThunderboltInteractivity: attachThunderboltInteractivity,
     formatIndian: formatIndian,
     TOKENS: TOKENS
   };
